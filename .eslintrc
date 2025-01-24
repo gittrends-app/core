@@ -11,6 +11,18 @@
   ],
   "rules": {
     "valid-jsdoc": "off",
+    "require-jsdoc": [
+      "warn",
+      {
+        "require": {
+          "FunctionDeclaration": false,
+          "MethodDefinition": false,
+          "ClassDeclaration": true,
+          "ArrowFunctionExpression": false,
+          "FunctionExpression": false
+        }
+      }
+    ],
     "no-console": 2,
     "@typescript-eslint/no-explicit-any": 0
   }

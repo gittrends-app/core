@@ -1,33 +1,56 @@
 {
-  "name": "@hsborges/ts-template",
-  "version": "0.0.1",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "name": "@gittrends-app/core",
+  "version": "3.0.1",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "type": "module",
   "license": "MIT",
   "engines": {
     "node": ">=20.0.0"
   },
-  "scripts": {
-    "lint": "eslint src --ext .ts",
-    "prepare": "husky || true",
-    "build": "tsc && tsc-alias",
-    "dev": "tsx  -r \"dotenv-flow/config\" src/index.ts",
-    "start": "node -r \"dotenv-flow/config\" dist/index.js",
-    "test": "vitest run ./src",
-    "test:coverage": "vitest run ./src --coverage",
-    "verify": "run-s lint test build"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
-  "dependencies": {},
+  "scripts": {
+    "lint": "eslint --ext .ts ./src",
+    "build:compile": "tsup src/index.ts --format esm --sourcemap --minify",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:bundle": "esbuild src/index.ts --bundle --minify --sourcemap --outfile=dist/index.bundle.js",
+    "build:clean": "shx rm -rf ./dist tsconfig.tsbuildinfo",
+    "build": "run-s build:clean build:compile build:types",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "verify": "run-s lint build test",
+    "prettier": "prettier --write src",
+    "prepublishOnly": "npm run verify",
+    "release": "release-it"
+  },
+  "dependencies": {
+    "@octokit/graphql": "^8.1.2",
+    "@octokit/types": "^13.6.2",
+    "dayjs": "^1.11.13",
+    "hash-it": "^6.0.0",
+    "lodash": "^4.17.21",
+    "p-limit": "^6.2.0",
+    "zod": "^3.24.1",
+    "zod-validation-error": "^3.4.0"
+  },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
+    "@inquirer/prompts": "^7.2.1",
+    "@octokit/graphql-schema": "^15.25.0",
     "@tsconfig/node20": "^20.1.4",
+    "@types/lodash": "^4.17.13",
     "@types/node": "^22.10.2",
+    "@types/prettyjson": "^0.0.33",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
     "@typescript-eslint/parser": "^7.16.0",
     "@vitest/coverage-v8": "^2.1.8",
     "commitizen": "^4.3.1",
+    "consola": "^3.3.3",
     "cz-conventional-changelog": "^3.3.0",
     "dotenv-flow": "^4.1.0",
     "eslint": "^8.54.0",
@@ -37,10 +60,47 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^3.4.2",
     "prettier-plugin-organize-imports": "^4.1.0",
+    "prettyjson": "^1.2.5",
+    "shx": "^0.3.4",
+    "table": "^6.9.0",
     "tsc-alias": "^1.8.10",
+    "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md"
+  ],
+  "release-it": {
+    "git": {
+      "commit": true,
+      "commitMessage": "chore(release): v${version}",
+      "tag": true,
+      "tagName": "v${version}",
+      "tagAnnotation": "Release v${version}",
+      "push": true
+    },
+    "github": {
+      "release": true,
+      "web": true,
+      "autoGenerate": true
+    },
+    "hooks": {
+      "before:init": [
+        "if [ \"$(git log $(git describe --tags --abbrev=0)..HEAD)\" = \"\" ]; then exit 1; fi;",
+        "yarn turbo verify"
+      ],
+      "after:bump": [
+        "yarn install",
+        "yarn turbo build"
+      ],
+      "after:release": [
+        "yarn shx rm ../package-lock.json"
+      ]
+    }
   },
   "config": {
     "commitizen": {

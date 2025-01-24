@@ -1,2 +1,2 @@
-// eslint-disable-next-line no-console
-console.log('Hello, world!');
+export * from './entities/index.js';
+export * from './services/index.js';
