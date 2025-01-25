@@ -1,7 +1,7 @@
-import cloneDeepWith from 'lodash/cloneDeepWith';
-import isPlainObject from 'lodash/isPlainObject';
-import mapValues from 'lodash/mapValues';
-import omitBy from 'lodash/omitBy';
+import cloneDeepWith from 'lodash/cloneDeepWith.js';
+import isPlainObject from 'lodash/isPlainObject.js';
+import mapValues from 'lodash/mapValues.js';
+import omitBy from 'lodash/omitBy.js';
 import { PartialDeep } from 'type-fest';
 import { z, ZodType } from 'zod';
 

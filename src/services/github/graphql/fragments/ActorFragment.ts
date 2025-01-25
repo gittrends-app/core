@@ -1,5 +1,5 @@
 import { Bot, EnterpriseUserAccount, Mannequin, Organization, User } from '@octokit/graphql-schema';
-import snakeCase from 'lodash/snakeCase';
+import snakeCase from 'lodash/snakeCase.js';
 import { Actor, ActorSchema } from '../../../../entities/Actor';
 import { CustomizableFragment, Fragment } from './Fragment';
 

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import defaults from 'lodash/defaults';
+import defaults from 'lodash/defaults.js';
 import { Class } from 'type-fest';
 import { Actor, Bot, EnterpriseUserAccount, Mannequin, Organization, User } from '../../entities/Actor';
 import { Commit } from '../../entities/Commit';

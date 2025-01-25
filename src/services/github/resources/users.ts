@@ -1,4 +1,4 @@
-import chunk from 'lodash/chunk';
+import chunk from 'lodash/chunk.js';
 import { Actor } from '../../../entities/Actor';
 import { GithubClient } from '../GithubClient';
 import { FragmentFactory } from '../graphql/fragments/Fragment';

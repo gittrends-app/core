@@ -1,4 +1,4 @@
-import snakeCase from 'lodash/snakeCase';
+import snakeCase from 'lodash/snakeCase.js';
 import { z } from 'zod';
 import { zodSanitize } from '../helpers/sanitize';
 import { ActorSchema } from './Actor';
