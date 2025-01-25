@@ -1,4 +1,4 @@
-import { Fragment, FragmentFactory } from '../fragments/Fragment.js';
+import { Fragment, FragmentFactory } from '../fragments/Fragment';
 
 /**
  *  The parameters to lookup data from the GitHub API.

@@ -1,8 +1,8 @@
 import { RefConnection } from '@octokit/graphql-schema';
-import { Tag } from '../../../../entities/Tag.js';
-import { CommitFragment } from '../fragments/CommitFragment.js';
-import { TagFragment } from '../fragments/TagFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Tag } from '../../../../entities/Tag';
+import { CommitFragment } from '../fragments/CommitFragment';
+import { TagFragment } from '../fragments/TagFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository tags.

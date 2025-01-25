@@ -3,18 +3,18 @@ import { errorMap } from 'zod-validation-error';
 
 z.setErrorMap(errorMap);
 
-export * from './base/index.js';
+export * from './base';
 
-export * from './Actor.js';
-export * from './Commit.js';
-export * from './Discussion.js';
-export * from './DiscussionComment.js';
-export * from './Issue.js';
-export * from './PullRequest.js';
-export * from './Reaction.js';
-export * from './Release.js';
-export * from './Repository.js';
-export * from './Stargazer.js';
-export * from './Tag.js';
-export * from './TimelineItem.js';
-export * from './Watcher.js';
+export * from './Actor';
+export * from './Commit';
+export * from './Discussion';
+export * from './DiscussionComment';
+export * from './Issue';
+export * from './PullRequest';
+export * from './Reaction';
+export * from './Release';
+export * from './Repository';
+export * from './Stargazer';
+export * from './Tag';
+export * from './TimelineItem';
+export * from './Watcher';

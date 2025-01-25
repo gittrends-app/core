@@ -1,5 +1,5 @@
 import { Class } from 'type-fest';
-import { Booleanify, NullableFields } from '../../../../helpers/types.js';
+import { Booleanify, NullableFields } from '../../../../helpers/types';
 
 /**
  *  Fragment interface

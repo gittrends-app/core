@@ -1,8 +1,8 @@
-import { Repository } from '../../../entities/Repository.js';
-import { GithubClient } from '../GithubClient.js';
-import { FragmentFactory } from '../graphql/fragments/Fragment.js';
-import { RepositoryLookup } from '../graphql/lookups/RepositoryLookup.js';
-import { QueryBuilder } from '../graphql/QueryBuilder.js';
+import { Repository } from '../../../entities/Repository';
+import { GithubClient } from '../GithubClient';
+import { FragmentFactory } from '../graphql/fragments/Fragment';
+import { RepositoryLookup } from '../graphql/lookups/RepositoryLookup';
+import { QueryBuilder } from '../graphql/QueryBuilder';
 
 type Params = { factory: FragmentFactory; client: GithubClient; byName?: boolean };
 

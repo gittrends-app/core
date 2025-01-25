@@ -1,11 +1,11 @@
-import { Issue } from '../../../entities/Issue.js';
-import { Iterable } from '../../Service.js';
-import { GithubClient } from '../GithubClient.js';
-import { IssuesLookup } from '../graphql/lookups/IssuesLookup.js';
-import { QueryLookupParams } from '../graphql/lookups/Lookup.js';
-import { ReactionsLookup } from '../graphql/lookups/ReactionsLookup.js';
-import { TimelineItemsLookup } from '../graphql/lookups/TimelineItemsLookup.js';
-import { QueryRunner } from '../graphql/QueryRunner.js';
+import { Issue } from '../../../entities/Issue';
+import { Iterable } from '../../Service';
+import { GithubClient } from '../GithubClient';
+import { IssuesLookup } from '../graphql/lookups/IssuesLookup';
+import { QueryLookupParams } from '../graphql/lookups/Lookup';
+import { ReactionsLookup } from '../graphql/lookups/ReactionsLookup';
+import { TimelineItemsLookup } from '../graphql/lookups/TimelineItemsLookup';
+import { QueryRunner } from '../graphql/QueryRunner';
 
 /**
  * Get the issues of a repository by its id

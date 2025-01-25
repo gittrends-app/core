@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { zodSanitize } from '../helpers/sanitize.js';
-import { GitActorSchema } from './base/GitActorSchema.js';
-import { NodeSchema } from './base/Node.js';
-import { RepositoryNodeSchema } from './base/RepositoryNode.js';
+import { zodSanitize } from '../helpers/sanitize';
+import { GitActorSchema } from './base/GitActorSchema';
+import { NodeSchema } from './base/Node';
+import { RepositoryNodeSchema } from './base/RepositoryNode';
 
 export const CommitSchema = zodSanitize(
   NodeSchema.merge(RepositoryNodeSchema).extend({

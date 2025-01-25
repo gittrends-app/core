@@ -1,6 +1,6 @@
 import { graphql } from '@octokit/graphql';
 import { Fetch } from '@octokit/types';
-import throttler from '../../helpers/throttler.js';
+import throttler from '../../helpers/throttler';
 
 /**
  * GithubClient is a wrapper around the Github API client.

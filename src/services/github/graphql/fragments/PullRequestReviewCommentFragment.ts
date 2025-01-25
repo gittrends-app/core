@@ -2,10 +2,10 @@ import { PullRequestReviewComment as GsPullRequestReviewComment } from '@octokit
 import {
   PullRequestReviewComment,
   PullRequestReviewCommentSchema
-} from '../../../../entities/base/PullRequestReviewComment.js';
-import { zodSanitize } from '../../../../helpers/sanitize.js';
-import { ActorFragment } from './ActorFragment.js';
-import { AbstractFragment, FragmentFactory } from './Fragment.js';
+} from '../../../../entities/base/PullRequestReviewComment';
+import { zodSanitize } from '../../../../helpers/sanitize';
+import { ActorFragment } from './ActorFragment';
+import { AbstractFragment, FragmentFactory } from './Fragment';
 
 /**
  *  A fragment to get a pull request.

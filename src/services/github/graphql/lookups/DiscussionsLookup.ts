@@ -1,7 +1,7 @@
 import { DiscussionConnection } from '@octokit/graphql-schema';
-import { Discussion, DiscussionSchema } from '../../../../entities/Discussion.js';
-import { ActorFragment } from '../fragments/ActorFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Discussion, DiscussionSchema } from '../../../../entities/Discussion';
+import { ActorFragment } from '../fragments/ActorFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository discussions.

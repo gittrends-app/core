@@ -1,7 +1,7 @@
 import { CommitHistoryConnection } from '@octokit/graphql-schema';
-import { Commit } from '../../../../entities/Commit.js';
-import { CommitFragment } from '../fragments/CommitFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Commit } from '../../../../entities/Commit';
+import { CommitFragment } from '../fragments/CommitFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  Add seconds to a date.

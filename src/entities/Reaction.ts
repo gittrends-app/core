@@ -1,8 +1,8 @@
-import snakeCase from 'lodash/snakeCase.js';
+import snakeCase from 'lodash/snakeCase';
 import { z } from 'zod';
-import { zodSanitize } from '../helpers/sanitize.js';
-import { ActorSchema } from './Actor.js';
-import { NodeSchema } from './base/Node.js';
+import { zodSanitize } from '../helpers/sanitize';
+import { ActorSchema } from './Actor';
+import { NodeSchema } from './base/Node';
 
 export const ReactionSchema = zodSanitize(
   NodeSchema.extend({

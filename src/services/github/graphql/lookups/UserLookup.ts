@@ -1,6 +1,6 @@
-import { Actor } from '../../../../entities/Actor.js';
-import { ActorFragment } from '../fragments/ActorFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Actor } from '../../../../entities/Actor';
+import { ActorFragment } from '../fragments/ActorFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get a user by ID.

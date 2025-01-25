@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { zodSanitize } from '../helpers/sanitize.js';
-import { ActorSchema } from './Actor.js';
-import { RepositoryNodeSchema } from './base/RepositoryNode.js';
+import { zodSanitize } from '../helpers/sanitize';
+import { ActorSchema } from './Actor';
+import { RepositoryNodeSchema } from './base/RepositoryNode';
 
 export const StargazerSchema = zodSanitize(
   RepositoryNodeSchema.extend({

@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { zodSanitize } from '../helpers/sanitize.js';
-import { ActorSchema } from './Actor.js';
-import { NodeSchema } from './base/Node.js';
-import { ReactableSchema } from './base/Reactable.js';
-import { RepositoryNodeSchema } from './base/RepositoryNode.js';
+import { zodSanitize } from '../helpers/sanitize';
+import { ActorSchema } from './Actor';
+import { NodeSchema } from './base/Node';
+import { ReactableSchema } from './base/Reactable';
+import { RepositoryNodeSchema } from './base/RepositoryNode';
 
 export const ReleaseSchema = zodSanitize(
   NodeSchema.merge(RepositoryNodeSchema)

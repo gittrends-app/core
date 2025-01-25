@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { zodSanitize } from '../helpers/sanitize.js';
-import { ReactionSchema } from './Reaction.js';
-import { CommentSchema } from './base/Comment.js';
-import { NodeSchema } from './base/Node.js';
-import { ReactableSchema } from './base/Reactable.js';
+import { zodSanitize } from '../helpers/sanitize';
+import { ReactionSchema } from './Reaction';
+import { CommentSchema } from './base/Comment';
+import { NodeSchema } from './base/Node';
+import { ReactableSchema } from './base/Reactable';
 
 const base = NodeSchema.merge(CommentSchema)
   .merge(ReactableSchema)

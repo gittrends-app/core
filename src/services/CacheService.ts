@@ -1,15 +1,15 @@
 import hash from 'hash-it';
-import { Actor } from '../entities/Actor.js';
-import { Commit } from '../entities/Commit.js';
-import { Discussion } from '../entities/Discussion.js';
-import { Issue } from '../entities/Issue.js';
-import { PullRequest } from '../entities/PullRequest.js';
-import { Release } from '../entities/Release.js';
-import { Repository } from '../entities/Repository.js';
-import { Stargazer } from '../entities/Stargazer.js';
-import { Tag } from '../entities/Tag.js';
-import { Watcher } from '../entities/Watcher.js';
-import { Iterable, SearchParams, Service, ServiceCommitsParams, ServiceResourceParams } from './Service.js';
+import { Actor } from '../entities/Actor';
+import { Commit } from '../entities/Commit';
+import { Discussion } from '../entities/Discussion';
+import { Issue } from '../entities/Issue';
+import { PullRequest } from '../entities/PullRequest';
+import { Release } from '../entities/Release';
+import { Repository } from '../entities/Repository';
+import { Stargazer } from '../entities/Stargazer';
+import { Tag } from '../entities/Tag';
+import { Watcher } from '../entities/Watcher';
+import { Iterable, SearchParams, Service, ServiceCommitsParams, ServiceResourceParams } from './Service';
 
 /**
  * Represents a mechanism for caching data.

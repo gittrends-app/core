@@ -1,6 +1,6 @@
-import { Repository } from '../../../../entities/Repository.js';
-import { RepositoryFragment } from '../fragments/RepositoryFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Repository } from '../../../../entities/Repository';
+import { RepositoryFragment } from '../fragments/RepositoryFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get a user by ID.

@@ -1,7 +1,7 @@
 import { Bot, EnterpriseUserAccount, Mannequin, Organization, User } from '@octokit/graphql-schema';
-import snakeCase from 'lodash/snakeCase.js';
-import { Actor, ActorSchema } from '../../../../entities/Actor.js';
-import { CustomizableFragment, Fragment } from './Fragment.js';
+import snakeCase from 'lodash/snakeCase';
+import { Actor, ActorSchema } from '../../../../entities/Actor';
+import { CustomizableFragment, Fragment } from './Fragment';
 
 /**
  * A fragment to select the common fields for an actor.

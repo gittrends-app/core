@@ -1,7 +1,7 @@
 import { IssueTimelineItems, PullRequestTimelineItems } from '@octokit/graphql-schema';
-import { Commentable, CommentableSchema } from '../../../../entities/base/Commentable.js';
-import { ActorFragment } from './ActorFragment.js';
-import { AbstractFragment, FragmentFactory } from './Fragment.js';
+import { Commentable, CommentableSchema } from '../../../../entities/base/Commentable';
+import { ActorFragment } from './ActorFragment';
+import { AbstractFragment, FragmentFactory } from './Fragment';
 
 /**
  *  A fragment to fetch comments from a timeline item.

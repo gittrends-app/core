@@ -1,10 +1,10 @@
-import { Release } from '../../../entities/Release.js';
-import { Iterable } from '../../Service.js';
-import { GithubClient } from '../GithubClient.js';
-import { QueryLookupParams } from '../graphql/lookups/Lookup.js';
-import { ReactionsLookup } from '../graphql/lookups/ReactionsLookup.js';
-import { ReleasesLookup } from '../graphql/lookups/ReleasesLookup.js';
-import { QueryRunner } from '../graphql/QueryRunner.js';
+import { Release } from '../../../entities/Release';
+import { Iterable } from '../../Service';
+import { GithubClient } from '../GithubClient';
+import { QueryLookupParams } from '../graphql/lookups/Lookup';
+import { ReactionsLookup } from '../graphql/lookups/ReactionsLookup';
+import { ReleasesLookup } from '../graphql/lookups/ReleasesLookup';
+import { QueryRunner } from '../graphql/QueryRunner';
 
 /**
  * Get the releases of a repository by its id

@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { zodSanitize } from '../../helpers/sanitize.js';
-import { CommitCommentSchema } from './CommitComment.js';
-import { PullRequestReviewCommentSchema } from './PullRequestReviewComment.js';
+import { zodSanitize } from '../../helpers/sanitize';
+import { CommitCommentSchema } from './CommitComment';
+import { PullRequestReviewCommentSchema } from './PullRequestReviewComment';
 
 export const CommentableSchema = zodSanitize(
   z.object({

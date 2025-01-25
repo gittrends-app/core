@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { zodSanitize } from '../helpers/sanitize.js';
-import { NodeSchema } from './base/Node.js';
+import { zodSanitize } from '../helpers/sanitize';
+import { NodeSchema } from './base/Node';
 
 const Actor = NodeSchema.extend({
   login: z.string(),

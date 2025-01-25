@@ -2,11 +2,11 @@ import { PullRequestReviewThreadConnection } from '@octokit/graphql-schema';
 import {
   PullRequestReviewThread,
   PullRequestReviewThreadSchema
-} from '../../../../entities/base/PullRequestReviewThread.js';
-import { zodSanitize } from '../../../../helpers/sanitize.js';
-import { ActorFragment } from '../fragments/ActorFragment.js';
-import { PullRequestReviewCommentFragment } from '../fragments/PullRequestReviewCommentFragment.js';
-import { QueryLookup } from './Lookup.js';
+} from '../../../../entities/base/PullRequestReviewThread';
+import { zodSanitize } from '../../../../helpers/sanitize';
+import { ActorFragment } from '../fragments/ActorFragment';
+import { PullRequestReviewCommentFragment } from '../fragments/PullRequestReviewCommentFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository prs threads.

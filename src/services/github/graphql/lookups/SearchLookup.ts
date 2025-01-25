@@ -1,6 +1,6 @@
 import { Repository } from '@octokit/graphql-schema';
-import { RepositoryFragment } from '../fragments/RepositoryFragment.js';
-import { QueryLookup, QueryLookupParams } from './Lookup.js';
+import { RepositoryFragment } from '../fragments/RepositoryFragment';
+import { QueryLookup, QueryLookupParams } from './Lookup';
 
 type SearchQueryLookupParams = {
   limit: number;

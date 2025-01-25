@@ -1,7 +1,7 @@
 import { Issue as GsIssue } from '@octokit/graphql-schema';
-import { Issue, IssueSchema } from '../../../../entities/Issue.js';
-import { ActorFragment } from './ActorFragment.js';
-import { AbstractFragment, FragmentFactory } from './Fragment.js';
+import { Issue, IssueSchema } from '../../../../entities/Issue';
+import { ActorFragment } from './ActorFragment';
+import { AbstractFragment, FragmentFactory } from './Fragment';
 
 /**
  *  A fragment to get a issue.

@@ -1,7 +1,7 @@
 import { IssueTimelineItemsConnection } from '@octokit/graphql-schema';
-import { TimelineItem } from '../../../../entities/TimelineItem.js';
-import { IssueTimelineItemFragment, PullRequestTimelineItemFragment } from '../fragments/TimelineItemFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { TimelineItem } from '../../../../entities/TimelineItem';
+import { IssueTimelineItemFragment, PullRequestTimelineItemFragment } from '../fragments/TimelineItemFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository issues.

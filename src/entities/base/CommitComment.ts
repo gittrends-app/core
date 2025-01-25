@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { CommentSchema } from './Comment.js';
-import { MinimizableSchema } from './Minimizable.js';
-import { NodeSchema } from './Node.js';
-import { ReactableSchema } from './Reactable.js';
+import { CommentSchema } from './Comment';
+import { MinimizableSchema } from './Minimizable';
+import { NodeSchema } from './Node';
+import { ReactableSchema } from './Reactable';
 
 export const CommitCommentSchema = NodeSchema.merge(CommentSchema)
   .merge(MinimizableSchema)

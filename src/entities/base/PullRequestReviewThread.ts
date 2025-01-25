@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { ActorSchema } from '../Actor.js';
-import { NodeSchema } from './Node.js';
-import { PullRequestReviewCommentSchema } from './PullRequestReviewComment.js';
+import { ActorSchema } from '../Actor';
+import { NodeSchema } from './Node';
+import { PullRequestReviewCommentSchema } from './PullRequestReviewComment';
 
 export const PullRequestReviewThreadSchema = NodeSchema.extend({
   __typename: z.literal('PullRequestReviewThread'),

@@ -1,7 +1,7 @@
 import { StargazerConnection } from '@octokit/graphql-schema';
-import { Stargazer, StargazerSchema } from '../../../../entities/Stargazer.js';
-import { ActorFragment } from '../fragments/ActorFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Stargazer, StargazerSchema } from '../../../../entities/Stargazer';
+import { ActorFragment } from '../fragments/ActorFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository stargazers.

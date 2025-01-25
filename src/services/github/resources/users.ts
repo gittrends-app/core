@@ -1,9 +1,9 @@
-import chunk from 'lodash/chunk.js';
-import { Actor } from '../../../entities/Actor.js';
-import { GithubClient } from '../GithubClient.js';
-import { FragmentFactory } from '../graphql/fragments/Fragment.js';
-import { UserLookup } from '../graphql/lookups/UserLookup.js';
-import { QueryBuilder } from '../graphql/QueryBuilder.js';
+import chunk from 'lodash/chunk';
+import { Actor } from '../../../entities/Actor';
+import { GithubClient } from '../GithubClient';
+import { FragmentFactory } from '../graphql/fragments/Fragment';
+import { UserLookup } from '../graphql/lookups/UserLookup';
+import { QueryBuilder } from '../graphql/QueryBuilder';
 
 type Params = { factory: FragmentFactory; client: GithubClient; byLogin?: boolean };
 

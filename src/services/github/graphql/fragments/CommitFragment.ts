@@ -1,7 +1,7 @@
 import { Commit as GsCommit } from '@octokit/graphql-schema';
-import { Commit, CommitSchema } from '../../../../entities/Commit.js';
-import { ActorFragment } from './ActorFragment.js';
-import { AbstractFragment, Fragment, FragmentFactory } from './Fragment.js';
+import { Commit, CommitSchema } from '../../../../entities/Commit';
+import { ActorFragment } from './ActorFragment';
+import { AbstractFragment, Fragment, FragmentFactory } from './Fragment';
 
 /**
  *  A fragment to get a commit.

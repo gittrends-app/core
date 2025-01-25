@@ -1,7 +1,7 @@
 import { IssueTimelineItems } from '@octokit/graphql-schema';
-import { Commentable } from '../../../../entities/base/Commentable.js';
-import { TimelineItemCommentsFragment } from '../fragments/TimelineItemCommentsFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Commentable } from '../../../../entities/base/Commentable';
+import { TimelineItemCommentsFragment } from '../fragments/TimelineItemCommentsFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository issues.

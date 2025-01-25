@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { NodeSchema } from './Node.js';
+import { NodeSchema } from './Node';
 
 export const MinimizableSchema = NodeSchema.extend({
   is_minimized: z.boolean(),

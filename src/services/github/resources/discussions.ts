@@ -1,13 +1,13 @@
 import { MergeExclusive } from 'type-fest';
-import { Discussion } from '../../../entities/Discussion.js';
-import { DiscussionComment } from '../../../entities/DiscussionComment.js';
-import { Iterable } from '../../Service.js';
-import { GithubClient } from '../GithubClient.js';
-import { DiscussionsCommentsLookup } from '../graphql/lookups/DiscussionsCommentsLookup.js';
-import { DiscussionsLookup } from '../graphql/lookups/DiscussionsLookup.js';
-import { QueryLookupParams } from '../graphql/lookups/Lookup.js';
-import { ReactionsLookup } from '../graphql/lookups/ReactionsLookup.js';
-import { QueryRunner } from '../graphql/QueryRunner.js';
+import { Discussion } from '../../../entities/Discussion';
+import { DiscussionComment } from '../../../entities/DiscussionComment';
+import { Iterable } from '../../Service';
+import { GithubClient } from '../GithubClient';
+import { DiscussionsCommentsLookup } from '../graphql/lookups/DiscussionsCommentsLookup';
+import { DiscussionsLookup } from '../graphql/lookups/DiscussionsLookup';
+import { QueryLookupParams } from '../graphql/lookups/Lookup';
+import { ReactionsLookup } from '../graphql/lookups/ReactionsLookup';
+import { QueryRunner } from '../graphql/QueryRunner';
 
 /**
  *  Recursively retrieve the comments of a discussion.

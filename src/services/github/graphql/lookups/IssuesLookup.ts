@@ -1,7 +1,7 @@
 import { IssueConnection } from '@octokit/graphql-schema';
-import { Issue } from '../../../../entities/Issue.js';
-import { IssueFragment } from '../fragments/IssueFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Issue } from '../../../../entities/Issue';
+import { IssueFragment } from '../fragments/IssueFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository issues.

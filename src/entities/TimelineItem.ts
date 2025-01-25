@@ -1,13 +1,13 @@
 import { z, ZodDiscriminatedUnionDef } from 'zod';
-import { zodSanitize } from '../helpers/sanitize.js';
-import { ActorSchema } from './Actor.js';
-import { CommentSchema } from './base/Comment.js';
-import { CommitCommentSchema } from './base/CommitComment.js';
-import { MinimizableSchema } from './base/Minimizable.js';
-import { NodeSchema } from './base/Node.js';
-import { PullRequestReviewCommentSchema } from './base/PullRequestReviewComment.js';
-import { PullRequestReviewThreadSchema } from './base/PullRequestReviewThread.js';
-import { ReactableSchema } from './base/Reactable.js';
+import { zodSanitize } from '../helpers/sanitize';
+import { ActorSchema } from './Actor';
+import { CommentSchema } from './base/Comment';
+import { CommitCommentSchema } from './base/CommitComment';
+import { MinimizableSchema } from './base/Minimizable';
+import { NodeSchema } from './base/Node';
+import { PullRequestReviewCommentSchema } from './base/PullRequestReviewComment';
+import { PullRequestReviewThreadSchema } from './base/PullRequestReviewThread';
+import { ReactableSchema } from './base/Reactable';
 
 const AddedToProjectEvent = NodeSchema.extend({
   __typename: z.literal('AddedToProjectEvent'),

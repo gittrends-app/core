@@ -1,9 +1,9 @@
-import { Commit } from '../../../entities/Commit.js';
-import { Iterable } from '../../Service.js';
-import { GithubClient } from '../GithubClient.js';
-import { CommitsLookup } from '../graphql/lookups/CommitsLookup.js';
-import { QueryLookupParams } from '../graphql/lookups/Lookup.js';
-import { QueryRunner } from '../graphql/QueryRunner.js';
+import { Commit } from '../../../entities/Commit';
+import { Iterable } from '../../Service';
+import { GithubClient } from '../GithubClient';
+import { CommitsLookup } from '../graphql/lookups/CommitsLookup';
+import { QueryLookupParams } from '../graphql/lookups/Lookup';
+import { QueryRunner } from '../graphql/QueryRunner';
 
 /**
  * Get the commits of a repository by its id

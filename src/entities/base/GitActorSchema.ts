@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ActorSchema } from '../Actor.js';
+import { ActorSchema } from '../Actor';
 
 export const GitActorSchema = z.object({
   date: z.coerce.date().optional(),

@@ -1,8 +1,8 @@
 import { Commit as GsCommit, Repository as GsRepository } from '@octokit/graphql-schema';
-import { Repository, RepositorySchema } from '../../../../entities/Repository.js';
-import { Booleanify, NullableFields } from '../../../../helpers/types.js';
-import { ActorFragment } from './ActorFragment.js';
-import { CustomizableFragment, FragmentFactory } from './Fragment.js';
+import { Repository, RepositorySchema } from '../../../../entities/Repository';
+import { Booleanify, NullableFields } from '../../../../helpers/types';
+import { ActorFragment } from './ActorFragment';
+import { CustomizableFragment, FragmentFactory } from './Fragment';
 
 /**
  *  A fragment to get a repository.

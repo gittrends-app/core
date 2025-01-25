@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { zodSanitize } from '../helpers/sanitize.js';
-import { ActorSchema } from './Actor.js';
-import { NodeSchema } from './base/Node.js';
+import { zodSanitize } from '../helpers/sanitize';
+import { ActorSchema } from './Actor';
+import { NodeSchema } from './base/Node';
 
 const baseRepository = NodeSchema.extend({
   __typename: z.literal('Repository'),

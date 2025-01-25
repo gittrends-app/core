@@ -1,7 +1,7 @@
 import { PullRequest as GsPullRequest } from '@octokit/graphql-schema';
-import { PullRequest, PullRequestSchema } from '../../../../entities/PullRequest.js';
-import { ActorFragment } from './ActorFragment.js';
-import { AbstractFragment, FragmentFactory } from './Fragment.js';
+import { PullRequest, PullRequestSchema } from '../../../../entities/PullRequest';
+import { ActorFragment } from './ActorFragment';
+import { AbstractFragment, FragmentFactory } from './Fragment';
 
 /**
  *  A fragment to get a pull request.

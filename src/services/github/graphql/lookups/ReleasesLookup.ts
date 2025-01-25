@@ -1,7 +1,7 @@
 import { ReleaseConnection } from '@octokit/graphql-schema';
-import { Release, ReleaseSchema } from '../../../../entities/Release.js';
-import { ActorFragment } from '../fragments/ActorFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Release, ReleaseSchema } from '../../../../entities/Release';
+import { ActorFragment } from '../fragments/ActorFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository releases.

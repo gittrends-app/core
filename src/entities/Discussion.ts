@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { zodSanitize } from '../helpers/sanitize.js';
-import { ActorSchema } from './Actor.js';
-import { DiscussionCommentSchema } from './DiscussionComment.js';
-import { CommentSchema } from './base/Comment.js';
-import { NodeSchema } from './base/Node.js';
-import { ReactableSchema } from './base/Reactable.js';
-import { RepositoryNodeSchema } from './base/RepositoryNode.js';
+import { zodSanitize } from '../helpers/sanitize';
+import { ActorSchema } from './Actor';
+import { DiscussionCommentSchema } from './DiscussionComment';
+import { CommentSchema } from './base/Comment';
+import { NodeSchema } from './base/Node';
+import { ReactableSchema } from './base/Reactable';
+import { RepositoryNodeSchema } from './base/RepositoryNode';
 
 export const DiscussionSchema = zodSanitize(
   NodeSchema.merge(RepositoryNodeSchema)

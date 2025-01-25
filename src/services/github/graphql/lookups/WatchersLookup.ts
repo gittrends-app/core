@@ -1,7 +1,7 @@
 import { UserConnection } from '@octokit/graphql-schema';
-import { Watcher, WatcherSchema } from '../../../../entities/Watcher.js';
-import { ActorFragment } from '../fragments/ActorFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Watcher, WatcherSchema } from '../../../../entities/Watcher';
+import { ActorFragment } from '../fragments/ActorFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository watchers.

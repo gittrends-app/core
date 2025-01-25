@@ -1,7 +1,7 @@
 import { ReactionConnection } from '@octokit/graphql-schema';
-import { Reaction, ReactionSchema } from '../../../../entities/Reaction.js';
-import { ActorFragment } from '../fragments/ActorFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { Reaction, ReactionSchema } from '../../../../entities/Reaction';
+import { ActorFragment } from '../fragments/ActorFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository reactions.

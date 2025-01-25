@@ -1,7 +1,7 @@
 import { IssueTimelineItems, PullRequestTimelineItems } from '@octokit/graphql-schema';
-import { TimelineItem, TimelineItemSchema } from '../../../../entities/TimelineItem.js';
-import { ActorFragment } from './ActorFragment.js';
-import { AbstractFragment, FragmentFactory } from './Fragment.js';
+import { TimelineItem, TimelineItemSchema } from '../../../../entities/TimelineItem';
+import { ActorFragment } from './ActorFragment';
+import { AbstractFragment, FragmentFactory } from './Fragment';
 
 /**
  *  A fragment to get a timeline item.

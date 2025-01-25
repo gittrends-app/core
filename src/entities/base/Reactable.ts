@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { ReactionSchema } from '../Reaction.js';
-import { NodeSchema } from './Node.js';
+import { ReactionSchema } from '../Reaction';
+import { NodeSchema } from './Node';
 
 export const ReactableSchema = NodeSchema.extend({
   reactions_count: z.number().int(),

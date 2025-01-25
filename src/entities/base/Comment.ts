@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { ActorSchema } from '../Actor.js';
-import { NodeSchema } from './Node.js';
+import { ActorSchema } from '../Actor';
+import { NodeSchema } from './Node';
 
 export const CommentSchema = NodeSchema.extend({
   author: z.union([z.string(), ActorSchema]).optional(),

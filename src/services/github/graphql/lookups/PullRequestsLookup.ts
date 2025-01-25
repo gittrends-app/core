@@ -1,7 +1,7 @@
 import { PullRequestConnection } from '@octokit/graphql-schema';
-import { PullRequest } from '../../../../entities/PullRequest.js';
-import { PullRequestFragment } from '../fragments/PullRequestFragment.js';
-import { QueryLookup } from './Lookup.js';
+import { PullRequest } from '../../../../entities/PullRequest';
+import { PullRequestFragment } from '../fragments/PullRequestFragment';
+import { QueryLookup } from './Lookup';
 
 /**
  *  A lookup to get repository prs.

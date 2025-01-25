@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import sanitize from './sanitize.js';
+import sanitize from './sanitize';
 
 describe('sanitize', () => {
   it('should remove null values at root', () => {

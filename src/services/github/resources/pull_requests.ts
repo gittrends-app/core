@@ -1,17 +1,17 @@
-import { Commentable } from '../../../entities/base/Commentable.js';
-import { Node } from '../../../entities/base/Node.js';
-import { Reactable } from '../../../entities/base/Reactable.js';
-import { PullRequest } from '../../../entities/PullRequest.js';
-import { TimelineItem } from '../../../entities/TimelineItem.js';
-import { Iterable } from '../../Service.js';
-import { GithubClient } from '../GithubClient.js';
-import { QueryLookupParams } from '../graphql/lookups/Lookup.js';
-import { PullRequestsLookup } from '../graphql/lookups/PullRequestsLookup.js';
-import { PullRequestsReviewThreadsLookup } from '../graphql/lookups/PullRequestsReviewThreadsLookup.js';
-import { ReactionsLookup } from '../graphql/lookups/ReactionsLookup.js';
-import { TimelineItemsCommentsLookup } from '../graphql/lookups/TimelineItemsCommentsLookup.js';
-import { TimelineItemsLookup } from '../graphql/lookups/TimelineItemsLookup.js';
-import { QueryRunner } from '../graphql/QueryRunner.js';
+import { Commentable } from '../../../entities/base/Commentable';
+import { Node } from '../../../entities/base/Node';
+import { Reactable } from '../../../entities/base/Reactable';
+import { PullRequest } from '../../../entities/PullRequest';
+import { TimelineItem } from '../../../entities/TimelineItem';
+import { Iterable } from '../../Service';
+import { GithubClient } from '../GithubClient';
+import { QueryLookupParams } from '../graphql/lookups/Lookup';
+import { PullRequestsLookup } from '../graphql/lookups/PullRequestsLookup';
+import { PullRequestsReviewThreadsLookup } from '../graphql/lookups/PullRequestsReviewThreadsLookup';
+import { ReactionsLookup } from '../graphql/lookups/ReactionsLookup';
+import { TimelineItemsCommentsLookup } from '../graphql/lookups/TimelineItemsCommentsLookup';
+import { TimelineItemsLookup } from '../graphql/lookups/TimelineItemsLookup';
+import { QueryRunner } from '../graphql/QueryRunner';
 
 /**
  * Get the pull requests of a repository by its id
