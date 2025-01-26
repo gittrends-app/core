@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@octokit/graphql": "^8.1.2",
+    "@octokit/graphql-schema": "^15.25.0",
     "@octokit/types": "^13.6.2",
     "dayjs": "^1.11.13",
     "hash-it": "^6.0.0",
@@ -41,7 +42,6 @@
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
     "@inquirer/prompts": "^7.2.1",
-    "@octokit/graphql-schema": "^15.25.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/lodash": "^4.17.13",
     "@types/node": "^22.10.2",
