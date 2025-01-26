@@ -75,6 +75,7 @@ export interface Service {
    * @param opts.byLogin Whether to fetch by login.
    * @returns The user or null if not found.
    */
+  user(): Promise<Actor | null>;
   user(id: string, opts?: { byLogin: boolean }): Promise<Actor | null>;
   user(id: string[], opts?: { byLogin: boolean }): Promise<(Actor | null)[]>;
 

@@ -24,9 +24,9 @@ export class PassThroughService implements Service {
     return this.service.search(total, opts);
   }
 
-  user(id: string, opts?: { byLogin: boolean }): Promise<Actor | null>;
-  user(id: string[], opts?: { byLogin: boolean }): Promise<(Actor | null)[]>;
-  user(id: any, opts?: any): Promise<any> {
+  user(id?: string, opts?: { byLogin: boolean }): Promise<Actor | null>;
+  user(id?: string[], opts?: { byLogin: boolean }): Promise<(Actor | null)[]>;
+  user(id?: any, opts?: any): Promise<any> {
     return this.service.user(id, opts);
   }
 
