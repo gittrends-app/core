@@ -56,7 +56,11 @@ export class QueryBuilder {
           .map((fragment) => fragment.toString())
       )
     ].join('\n')}
-    `;
+    `
+      .split('\n')
+      .filter((l) => !l.trim().startsWith('#'))
+      .join('\n')
+      .replace(/\s+/g, ' ');
   }
 
   async fetch() {
