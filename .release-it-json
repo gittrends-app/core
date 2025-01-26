@@ -1,0 +1,25 @@
+{
+  "$schema": "https://unpkg.com/release-it@18/schema/release-it.json",
+  "git": {
+    "commit": true,
+    "commitMessage": "chore(release): v${version}",
+    "tag": true,
+    "tagName": "v${version}",
+    "tagAnnotation": "Release v${version}",
+    "push": true
+  },
+  "github": {
+    "release": true,
+    "web": true,
+    "autoGenerate": true
+  },
+  "hooks": {
+    "before:init": [
+      "npm run lint",
+      "npm run test"
+    ],
+    "after:bump": [
+      "yarn build"
+    ]
+  }
+}

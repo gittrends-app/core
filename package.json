@@ -61,6 +61,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-organize-imports": "^4.1.0",
     "prettyjson": "^1.2.5",
+    "release-it": "^18.1.2",
     "shx": "^0.3.4",
     "table": "^6.9.0",
     "tsc-alias": "^1.8.10",
@@ -74,34 +75,6 @@
     "package.json",
     "README.md"
   ],
-  "release-it": {
-    "git": {
-      "commit": true,
-      "commitMessage": "chore(release): v${version}",
-      "tag": true,
-      "tagName": "v${version}",
-      "tagAnnotation": "Release v${version}",
-      "push": true
-    },
-    "github": {
-      "release": true,
-      "web": true,
-      "autoGenerate": true
-    },
-    "hooks": {
-      "before:init": [
-        "if [ \"$(git log $(git describe --tags --abbrev=0)..HEAD)\" = \"\" ]; then exit 1; fi;",
-        "yarn turbo verify"
-      ],
-      "after:bump": [
-        "yarn install",
-        "yarn turbo build"
-      ],
-      "after:release": [
-        "yarn shx rm ../package-lock.json"
-      ]
-    }
-  },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
