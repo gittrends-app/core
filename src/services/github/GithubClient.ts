@@ -32,7 +32,7 @@ export class GithubClient {
       request: { fetch: this.fetcher },
       baseUrl: this.baseUrl,
       mediaType: { previews: ['starfox'] },
-      headers: { authorization: `token ${this.apiToken}` }
+      headers: { authorization: `bearer ${this.apiToken}` }
     });
   }
 }
