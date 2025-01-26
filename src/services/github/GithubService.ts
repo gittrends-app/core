@@ -148,18 +148,20 @@ export class GithubService implements Service {
     };
   }
 
-  async user(id?: string, opts?: { byLogin: boolean }): Promise<Actor | null>;
-  async user(id?: string[], opts?: { byLogin: boolean }): Promise<(Actor | null)[]>;
-  async user(id?: any, opts?: { byLogin: boolean }): Promise<any> {
-    if (id !== undefined && (Array.isArray(id) ? id : [id]).some((v) => v === '')) {
-      throw new Error('Invalid user ID.');
-    }
+  async user(id: string, opts?: { byLogin: boolean }): Promise<Actor | null>;
+  async user(id: string[], opts?: { byLogin: boolean }): Promise<(Actor | null)[]>;
+  async user(id: any, opts?: { byLogin: boolean }): Promise<any> {
+    if ((Array.isArray(id) ? id : [id]).some((v) => v === '')) throw new Error('Invalid user ID.');
 
-    return users(id || '', {
+    return users(id, {
       client: this.client,
       byLogin: opts?.byLogin,
       factory: new CustomFragmentFactory(true)
     });
+  }
+
+  async viewer(): Promise<Actor | null> {
+    return users('', { client: this.client, factory: new CustomFragmentFactory(true) });
   }
 
   async repository(owner: string, name?: string): Promise<Repository | null>;
