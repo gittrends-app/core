@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/release-it@18/schema/release-it.json",
+  "git": {
+    "commit": true,
+    "commitMessage": "chore(release): v${version}",
+    "tag": true,
+    "tagName": "v${version}",
+    "tagAnnotation": "Release v${version}",
+    "changelog": "npx auto-changelog --stdout --commit-limit false -u --template https://raw.githubusercontent.com/release-it/release-it/main/templates/changelog-compact.hbs",
+    "push": true
+  },
+  "github": {
+    "release": true,
+    "web": true,
+    "autoGenerate": true
+  },
+  "hooks": {
+    "before:init": [
+      "npm run lint",
+      "npm run test"
+    ],
+    "after:bump": [
+      "yarn build",
+      "npx auto-changelog -p"
+    ]
+  }
+}
