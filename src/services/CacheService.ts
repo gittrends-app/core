@@ -95,11 +95,9 @@ export class CacheService implements Service {
     };
   }
 
-  user(id?: string, opts?: { byLogin: boolean }): Promise<Actor | null>;
-  user(id?: string[], opts?: { byLogin: boolean }): Promise<(Actor | null)[]>;
+  user(id: string, opts?: { byLogin: boolean }): Promise<Actor | null>;
+  user(id: string[], opts?: { byLogin: boolean }): Promise<(Actor | null)[]>;
   async user(id: unknown, opts?: any): Promise<any> {
-    if (!id) return this.service.user();
-
     const ids = Array.isArray(id) ? id : [id];
 
     const users = await Promise.all(

@@ -34,7 +34,11 @@ export class QueryRunner {
           .map((fragment) => fragment.toString())
       )
     ].join('\n')}
-    `;
+    `
+      .split('\n')
+      .filter((l) => !l.trim().startsWith('#'))
+      .join('\n')
+      .replace(/\s+/g, ' ');
   }
 
   public async fetch<R, P>(lookup: QueryLookup<R, P>): Promise<ReturnType<QueryLookup<R, P>['parse']>> {
