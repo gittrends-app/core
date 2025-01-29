@@ -15,9 +15,8 @@
   },
   "scripts": {
     "lint": "eslint --ext .ts ./src",
-    "build:compile": "tsup src/index.ts --format esm --sourcemap --minify",
+    "build:compile": "tsup-node src/index.ts --format esm --sourcemap --minify",
     "build:types": "tsc --emitDeclarationOnly",
-    "build:bundle": "esbuild src/index.ts --bundle --minify --sourcemap --outfile=dist/index.bundle.js",
     "build:clean": "shx rm -rf ./dist tsconfig.tsbuildinfo",
     "build": "run-s build:clean build:compile build:types",
     "test": "vitest run",
