@@ -22,10 +22,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias}_AddedToProjectEvent on AddedToProjectEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        databaseId
         project { id }
-        projectCard { id }
-        projectColumnName
       }
 
       fragment ${this.alias}_AssignedEvent on AssignedEvent {
@@ -60,7 +57,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         createdAt
         databaseId
         project { id }
-        projectCard { id }
         projectColumnName
       }
 
@@ -144,11 +140,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias}_MovedColumnsInProjectEvent on MovedColumnsInProjectEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        databaseId
-        previousProjectColumnName
         project { id }
-        projectCard { id }
-        projectColumnName
       }
 
       fragment ${this.alias}_PinnedEvent on PinnedEvent {
@@ -168,9 +160,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias}_RemovedFromProjectEvent on RemovedFromProjectEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        databaseId
         project { id }
-        projectColumnName
       }
 
       fragment ${this.alias}_RenamedTitleEvent on RenamedTitleEvent {
