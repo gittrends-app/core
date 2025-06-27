@@ -35,7 +35,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         actor { ...${this.fragments[0].alias} }
         closer { ...${this.alias}_Node }
         createdAt
-        duplicateOf { id }
+        duplicateOf { ...${this.alias}_Node }
       }
 
       fragment ${this.alias}_CommentDeletedEvent on CommentDeletedEvent {
