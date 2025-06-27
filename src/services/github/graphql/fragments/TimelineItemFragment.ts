@@ -1,5 +1,6 @@
-import { IssueTimelineItems, PullRequestTimelineItems } from '@octokit/graphql-schema';
+import { PullRequestTimelineItems } from '@octokit/graphql-schema';
 import { TimelineItem, TimelineItemSchema } from '../../../../entities/TimelineItem';
+import { ExtendedIssueTimelineItems } from '../types/ExtendedIssueTimelineItems';
 import { ActorFragment } from './ActorFragment';
 import { AbstractFragment, FragmentFactory } from './Fragment';
 
@@ -143,6 +144,18 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         project { id }
       }
 
+      fragment ${this.alias}_ParentIssueAddedEvent on ParentIssueAddedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        parent { id }
+      }
+
+      fragment ${this.alias}_ParentIssueRemovedEvent on ParentIssueRemovedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        parent { id }
+      }
+
       fragment ${this.alias}_PinnedEvent on PinnedEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
@@ -174,6 +187,18 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         actor { ...${this.fragments[0].alias} }
         createdAt
         stateReason
+      }
+
+      fragment ${this.alias}_SubIssueAddedEvent on SubIssueAddedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        subIssue { id }
+      }
+
+      fragment ${this.alias}_SubIssueRemovedEvent on SubIssueRemovedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        subIssue { id }
       }
 
       fragment ${this.alias}_SubscribedEvent on SubscribedEvent {
@@ -488,11 +513,15 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         ...${this.alias}_MentionedEvent
         ...${this.alias}_MilestonedEvent
         ...${this.alias}_MovedColumnsInProjectEvent
+        ...${this.alias}_ParentIssueAddedEvent
+        ...${this.alias}_ParentIssueRemovedEvent
         ...${this.alias}_PinnedEvent
         ...${this.alias}_ReferencedEvent
         ...${this.alias}_RemovedFromProjectEvent
         ...${this.alias}_RenamedTitleEvent
         ...${this.alias}_ReopenedEvent
+        ...${this.alias}_SubIssueAddedEvent
+        ...${this.alias}_SubIssueRemovedEvent
         ...${this.alias}_SubscribedEvent
         ...${this.alias}_TransferredEvent
         ...${this.alias}_UnassignedEvent
@@ -541,7 +570,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
     `;
   }
 
-  parse(data: IssueTimelineItems | PullRequestTimelineItems): TimelineItem {
+  parse(data: ExtendedIssueTimelineItems | PullRequestTimelineItems): TimelineItem {
     let _data: Record<string, any> = { __typename: data.__typename, id: (data as any).id };
 
     switch (data.__typename) {
@@ -668,6 +697,24 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           canonical: data.canonical,
           created_at: data.createdAt,
           is_cross_repository: data.isCrossRepository
+        };
+        break;
+      case 'ParentIssueAddedEvent':
+      case 'ParentIssueRemovedEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          parent: data.parent?.id
+        };
+        break;
+      case 'SubIssueAddedEvent':
+      case 'SubIssueRemovedEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          sub_issue: data.subIssue?.id
         };
         break;
       case 'PinnedEvent':

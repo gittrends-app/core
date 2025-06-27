@@ -148,6 +148,20 @@ const MovedColumnsInProjectEvent = NodeSchema.extend({
   project_column_name: z.string()
 });
 
+const ParentIssueAddedEvent = NodeSchema.extend({
+  __typename: z.literal('ParentIssueAddedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  parent: z.string().optional()
+});
+
+const ParentIssueRemovedEvent = NodeSchema.extend({
+  __typename: z.literal('ParentIssueRemovedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  parent: z.string().optional()
+});
+
 const PinnedEvent = NodeSchema.extend({
   __typename: z.literal('PinnedEvent'),
   actor: z.union([z.string(), ActorSchema]).optional(),
@@ -186,6 +200,20 @@ const ReopenedEvent = NodeSchema.extend({
   actor: z.union([z.string(), ActorSchema]).optional(),
   created_at: z.coerce.date(),
   state_reason: z.string().optional()
+});
+
+const SubIssueAddedEvent = NodeSchema.extend({
+  __typename: z.literal('SubIssueAddedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  sub_issue: z.string().optional()
+});
+
+const SubIssueRemovedEvent = NodeSchema.extend({
+  __typename: z.literal('SubIssueRemovedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  sub_issue: z.string().optional()
 });
 
 const SubscribedEvent = NodeSchema.extend({
@@ -489,6 +517,8 @@ const list = z.discriminatedUnion('__typename', [
   MergedEvent,
   MilestonedEvent,
   MovedColumnsInProjectEvent,
+  ParentIssueAddedEvent,
+  ParentIssueRemovedEvent,
   PinnedEvent,
   PullRequestCommit,
   PullRequestCommitCommentThread,
@@ -503,6 +533,8 @@ const list = z.discriminatedUnion('__typename', [
   ReviewDismissedEvent,
   ReviewRequestRemovedEvent,
   ReviewRequestedEvent,
+  SubIssueAddedEvent,
+  SubIssueRemovedEvent,
   SubscribedEvent,
   TransferredEvent,
   UnassignedEvent,
