@@ -12,11 +12,7 @@ import { ReactableSchema } from './base/Reactable';
 const AddedToProjectEvent = NodeSchema.extend({
   __typename: z.literal('AddedToProjectEvent'),
   actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date(),
-  database_id: z.number().int().optional(),
-  project: z.string().optional(),
-  project_card: z.string().optional(),
-  project_column_name: z.string()
+  created_at: z.coerce.date()
 });
 
 const AssignedEvent = NodeSchema.extend({
@@ -31,7 +27,7 @@ const ClosedEvent = NodeSchema.extend({
   actor: z.union([z.string(), ActorSchema]).optional(),
   closer: z.object({ id: z.string(), __typename: z.string() }).optional(),
   created_at: z.coerce.date(),
-  state_reason: z.string().optional()
+  duplicate_of: z.string().optional()
 });
 
 const CommentDeletedEvent = NodeSchema.extend({
@@ -55,8 +51,6 @@ const ConvertedNoteToIssueEvent = NodeSchema.extend({
   actor: z.union([z.string(), ActorSchema]).optional(),
   created_at: z.coerce.date(),
   database_id: z.number().int().optional(),
-  project: z.string().optional(),
-  project_card: z.string().optional(),
   project_column_name: z.string()
 });
 
@@ -101,6 +95,28 @@ const IssueComment = NodeSchema.merge(CommentSchema)
     full_database_id: z.coerce.number().int().optional()
   });
 
+const IssueTypeAddedEvent = NodeSchema.extend({
+  __typename: z.literal('IssueTypeAddedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  issue_type: z.string().optional()
+});
+
+const IssueTypeChangedEvent = NodeSchema.extend({
+  __typename: z.literal('IssueTypeChangedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  issue_type: z.string().optional(),
+  prev_issue_type: z.string().optional()
+});
+
+const IssueTypeRemovedEvent = NodeSchema.extend({
+  __typename: z.literal('IssueTypeRemovedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  issue_type: z.string().optional()
+});
+
 const LabeledEvent = NodeSchema.extend({
   __typename: z.literal('LabeledEvent'),
   actor: z.union([z.string(), ActorSchema]).optional(),
@@ -140,12 +156,7 @@ const MilestonedEvent = NodeSchema.extend({
 const MovedColumnsInProjectEvent = NodeSchema.extend({
   __typename: z.literal('MovedColumnsInProjectEvent'),
   actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date(),
-  database_id: z.number().int().optional(),
-  previous_project_column_name: z.string(),
-  project: z.string().optional(),
-  project_card: z.string().optional(),
-  project_column_name: z.string()
+  created_at: z.coerce.date()
 });
 
 const ParentIssueAddedEvent = NodeSchema.extend({
@@ -181,10 +192,7 @@ const ReferencedEvent = NodeSchema.extend({
 const RemovedFromProjectEvent = NodeSchema.extend({
   __typename: z.literal('RemovedFromProjectEvent'),
   actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date(),
-  database_id: z.number().int().optional(),
-  project: z.string().optional(),
-  project_column_name: z.string()
+  created_at: z.coerce.date()
 });
 
 const RenamedTitleEvent = NodeSchema.extend({
@@ -510,6 +518,9 @@ const list = z.discriminatedUnion('__typename', [
   HeadRefForcePushedEvent,
   HeadRefRestoredEvent,
   IssueComment,
+  IssueTypeAddedEvent,
+  IssueTypeChangedEvent,
+  IssueTypeRemovedEvent,
   LabeledEvent,
   LockedEvent,
   MarkedAsDuplicateEvent,

@@ -65,6 +65,7 @@ export class ActorFragment extends CustomizableFragment {
         ${this.includes('created_at', 'createdAt')}
         ${this.includes('database_id', 'databaseId')}
         ${this.includes('email', 'email')}
+        ${this.includes('name', 'name')}
         ${this.includes('updated_at', 'updatedAt')}
       }
       
@@ -120,6 +121,8 @@ export class ActorFragment extends CustomizableFragment {
           email: data.email,
           id: data.id,
           login: data.login,
+          // TODO: @octokit/graphql-schema does not include the `name` field in the Mannequin type, but it is available in the GraphQL API.
+          name: (data as Mannequin & { name?: string }).name,
           updated_at: data.updatedAt
         });
       case 'EnterpriseUserAccount':

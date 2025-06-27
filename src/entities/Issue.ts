@@ -18,8 +18,10 @@ const baseIssue = NodeSchema.merge(RepositoryNodeSchema)
     closed_at: z.coerce.date().optional(),
     comments_count: z.number().int(),
     database_id: z.number().int(),
+    duplicate_of: z.string().optional(),
     full_database_id: z.coerce.number().int().optional(),
     is_pinned: z.boolean().optional(),
+    issue_type: z.string().optional(),
     labels: z.array(z.string()).optional(),
     linked_branches: z.array(z.string()).optional(),
     locked: z.boolean(),
@@ -28,7 +30,6 @@ const baseIssue = NodeSchema.merge(RepositoryNodeSchema)
     parent: z.string().optional(),
     participants_count: z.number().int(),
     state: z.string(),
-    state_reason: z.string().optional(),
     timeline_items_count: z.number().int(),
     title: z.string(),
 

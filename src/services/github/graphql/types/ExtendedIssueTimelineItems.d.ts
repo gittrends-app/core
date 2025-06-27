@@ -1,4 +1,7 @@
 import { IssueTimelineItems } from '@octokit/graphql-schema';
+import { IssueTypeAddedEvent } from './IssueTypeAddedEvent';
+import { IssueTypeChangedEvent } from './IssueTypeChangedEvent';
+import { IssueTypeRemovedEvent } from './IssueTypeRemovedEvent';
 import { ParentIssueAddedEvent } from './ParentIssueAddedEvent';
 import { ParentIssueRemovedEvent } from './ParentIssueRemovedEvent';
 import { SubIssueAddedEvent } from './SubIssueAddedEvent';
@@ -9,4 +12,7 @@ export type ExtendedIssueTimelineItems =
   | ParentIssueAddedEvent
   | ParentIssueRemovedEvent
   | SubIssueAddedEvent
-  | SubIssueRemovedEvent;
+  | SubIssueRemovedEvent
+  | IssueTypeAddedEvent
+  | IssueTypeChangedEvent
+  | IssueTypeRemovedEvent;

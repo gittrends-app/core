@@ -66,6 +66,7 @@ const Mannequin = Actor.extend({ __typename: z.literal('Mannequin') }).merge(
       created_at: z.coerce.date(),
       database_id: z.number().int().optional(),
       email: z.string().optional(),
+      name: z.string().optional(),
       updated_at: z.coerce.date()
     })
     .partial()

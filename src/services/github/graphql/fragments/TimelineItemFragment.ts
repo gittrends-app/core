@@ -1,4 +1,4 @@
-import { PullRequestTimelineItems } from '@octokit/graphql-schema';
+import { ClosedEvent, PullRequestTimelineItems } from '@octokit/graphql-schema';
 import { TimelineItem, TimelineItemSchema } from '../../../../entities/TimelineItem';
 import { ExtendedIssueTimelineItems } from '../types/ExtendedIssueTimelineItems';
 import { ActorFragment } from './ActorFragment';
@@ -23,7 +23,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias}_AddedToProjectEvent on AddedToProjectEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        project { id }
       }
 
       fragment ${this.alias}_AssignedEvent on AssignedEvent {
@@ -36,7 +35,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         actor { ...${this.fragments[0].alias} }
         closer { ...${this.alias}_Node }
         createdAt
-        stateReason
+        duplicateOf { id }
       }
 
       fragment ${this.alias}_CommentDeletedEvent on CommentDeletedEvent {
@@ -57,7 +56,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         actor { ...${this.fragments[0].alias} }
         createdAt
         databaseId
-        project { id }
         projectColumnName
       }
 
@@ -107,6 +105,25 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         updatedAt
       }
 
+      fragment ${this.alias}_IssueTypeAddedEvent on IssueTypeAddedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        issueType { name }
+      }
+
+      fragment ${this.alias}_IssueTypeChangedEvent on IssueTypeChangedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        issueType { name }
+        prevIssueType { name }
+      }
+
+      fragment ${this.alias}_IssueTypeRemovedEvent on IssueTypeRemovedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        issueType { name }
+      }
+
       fragment ${this.alias}_LabeledEvent on LabeledEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
@@ -141,7 +158,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias}_MovedColumnsInProjectEvent on MovedColumnsInProjectEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        project { id }
       }
 
       fragment ${this.alias}_ParentIssueAddedEvent on ParentIssueAddedEvent {
@@ -173,7 +189,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias}_RemovedFromProjectEvent on RemovedFromProjectEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        project { id }
       }
 
       fragment ${this.alias}_RenamedTitleEvent on RenamedTitleEvent {
@@ -507,6 +522,9 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         ...${this.alias}_DemilestonedEvent
         ...${this.alias}_DisconnectedEvent
         ...${this.alias}_IssueComment
+        ...${this.alias}_IssueTypeAddedEvent
+        ...${this.alias}_IssueTypeChangedEvent
+        ...${this.alias}_IssueTypeRemovedEvent
         ...${this.alias}_LabeledEvent
         ...${this.alias}_LockedEvent
         ...${this.alias}_MarkedAsDuplicateEvent
@@ -575,14 +593,18 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
 
     switch (data.__typename) {
       case 'AddedToProjectEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt
+        };
+        break;
       case 'ConvertedNoteToIssueEvent':
         _data = {
           ..._data,
           actor: data.actor && this.fragments[0].parse(data.actor),
           created_at: data.createdAt,
           database_id: data.databaseId,
-          project: data.project?.id,
-          project_card: data.projectCard?.id,
           project_column_name: data.projectColumnName
         };
         break;
@@ -601,7 +623,8 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           actor: data.actor && this.fragments[0].parse(data.actor),
           closer: data.closer && { id: data.closer.id, __typename: data.closer.__typename },
           created_at: data.createdAt,
-          state_reason: data.stateReason
+          // TODO: @octokit/graphql-schema does not include the `duplicateOf` field in the ClosedEvent type, but it is available in the GraphQL API.
+          duplicate_of: (data as ClosedEvent & { duplicateOf?: { id: string } }).duplicateOf?.id
         };
         break;
       case 'CommentDeletedEvent':
@@ -670,6 +693,17 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           reactions_count: data.reactions?.totalCount,
           updated_at: data.updatedAt
         };
+        break;
+      case 'IssueTypeAddedEvent':
+      case 'IssueTypeChangedEvent':
+      case 'IssueTypeRemovedEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          issue_type: data.issueType?.name
+        };
+        if (data.__typename === 'IssueTypeChangedEvent') _data.prev_issue_type = data.prevIssueType?.name;
         break;
       case 'LabeledEvent':
       case 'UnlabeledEvent':
@@ -747,12 +781,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         _data = {
           ..._data,
           actor: data.actor && this.fragments[0].parse(data.actor),
-          created_at: data.createdAt,
-          database_id: data.databaseId,
-          previous_project_column_name: data.previousProjectColumnName,
-          project: data.project?.id,
-          project_card: data.projectCard?.id,
-          project_column_name: data.projectColumnName
+          created_at: data.createdAt
         };
         break;
       case 'ReferencedEvent':
@@ -770,10 +799,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         _data = {
           ..._data,
           actor: data.actor && this.fragments[0].parse(data.actor),
-          created_at: data.createdAt,
-          database_id: data.databaseId,
-          project: data.project?.id,
-          project_column_name: data.projectColumnName
+          created_at: data.createdAt
         };
         break;
       case 'RenamedTitleEvent':
