@@ -38,6 +38,7 @@ export class IssueFragment extends AbstractFragment {
         locked
         milestone { title }
         number
+        parent { id }
         participants { totalCount }
         publishedAt
         reactions { totalCount }
@@ -51,7 +52,8 @@ export class IssueFragment extends AbstractFragment {
     `;
   }
 
-  parse(data: GsIssue): Issue {
+  // TODO: @octokit/graphql-schema does not include the `parent` field in the Issue type, but it is available in the GraphQL API.
+  parse(data: GsIssue & { parent?: GsIssue }): Issue {
     return IssueSchema.parse({
       active_lock_reason: data.activeLockReason,
       assignees: data.assignees?.nodes?.map((node) => this.fragments[0].parse(node)),
@@ -75,6 +77,7 @@ export class IssueFragment extends AbstractFragment {
       locked: data.locked,
       milestone: data.milestone?.title,
       number: data.number,
+      parent: data.parent?.id,
       participants_count: data.participants.totalCount,
       published_at: data.publishedAt,
       reactions_count: data.reactions.totalCount,

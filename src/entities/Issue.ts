@@ -25,6 +25,7 @@ const baseIssue = NodeSchema.merge(RepositoryNodeSchema)
     locked: z.boolean(),
     milestone: z.string().optional(),
     number: z.number().int(),
+    parent: z.string().optional(),
     participants_count: z.number().int(),
     state: z.string(),
     state_reason: z.string().optional(),
