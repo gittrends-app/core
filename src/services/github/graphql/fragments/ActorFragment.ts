@@ -1,6 +1,6 @@
-import { Bot, EnterpriseUserAccount, Mannequin, Organization, User } from '@octokit/graphql-schema';
 import snakeCase from 'lodash/snakeCase.js';
 import { Actor, ActorSchema } from '../../../../entities/Actor';
+import { Bot, EnterpriseUserAccount, Actor as GsActor, Mannequin, Organization, User } from '../../graphql-schema';
 import { CustomizableFragment, Fragment } from './Fragment';
 
 /**
@@ -99,7 +99,9 @@ export class ActorFragment extends CustomizableFragment {
     `;
   }
 
-  parse(data: Bot | Mannequin | EnterpriseUserAccount | Organization | User): Actor {
+  parse(data: GsActor | Bot | Mannequin | EnterpriseUserAccount | Organization | User): Actor {
+    if (!('__typename' in data)) throw new Error('Data does not contain __typename field');
+
     switch (data.__typename) {
       case 'Bot':
         return ActorSchema.parse({
@@ -121,8 +123,7 @@ export class ActorFragment extends CustomizableFragment {
           email: data.email,
           id: data.id,
           login: data.login,
-          // TODO: @octokit/graphql-schema does not include the `name` field in the Mannequin type, but it is available in the GraphQL API.
-          name: (data as Mannequin & { name?: string }).name,
+          name: data.name,
           updated_at: data.updatedAt
         });
       case 'EnterpriseUserAccount':

@@ -1,5 +1,5 @@
-import { IssueTimelineItems, PullRequestTimelineItems } from '@octokit/graphql-schema';
 import { Commentable, CommentableSchema } from '../../../../entities/base/Commentable';
+import { IssueTimelineItems, PullRequestTimelineItems } from '../../graphql-schema';
 import { ActorFragment } from './ActorFragment';
 import { AbstractFragment, FragmentFactory } from './Fragment';
 

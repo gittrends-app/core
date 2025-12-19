@@ -1,11 +1,11 @@
-import { z, ZodObjectDef } from 'zod';
+import { ZodObjectDef, z } from 'zod';
 import { zodSanitize } from '../helpers/sanitize';
 import { ActorSchema } from './Actor';
-import { TimelineItemSchema } from './TimelineItem';
 import { CommentSchema } from './base/Comment';
 import { NodeSchema } from './base/Node';
 import { ReactableSchema } from './base/Reactable';
 import { RepositoryNodeSchema } from './base/RepositoryNode';
+import { TimelineItemSchema } from './TimelineItem';
 
 const pr = NodeSchema.merge(RepositoryNodeSchema)
   .merge(CommentSchema)

@@ -1,13 +1,4 @@
-import {
-  Bot,
-  EnterpriseUserAccount,
-  Mannequin,
-  Maybe,
-  Node,
-  Organization,
-  Scalars,
-  User
-} from '@octokit/graphql-schema';
+import { Bot, EnterpriseUserAccount, Mannequin, Maybe, Node, Organization, Scalars, User } from '../../graphql-schema';
 
 /** Represents a 'issue_type_added' event on a given issue. */
 export type IssueTypeAddedEvent = Node & {

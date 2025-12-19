@@ -3,7 +3,7 @@ import isPlainObject from 'lodash/isPlainObject.js';
 import mapValues from 'lodash/mapValues.js';
 import omitBy from 'lodash/omitBy.js';
 import { PartialDeep } from 'type-fest';
-import { z, ZodType } from 'zod';
+import { ZodType, z } from 'zod';
 
 const defaultRemotionCriteria = (v: any) =>
   v === null ||

@@ -1,5 +1,5 @@
-import { ClosedEvent, PullRequestTimelineItems } from '@octokit/graphql-schema';
 import { TimelineItem, TimelineItemSchema } from '../../../../entities/TimelineItem';
+import { PullRequestTimelineItems } from '../../graphql-schema';
 import { ExtendedIssueTimelineItems } from '../types/ExtendedIssueTimelineItems';
 import { ActorFragment } from './ActorFragment';
 import { AbstractFragment, FragmentFactory } from './Fragment';
@@ -623,8 +623,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           actor: data.actor && this.fragments[0].parse(data.actor),
           closer: data.closer && { id: data.closer.id, __typename: data.closer.__typename },
           created_at: data.createdAt,
-          // TODO: @octokit/graphql-schema does not include the `duplicateOf` field in the ClosedEvent type, but it is available in the GraphQL API.
-          duplicate_of: (data as ClosedEvent & { duplicateOf?: { id: string } }).duplicateOf?.id
+          duplicate_of: data.duplicateOf?.id
         };
         break;
       case 'CommentDeletedEvent':

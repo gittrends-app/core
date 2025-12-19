@@ -8,7 +8,7 @@ import {
   Organization,
   Scalars,
   User
-} from '@octokit/graphql-schema';
+} from '../../graphql-schema';
 
 /** Represents a 'sub_issue_removed' event on a given issue. */
 export type SubIssueRemovedEvent = Node & {

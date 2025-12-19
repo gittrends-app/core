@@ -1,4 +1,4 @@
-import { IssueTimelineItems } from '@octokit/graphql-schema';
+import { IssueTimelineItems } from '../../graphql-schema';
 import { IssueTypeAddedEvent } from './IssueTypeAddedEvent';
 import { IssueTypeChangedEvent } from './IssueTypeChangedEvent';
 import { IssueTypeRemovedEvent } from './IssueTypeRemovedEvent';

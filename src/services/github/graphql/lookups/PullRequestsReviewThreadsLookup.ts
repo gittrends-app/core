@@ -1,9 +1,9 @@
-import { PullRequestReviewThreadConnection } from '@octokit/graphql-schema';
 import {
   PullRequestReviewThread,
   PullRequestReviewThreadSchema
 } from '../../../../entities/base/PullRequestReviewThread';
 import { zodSanitize } from '../../../../helpers/sanitize';
+import { PullRequestReviewThreadConnection } from '../../graphql-schema';
 import { ActorFragment } from '../fragments/ActorFragment';
 import { PullRequestReviewCommentFragment } from '../fragments/PullRequestReviewCommentFragment';
 import { QueryLookup } from './Lookup';

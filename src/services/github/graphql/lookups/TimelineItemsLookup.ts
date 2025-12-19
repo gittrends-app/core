@@ -1,5 +1,5 @@
-import { IssueTimelineItemsConnection } from '@octokit/graphql-schema';
 import { TimelineItem } from '../../../../entities/TimelineItem';
+import { IssueTimelineItemsConnection } from '../../graphql-schema';
 import { IssueTimelineItemFragment, PullRequestTimelineItemFragment } from '../fragments/TimelineItemFragment';
 import { QueryLookup } from './Lookup';
 

@@ -1,5 +1,5 @@
-import { DiscussionCommentConnection } from '@octokit/graphql-schema';
 import { DiscussionComment, DiscussionCommentSchema } from '../../../../entities/DiscussionComment';
+import { DiscussionCommentConnection } from '../../graphql-schema';
 import { ActorFragment } from '../fragments/ActorFragment';
 import { QueryLookup } from './Lookup';
 

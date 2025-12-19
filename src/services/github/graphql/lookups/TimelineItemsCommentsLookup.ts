@@ -1,5 +1,5 @@
-import { IssueTimelineItems } from '@octokit/graphql-schema';
 import { Commentable } from '../../../../entities/base/Commentable';
+import { IssueTimelineItems } from '../../graphql-schema';
 import { TimelineItemCommentsFragment } from '../fragments/TimelineItemCommentsFragment';
 import { QueryLookup } from './Lookup';
 

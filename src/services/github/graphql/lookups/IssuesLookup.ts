@@ -1,5 +1,5 @@
-import { IssueConnection } from '@octokit/graphql-schema';
 import { Issue } from '../../../../entities/Issue';
+import { IssueConnection } from '../../graphql-schema';
 import { IssueFragment } from '../fragments/IssueFragment';
 import { QueryLookup } from './Lookup';
 

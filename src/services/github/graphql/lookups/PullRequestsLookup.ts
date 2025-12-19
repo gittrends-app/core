@@ -1,5 +1,5 @@
-import { PullRequestConnection } from '@octokit/graphql-schema';
 import { PullRequest } from '../../../../entities/PullRequest';
+import { PullRequestConnection } from '../../graphql-schema';
 import { PullRequestFragment } from '../fragments/PullRequestFragment';
 import { QueryLookup } from './Lookup';
 

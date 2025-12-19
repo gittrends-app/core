@@ -1,4 +1,4 @@
-import { Repository } from '@octokit/graphql-schema';
+import { Repository } from '../../graphql-schema';
 import { RepositoryFragment } from '../fragments/RepositoryFragment';
 import { QueryLookup, QueryLookupParams } from './Lookup';
 

@@ -1,5 +1,5 @@
-import { Assignee, Issue as GsIssue, Maybe } from '@octokit/graphql-schema';
 import { Issue, IssueSchema } from '../../../../entities/Issue';
+import { Issue as GsIssue } from '../../graphql-schema';
 import { ActorFragment } from './ActorFragment';
 import { AbstractFragment, FragmentFactory } from './Fragment';
 
@@ -54,10 +54,7 @@ export class IssueFragment extends AbstractFragment {
     `;
   }
 
-  // TODO: @octokit/graphql-schema does not include the `parent`, `issueType` and `assignedActors` fields in the Issue type, but it is available in the GraphQL API.
-  parse(
-    data: GsIssue & { assignedActors?: { nodes?: Maybe<Assignee>[] }; parent?: GsIssue; issueType?: { name: string } }
-  ): Issue {
+  parse(data: GsIssue): Issue {
     return IssueSchema.parse({
       active_lock_reason: data.activeLockReason,
       assigned_actors: data.assignedActors?.nodes?.map((node) => this.fragments[0].parse(node)),
@@ -71,8 +68,7 @@ export class IssueFragment extends AbstractFragment {
       created_at: data.createdAt,
       created_via_email: data.createdViaEmail,
       database_id: data.databaseId,
-      // TODO: @octokit/graphql-schema does not include the `duplicateOf` field in the Issue type, but it is available in the GraphQL API.
-      duplicate_of: (data as GsIssue & { duplicateOf?: { id: string } }).duplicateOf?.id,
+      duplicate_of: data.duplicateOf?.id,
       editor: data.editor && this.fragments[0].parse(data.editor),
       full_database_id: data.fullDatabaseId,
       id: data.id,

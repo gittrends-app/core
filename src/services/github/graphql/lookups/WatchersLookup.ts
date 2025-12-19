@@ -1,5 +1,5 @@
-import { UserConnection } from '@octokit/graphql-schema';
 import { Watcher, WatcherSchema } from '../../../../entities/Watcher';
+import { UserConnection } from '../../graphql-schema';
 import { ActorFragment } from '../fragments/ActorFragment';
 import { QueryLookup } from './Lookup';
 

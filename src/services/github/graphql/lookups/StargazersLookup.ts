@@ -1,5 +1,5 @@
-import { StargazerConnection } from '@octokit/graphql-schema';
 import { Stargazer, StargazerSchema } from '../../../../entities/Stargazer';
+import { StargazerConnection } from '../../graphql-schema';
 import { ActorFragment } from '../fragments/ActorFragment';
 import { QueryLookup } from './Lookup';
 

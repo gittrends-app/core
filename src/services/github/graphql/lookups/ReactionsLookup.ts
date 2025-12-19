@@ -1,5 +1,5 @@
-import { ReactionConnection } from '@octokit/graphql-schema';
 import { Reaction, ReactionSchema } from '../../../../entities/Reaction';
+import { ReactionConnection } from '../../graphql-schema';
 import { ActorFragment } from '../fragments/ActorFragment';
 import { QueryLookup } from './Lookup';
 

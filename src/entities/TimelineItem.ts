@@ -1,4 +1,4 @@
-import { z, ZodDiscriminatedUnionDef } from 'zod';
+import { ZodDiscriminatedUnionDef, z } from 'zod';
 import { zodSanitize } from '../helpers/sanitize';
 import { ActorSchema } from './Actor';
 import { CommentSchema } from './base/Comment';

@@ -1,5 +1,5 @@
-import { ReleaseConnection } from '@octokit/graphql-schema';
 import { Release, ReleaseSchema } from '../../../../entities/Release';
+import { ReleaseConnection } from '../../graphql-schema';
 import { ActorFragment } from '../fragments/ActorFragment';
 import { QueryLookup } from './Lookup';
 

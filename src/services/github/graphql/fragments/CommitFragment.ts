@@ -1,5 +1,5 @@
-import { Commit as GsCommit } from '@octokit/graphql-schema';
 import { Commit, CommitSchema } from '../../../../entities/Commit';
+import { Commit as GsCommit } from '../../graphql-schema';
 import { ActorFragment } from './ActorFragment';
 import { AbstractFragment, Fragment, FragmentFactory } from './Fragment';
 

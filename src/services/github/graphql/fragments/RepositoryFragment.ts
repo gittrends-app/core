@@ -1,6 +1,6 @@
-import { Commit as GsCommit, Repository as GsRepository } from '@octokit/graphql-schema';
 import { Repository, RepositorySchema } from '../../../../entities/Repository';
 import { Booleanify, NullableFields } from '../../../../helpers/types';
+import { Commit as GsCommit, Repository as GsRepository } from '../../graphql-schema';
 import { ActorFragment } from './ActorFragment';
 import { CustomizableFragment, FragmentFactory } from './Fragment';
 

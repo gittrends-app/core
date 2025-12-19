@@ -1,9 +1,9 @@
-import { PullRequestReviewComment as GsPullRequestReviewComment } from '@octokit/graphql-schema';
 import {
   PullRequestReviewComment,
   PullRequestReviewCommentSchema
 } from '../../../../entities/base/PullRequestReviewComment';
 import { zodSanitize } from '../../../../helpers/sanitize';
+import { PullRequestReviewComment as GsPullRequestReviewComment } from '../../graphql-schema';
 import { ActorFragment } from './ActorFragment';
 import { AbstractFragment, FragmentFactory } from './Fragment';
 

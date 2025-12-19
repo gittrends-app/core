@@ -1,5 +1,5 @@
-import { Tag as GsTag } from '@octokit/graphql-schema';
 import { Tag, TagSchema } from '../../../../entities/Tag';
+import { Tag as GsTag } from '../../graphql-schema';
 import { ActorFragment } from './ActorFragment';
 import { AbstractFragment, FragmentFactory } from './Fragment';
 

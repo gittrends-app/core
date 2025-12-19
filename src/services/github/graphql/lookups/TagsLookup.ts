@@ -1,5 +1,5 @@
-import { RefConnection } from '@octokit/graphql-schema';
 import { Tag } from '../../../../entities/Tag';
+import { RefConnection } from '../../graphql-schema';
 import { CommitFragment } from '../fragments/CommitFragment';
 import { TagFragment } from '../fragments/TagFragment';
 import { QueryLookup } from './Lookup';
@@ -44,7 +44,7 @@ export class TagsLookup extends QueryLookup<Tag[]> {
           })
         : undefined,
       data: (_data.nodes || []).map((data) => {
-        const isTag = data!.target?.__typename === 'Tag';
+        const isTag = data!.target && '__typename' in data!.target && data!.target?.__typename === 'Tag';
         return this.fragments[0].parse({
           ...(isTag ? data!.target : (data as any)),
           __typename: 'Tag'

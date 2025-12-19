@@ -1,5 +1,5 @@
-import { Assignee, PullRequest as GsPullRequest, Maybe } from '@octokit/graphql-schema';
 import { PullRequest, PullRequestSchema } from '../../../../entities/PullRequest';
+import { PullRequest as GsPullRequest } from '../../graphql-schema';
 import { ActorFragment } from './ActorFragment';
 import { AbstractFragment, FragmentFactory } from './Fragment';
 
@@ -84,8 +84,7 @@ export class PullRequestFragment extends AbstractFragment {
     `;
   }
 
-  // TODO: @octokit/graphql-schema does not include the `assignedActors` field in the PullRequest type, but it is available in the GraphQL API.
-  parse(data: GsPullRequest & { assignedActors?: { nodes?: Maybe<Assignee>[] } }): PullRequest {
+  parse(data: GsPullRequest): PullRequest {
     return PullRequestSchema.parse({
       active_lock_reason: data.activeLockReason,
       assigned_actors: data.assignedActors?.nodes?.map((node) => this.fragments[0].parse(node)),
