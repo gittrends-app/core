@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { zodSanitize } from '../helpers/sanitize';
 import { ActorSchema } from './Actor';
-import { DiscussionCommentSchema } from './DiscussionComment';
 import { CommentSchema } from './base/Comment';
 import { NodeSchema } from './base/Node';
 import { ReactableSchema } from './base/Reactable';
 import { RepositoryNodeSchema } from './base/RepositoryNode';
+import { DiscussionCommentSchema } from './DiscussionComment';
 
 export const DiscussionSchema = zodSanitize(
   NodeSchema.merge(RepositoryNodeSchema)

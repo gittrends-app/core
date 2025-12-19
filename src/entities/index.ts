@@ -3,9 +3,8 @@ import { errorMap } from 'zod-validation-error';
 
 z.setErrorMap(errorMap);
 
-export * from './base';
-
 export * from './Actor';
+export * from './base';
 export * from './Commit';
 export * from './Discussion';
 export * from './DiscussionComment';
