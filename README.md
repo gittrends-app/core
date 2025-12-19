@@ -2,6 +2,8 @@
 
 `@gittrends-app/core` is a core library for interacting with GitHub's API, providing caching mechanisms and other utilities to simplify the process of fetching and managing data from GitHub.
 
+> Last schema check: [2025-07-15](https://docs.github.com/pt/graphql/overview/changelog#schema-changes-for-2025-07-15)
+
 ## Installation
 
 To install the package, use npm or yarn:
