@@ -37,7 +37,7 @@ const baseIssue = NodeSchema.extend(RepositoryNodeSchema.shape)
     timeline_items_count: z.number().int(),
     title: z.string(),
 
-    timeline_items: z.array(TimelineItemSchema).optional()
+    timeline_items: z.union([z.array(TimelineItemSchema), z.array(z.string())]).optional()
   });
 
 export const IssueSchema = zodSanitize(baseIssue as z.ZodType<z.output<typeof baseIssue>, z.input<typeof baseIssue>>);

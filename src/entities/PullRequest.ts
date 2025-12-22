@@ -83,13 +83,15 @@ type BasePullRequest = z.infer<typeof basePr>;
 // Tipo extendido inferido
 type ExtendedPullRequest = z.ZodType<
   BasePullRequest & {
-    timeline_items?: z.infer<typeof TimelineItemSchema>[];
+    timeline_items?: (z.infer<typeof TimelineItemSchema> | string)[];
   }
 >;
 
 // Schema completo com timeline_items
 export const PullRequestSchema = zodSanitize(
-  basePr.extend({ timeline_items: z.array(TimelineItemSchema).optional() }) as ExtendedPullRequest
+  basePr.extend({
+    timeline_items: z.union([z.array(TimelineItemSchema), z.array(z.string())]).optional()
+  }) as ExtendedPullRequest
 );
 
 export type PullRequest = z.output<typeof PullRequestSchema>;
