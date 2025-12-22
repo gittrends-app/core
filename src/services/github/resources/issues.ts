@@ -31,7 +31,7 @@ export default function (client: GithubClient, opts: QueryLookupParams): Iterabl
 
               await Promise.all(
                 issue
-                  .timeline_items!.filter((item) => item.__typename === 'IssueComment')
+                  .timeline_items!.filter((item) => typeof item !== 'string' && item.__typename === 'IssueComment')
                   .map(async (comment) => {
                     if (comment.reactions_count) {
                       comment.reactions = await QueryRunner.create(client)
