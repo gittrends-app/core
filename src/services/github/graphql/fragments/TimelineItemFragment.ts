@@ -38,6 +38,30 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         duplicateOf { ...${this.alias}_Node }
       }
 
+      fragment ${this.alias}_BlockedByAddedEvent on BlockedByAddedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        blockingIssue { ...${this.alias}_Node }
+      }
+
+      fragment ${this.alias}_BlockedByRemovedEvent on BlockedByRemovedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        blockingIssue { ...${this.alias}_Node }
+      }
+
+      fragment ${this.alias}_BlockingAddedEvent on BlockingAddedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        blockedIssue { ...${this.alias}_Node }
+      }
+
+      fragment ${this.alias}_BlockingRemovedEvent on BlockingRemovedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        blockedIssue { ...${this.alias}_Node }
+      }
+
       fragment ${this.alias}_CommentDeletedEvent on CommentDeletedEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
@@ -513,6 +537,10 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         ...${this.alias}_Node						
         ...${this.alias}_AddedToProjectEvent
         ...${this.alias}_AssignedEvent
+        ...${this.alias}_BlockedByAddedEvent
+        ...${this.alias}_BlockedByRemovedEvent
+        ...${this.alias}_BlockingAddedEvent
+        ...${this.alias}_BlockingRemovedEvent
         ...${this.alias}_ClosedEvent
         ...${this.alias}_CommentDeletedEvent
         ...${this.alias}_ConnectedEvent
@@ -624,6 +652,24 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           closer: data.closer && { id: data.closer.id, __typename: data.closer.__typename },
           created_at: data.createdAt,
           duplicate_of: data.duplicateOf?.id
+        };
+        break;
+      case 'BlockedByAddedEvent':
+      case 'BlockedByRemovedEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          blocking_issue: data.blockingIssue && { id: data.blockingIssue.id, __typename: data.blockingIssue.__typename }
+        };
+        break;
+      case 'BlockingAddedEvent':
+      case 'BlockingRemovedEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          blocked_issue: data.blockedIssue && { id: data.blockedIssue.id, __typename: data.blockedIssue.__typename }
         };
         break;
       case 'CommentDeletedEvent':

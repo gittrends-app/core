@@ -13,6 +13,7 @@ export const ReleaseSchema = zodSanitize(
       author: ActorSchema.optional(),
       created_at: z.coerce.date(),
       database_id: z.number().int().optional(),
+      immutable: z.boolean().optional(),
       is_draft: z.boolean(),
       is_prerelease: z.boolean(),
       name: z.string().optional(),

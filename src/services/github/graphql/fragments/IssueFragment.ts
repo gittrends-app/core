@@ -21,6 +21,8 @@ export class IssueFragment extends AbstractFragment {
         assignees(first: 100) { nodes { ...${this.fragments[0].alias} } }
         author { ...${this.fragments[0].alias} }
         authorAssociation
+        blockedBy(first: 100) { totalCount nodes { id } }
+        blocking(first: 100) { totalCount nodes { id } }
         body
         closed
         closedAt
@@ -61,6 +63,10 @@ export class IssueFragment extends AbstractFragment {
       assignees: data.assignees?.nodes?.map((node) => this.fragments[0].parse(node)),
       author: data.author && this.fragments[0].parse(data.author),
       author_association: data.authorAssociation,
+      blocked_by: data.blockedBy?.nodes?.map((node) => node!.id),
+      blocked_by_count: data.blockedBy?.totalCount,
+      blocking: data.blocking?.nodes?.map((node) => node!.id),
+      blocking_count: data.blocking?.totalCount,
       body: data.body,
       closed: data.closed,
       closed_at: data.closedAt,

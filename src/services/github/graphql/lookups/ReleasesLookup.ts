@@ -23,6 +23,7 @@ export class ReleasesLookup extends QueryLookup<Release[]> {
             databaseId
             description
             id
+            immutable
             isDraft
             isPrerelease
             name
@@ -56,6 +57,7 @@ export class ReleasesLookup extends QueryLookup<Release[]> {
           created_at: data!.createdAt,
           database_id: data!.databaseId,
           id: data!.id,
+          immutable: data!.immutable,
           is_draft: data!.isDraft,
           is_prerelease: data!.isPrerelease,
           name: data!.name,

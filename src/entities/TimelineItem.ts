@@ -22,6 +22,34 @@ const AssignedEvent = NodeSchema.extend({
   created_at: z.coerce.date()
 });
 
+const BlockedByAddedEvent = NodeSchema.extend({
+  __typename: z.literal('BlockedByAddedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  blocking_issue: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) }).optional()
+});
+
+const BlockedByRemovedEvent = NodeSchema.extend({
+  __typename: z.literal('BlockedByRemovedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  blocking_issue: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) }).optional()
+});
+
+const BlockingAddedEvent = NodeSchema.extend({
+  __typename: z.literal('BlockingAddedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  blocked_issue: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) }).optional()
+});
+
+const BlockingRemovedEvent = NodeSchema.extend({
+  __typename: z.literal('BlockingRemovedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date(),
+  blocked_issue: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) }).optional()
+});
+
 const ClosedEvent = NodeSchema.extend({
   __typename: z.literal('ClosedEvent'),
   actor: z.union([z.string(), ActorSchema]).optional(),
@@ -503,6 +531,10 @@ const list = z.discriminatedUnion('__typename', [
   BaseRefChangedEvent,
   BaseRefDeletedEvent,
   BaseRefForcePushedEvent,
+  BlockedByAddedEvent,
+  BlockedByRemovedEvent,
+  BlockingAddedEvent,
+  BlockingRemovedEvent,
   ClosedEvent,
   CommentDeletedEvent,
   ConnectedEvent,

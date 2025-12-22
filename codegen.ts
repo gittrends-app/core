@@ -5,7 +5,7 @@ const config: CodegenConfig = {
   documents: ['src/**/*.ts'],
   ignoreNoDocuments: true,
   generates: {
-    './src/services/github/schema.d.ts': {
+    './src/services/github/graphql-schema.d.ts': {
       plugins: ['typescript']
     }
   }
