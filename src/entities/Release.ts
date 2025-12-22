@@ -6,8 +6,8 @@ import { ReactableSchema } from './base/Reactable';
 import { RepositoryNodeSchema } from './base/RepositoryNode';
 
 export const ReleaseSchema = zodSanitize(
-  NodeSchema.merge(RepositoryNodeSchema)
-    .merge(ReactableSchema)
+  NodeSchema.extend(RepositoryNodeSchema.shape)
+    .extend(ReactableSchema.shape)
     .extend({
       __typename: z.literal('Release'),
       author: ActorSchema.optional(),

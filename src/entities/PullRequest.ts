@@ -8,9 +8,9 @@ import { RepositoryNodeSchema } from './base/RepositoryNode';
 import { TimelineItemSchema } from './TimelineItem';
 
 // Schema base sem timeline_items para reduzir complexidade de inferência
-const basePr = NodeSchema.merge(RepositoryNodeSchema)
-  .merge(CommentSchema)
-  .merge(ReactableSchema)
+const basePr = NodeSchema.extend(RepositoryNodeSchema.shape)
+  .extend(CommentSchema.shape)
+  .extend(ReactableSchema.shape)
   .extend({
     __typename: z.literal('PullRequest'),
     active_lock_reason: z.string().optional(),

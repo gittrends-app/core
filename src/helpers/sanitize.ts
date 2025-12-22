@@ -3,7 +3,7 @@ import isPlainObject from 'lodash/isPlainObject.js';
 import mapValues from 'lodash/mapValues.js';
 import omitBy from 'lodash/omitBy.js';
 import { PartialDeep } from 'type-fest';
-import { ZodType, z } from 'zod';
+import { ZodPipe, ZodType, z } from 'zod';
 
 const defaultRemotionCriteria = (v: any) =>
   v === null ||
@@ -36,6 +36,6 @@ export default function sanitize<T extends object>(
 /**
  * Zod preprocessor to sanitize data by removing null values, empty objects and empty arrays.
  */
-export function zodSanitize<Z extends ZodType>(schema: Z) {
-  return z.preprocess<Z>((data: any) => sanitize(data), schema);
+export function zodSanitize<Z extends ZodType>(schema: Z): ZodPipe<any, Z> {
+  return z.preprocess((data: any) => sanitize(data), schema);
 }

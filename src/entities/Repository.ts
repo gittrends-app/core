@@ -84,5 +84,5 @@ const extendedRepository = z
   })
   .partial();
 
-export const RepositorySchema = zodSanitize(baseRepository.merge(extendedRepository));
+export const RepositorySchema = zodSanitize(baseRepository.extend(extendedRepository.shape));
 export type Repository = z.infer<typeof RepositorySchema>;

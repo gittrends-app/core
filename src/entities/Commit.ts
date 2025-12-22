@@ -5,7 +5,7 @@ import { NodeSchema } from './base/Node';
 import { RepositoryNodeSchema } from './base/RepositoryNode';
 
 export const CommitSchema = zodSanitize(
-  NodeSchema.merge(RepositoryNodeSchema).extend({
+  NodeSchema.extend(RepositoryNodeSchema.shape).extend({
     __typename: z.literal('Commit'),
     additions: z.number().int(),
     author: GitActorSchema.optional(),

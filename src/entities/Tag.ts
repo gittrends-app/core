@@ -5,7 +5,7 @@ import { NodeSchema } from './base/Node';
 import { RepositoryNodeSchema } from './base/RepositoryNode';
 
 export const TagSchema = zodSanitize(
-  NodeSchema.merge(RepositoryNodeSchema).extend({
+  NodeSchema.extend(RepositoryNodeSchema.shape).extend({
     __typename: z.literal('Tag'),
     name: z.string(),
     oid: z.string().optional(),

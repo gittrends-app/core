@@ -8,9 +8,9 @@ import { RepositoryNodeSchema } from './base/RepositoryNode';
 import { DiscussionCommentSchema } from './DiscussionComment';
 
 export const DiscussionSchema = zodSanitize(
-  NodeSchema.merge(RepositoryNodeSchema)
-    .merge(CommentSchema)
-    .merge(ReactableSchema)
+  NodeSchema.extend(RepositoryNodeSchema.shape)
+    .extend(CommentSchema.shape)
+    .extend(ReactableSchema.shape)
     .extend({
       __typename: z.literal('Discussion'),
       database_id: z.number(),

@@ -1,4 +1,4 @@
-import hash from 'hash-it';
+import { hash } from 'hash-it';
 import { Actor } from '../entities/Actor';
 import { Commit } from '../entities/Commit';
 import { Discussion } from '../entities/Discussion';

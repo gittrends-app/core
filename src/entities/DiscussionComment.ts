@@ -5,8 +5,8 @@ import { NodeSchema } from './base/Node';
 import { ReactableSchema } from './base/Reactable';
 import { ReactionSchema } from './Reaction';
 
-const base = NodeSchema.merge(CommentSchema)
-  .merge(ReactableSchema)
+const base = NodeSchema.extend(CommentSchema.shape)
+  .extend(ReactableSchema.shape)
   .extend({
     __typename: z.literal('DiscussionComment'),
     database_id: z.number().int(),
@@ -30,7 +30,7 @@ type Output = z.output<typeof base> & {
   replies?: string[] | Output[];
 };
 
-const Comment: z.ZodType<Output, z.ZodTypeDef, Input> = base.extend({
+const Comment: z.ZodType<Output, Input> = base.extend({
   reactions: z.array(ReactionSchema).optional(),
   replies: z.lazy(() => z.union([z.string().array(), Comment.array()])).optional()
 });

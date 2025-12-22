@@ -8,17 +8,17 @@ const Actor = NodeSchema.extend({
   __typename: z.enum(['User', 'Organization', 'Bot', 'Mannequin', 'EnterpriseUserAccount'])
 });
 
-const Bot = Actor.extend({ __typename: z.literal('Bot') }).merge(
+const Bot = Actor.extend({ __typename: z.literal('Bot') }).extend(
   z
     .object({
       created_at: z.coerce.date(),
       database_id: z.number().int().optional(),
       updated_at: z.coerce.date()
     })
-    .partial()
+    .partial().shape
 );
 
-const User = Actor.extend({ __typename: z.literal('User') }).merge(
+const User = Actor.extend({ __typename: z.literal('User') }).extend(
   z
     .object({
       bio: z.string().optional(),
@@ -37,7 +37,7 @@ const User = Actor.extend({ __typename: z.literal('User') }).merge(
       location: z.string().optional(),
       name: z.string().optional(),
       pronouns: z.string().optional(),
-      social_accounts: z.record(z.string()).optional(),
+      social_accounts: z.record(z.string(), z.string()).optional(),
       twitter_username: z.string().optional(),
       updated_at: z.coerce.date(),
       website_url: z.string().optional(),
@@ -56,10 +56,10 @@ const User = Actor.extend({ __typename: z.literal('User') }).merge(
       starred_repositories_count: z.number().int(),
       watching_count: z.number().int()
     })
-    .partial()
+    .partial().shape
 );
 
-const Mannequin = Actor.extend({ __typename: z.literal('Mannequin') }).merge(
+const Mannequin = Actor.extend({ __typename: z.literal('Mannequin') }).extend(
   z
     .object({
       claimant: z.union([z.string(), User]),
@@ -69,20 +69,20 @@ const Mannequin = Actor.extend({ __typename: z.literal('Mannequin') }).merge(
       name: z.string().optional(),
       updated_at: z.coerce.date()
     })
-    .partial()
+    .partial().shape
 );
 
-const Enterprise = Actor.extend({ __typename: z.literal('EnterpriseUserAccount') }).merge(
+const Enterprise = Actor.extend({ __typename: z.literal('EnterpriseUserAccount') }).extend(
   z
     .object({
       name: z.string(),
       updated_at: z.coerce.date(),
       user: z.union([z.string(), User])
     })
-    .partial()
+    .partial().shape
 );
 
-const organization = Actor.extend({ __typename: z.literal('Organization') }).merge(
+const organization = Actor.extend({ __typename: z.literal('Organization') }).extend(
   z
     .object({
       archived_at: z.coerce.date().optional(),
@@ -103,7 +103,7 @@ const organization = Actor.extend({ __typename: z.literal('Organization') }).mer
       sponsoring_count: z.number().int(),
       sponsors_count: z.number().int()
     })
-    .partial()
+    .partial().shape
 );
 
 export const ActorSchema = zodSanitize(

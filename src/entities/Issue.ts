@@ -1,4 +1,4 @@
-import { ZodObjectDef, z } from 'zod';
+import { z } from 'zod';
 import { zodSanitize } from '../helpers/sanitize';
 import { ActorSchema } from './Actor';
 import { CommentSchema } from './base/Comment';
@@ -7,9 +7,9 @@ import { ReactableSchema } from './base/Reactable';
 import { RepositoryNodeSchema } from './base/RepositoryNode';
 import { TimelineItemSchema } from './TimelineItem';
 
-const baseIssue = NodeSchema.merge(RepositoryNodeSchema)
-  .merge(ReactableSchema)
-  .merge(CommentSchema)
+const baseIssue = NodeSchema.extend(RepositoryNodeSchema.shape)
+  .extend(ReactableSchema.shape)
+  .extend(CommentSchema.shape)
   .extend({
     __typename: z.literal('Issue'),
     active_lock_reason: z.string().optional(),
@@ -40,8 +40,6 @@ const baseIssue = NodeSchema.merge(RepositoryNodeSchema)
     timeline_items: z.array(TimelineItemSchema).optional()
   });
 
-export const IssueSchema = zodSanitize(
-  baseIssue as z.ZodType<z.output<typeof baseIssue>, ZodObjectDef, z.input<typeof baseIssue>>
-);
+export const IssueSchema = zodSanitize(baseIssue as z.ZodType<z.output<typeof baseIssue>, z.input<typeof baseIssue>>);
 
 export type Issue = z.output<typeof IssueSchema>;

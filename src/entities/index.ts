@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { errorMap } from 'zod-validation-error';
+import { createErrorMap } from 'zod-validation-error';
 
-z.setErrorMap(errorMap);
+z.config({ customError: createErrorMap() });
 
 export * from './Actor';
 export * from './base';

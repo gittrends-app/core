@@ -114,9 +114,9 @@ const DisconnectedEvent = NodeSchema.extend({
   source: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) })
 });
 
-const IssueComment = NodeSchema.merge(CommentSchema)
-  .merge(ReactableSchema)
-  .merge(MinimizableSchema)
+const IssueComment = NodeSchema.extend(CommentSchema.shape)
+  .extend(ReactableSchema.shape)
+  .extend(MinimizableSchema.shape)
   .extend({
     __typename: z.literal('IssueComment'),
     database_id: z.number().int().optional(),
@@ -481,9 +481,9 @@ const PullRequestCommitCommentThread = NodeSchema.extend({
   position: z.number().int().optional()
 });
 
-const PullRequestReview = NodeSchema.merge(CommentSchema)
-  .merge(MinimizableSchema)
-  .merge(ReactableSchema)
+const PullRequestReview = NodeSchema.extend(CommentSchema.shape)
+  .extend(MinimizableSchema.shape)
+  .extend(ReactableSchema.shape)
   .extend({
     __typename: z.literal('PullRequestReview'),
     author_can_push_to_repository: z.boolean(),

@@ -4,9 +4,9 @@ import { MinimizableSchema } from './Minimizable';
 import { NodeSchema } from './Node';
 import { ReactableSchema } from './Reactable';
 
-export const CommitCommentSchema = NodeSchema.merge(CommentSchema)
-  .merge(MinimizableSchema)
-  .merge(ReactableSchema)
+export const CommitCommentSchema = NodeSchema.extend(CommentSchema.shape)
+  .extend(MinimizableSchema.shape)
+  .extend(ReactableSchema.shape)
   .extend({
     __typename: z.literal('CommitComment'),
     commit: z.string().optional(),

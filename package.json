@@ -31,25 +31,25 @@
   "dependencies": {
     "@octokit/graphql": "^9.0.3",
     "@octokit/types": "^16.0.0",
-    "dayjs": "^1.11.13",
-    "hash-it": "^6.0.0",
+    "dayjs": "^1.11.19",
+    "hash-it": "^7.0.2",
     "lodash": "^4.17.21",
-    "p-limit": "^6.2.0",
-    "zod": "^3.25.67",
-    "zod-validation-error": "^3.5.2"
+    "p-limit": "^7.2.0",
+    "zod": "^4.2.1",
+    "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.10",
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
     "@graphql-codegen/cli": "^6.1.0",
     "@graphql-codegen/typescript": "^5.0.7",
-    "@inquirer/prompts": "^7.5.3",
-    "@tsconfig/node20": "^20.1.6",
-    "@types/lodash": "^4.17.19",
-    "@types/node": "^24.0.4",
+    "@inquirer/prompts": "^8.1.0",
+    "@tsconfig/node20": "^20.1.8",
+    "@types/lodash": "^4.17.21",
+    "@types/node": "^25.0.3",
     "@types/prettyjson": "^0.0.33",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.0.16",
     "auto-changelog": "^2.5.0",
     "commitizen": "^4.3.1",
     "consola": "^3.4.2",
@@ -59,17 +59,22 @@
     "husky": "^9.1.7",
     "npm-run-all": "^4.1.5",
     "prettyjson": "^1.2.5",
-    "release-it": "^18.1.2",
-    "shx": "^0.3.4",
+    "release-it": "^19.1.0",
+    "shx": "^0.4.0",
     "table": "^6.9.0",
     "tsc-alias": "^1.8.16",
-    "tsup": "^8.5.0",
-    "tsx": "^4.20.3",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
     "type-fest": "^5.3.1",
-    "typescript": "^5.8.3",
-    "vitest": "^2.1.8"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.16"
   },
-  "files": ["dist", "package.json", "CHANGELOG.md", "README.md"],
+  "files": [
+    "dist",
+    "package.json",
+    "CHANGELOG.md",
+    "README.md"
+  ],
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
