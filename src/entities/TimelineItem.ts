@@ -1,4 +1,4 @@
-import { ZodDiscriminatedUnionDef, z } from 'zod';
+import { z } from 'zod';
 import { zodSanitize } from '../helpers/sanitize';
 import { ActorSchema } from './Actor';
 import { CommentSchema } from './base/Comment';
@@ -443,6 +443,30 @@ const MergedEvent = NodeSchema.extend({
   merge_ref_name: z.string()
 });
 
+const AddedToProjectV2Event = NodeSchema.extend({
+  __typename: z.literal('AddedToProjectV2Event'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date()
+});
+
+const ConvertedFromDraftEvent = NodeSchema.extend({
+  __typename: z.literal('ConvertedFromDraftEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date()
+});
+
+const ProjectV2ItemStatusChangedEvent = NodeSchema.extend({
+  __typename: z.literal('ProjectV2ItemStatusChangedEvent'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date()
+});
+
+const RemovedFromProjectV2Event = NodeSchema.extend({
+  __typename: z.literal('RemovedFromProjectV2Event'),
+  actor: z.union([z.string(), ActorSchema]).optional(),
+  created_at: z.coerce.date()
+});
+
 const PullRequestCommit = NodeSchema.extend({
   __typename: z.literal('PullRequestCommit'),
   commit: z.string()
@@ -518,16 +542,92 @@ const ReviewRequestedEvent = NodeSchema.extend({
   requested_reviewer: z.union([z.string(), ActorSchema]).optional()
 });
 
-const list = z.discriminatedUnion('__typename', [
+// Tipos dos eventos (apenas assinaturas, sem corpo completo)
+type TimelineEvents =
+  | z.infer<typeof AddedToMergeQueueEvent>
+  | z.infer<typeof AddedToProjectEvent>
+  | z.infer<typeof AddedToProjectV2Event>
+  | z.infer<typeof AssignedEvent>
+  | z.infer<typeof AutomaticBaseChangeFailedEvent>
+  | z.infer<typeof AutomaticBaseChangeSucceededEvent>
+  | z.infer<typeof AutoMergeDisabledEvent>
+  | z.infer<typeof AutoMergeEnabledEvent>
+  | z.infer<typeof AutoRebaseEnabledEvent>
+  | z.infer<typeof AutoSquashEnabledEvent>
+  | z.infer<typeof BaseRefChangedEvent>
+  | z.infer<typeof BaseRefDeletedEvent>
+  | z.infer<typeof BaseRefForcePushedEvent>
+  | z.infer<typeof BlockedByAddedEvent>
+  | z.infer<typeof BlockedByRemovedEvent>
+  | z.infer<typeof BlockingAddedEvent>
+  | z.infer<typeof BlockingRemovedEvent>
+  | z.infer<typeof ClosedEvent>
+  | z.infer<typeof CommentDeletedEvent>
+  | z.infer<typeof ConnectedEvent>
+  | z.infer<typeof ConvertedFromDraftEvent>
+  | z.infer<typeof ConvertedNoteToIssueEvent>
+  | z.infer<typeof ConvertedToDiscussionEvent>
+  | z.infer<typeof ConvertToDraftEvent>
+  | z.infer<typeof CrossReferencedEvent>
+  | z.infer<typeof DemilestonedEvent>
+  | z.infer<typeof DeployedEvent>
+  | z.infer<typeof DeploymentEnvironmentChangedEvent>
+  | z.infer<typeof DisconnectedEvent>
+  | z.infer<typeof HeadRefDeletedEvent>
+  | z.infer<typeof HeadRefForcePushedEvent>
+  | z.infer<typeof HeadRefRestoredEvent>
+  | z.infer<typeof IssueComment>
+  | z.infer<typeof IssueTypeAddedEvent>
+  | z.infer<typeof IssueTypeChangedEvent>
+  | z.infer<typeof IssueTypeRemovedEvent>
+  | z.infer<typeof LabeledEvent>
+  | z.infer<typeof LockedEvent>
+  | z.infer<typeof MarkedAsDuplicateEvent>
+  | z.infer<typeof MentionedEvent>
+  | z.infer<typeof MergedEvent>
+  | z.infer<typeof MilestonedEvent>
+  | z.infer<typeof MovedColumnsInProjectEvent>
+  | z.infer<typeof ParentIssueAddedEvent>
+  | z.infer<typeof ParentIssueRemovedEvent>
+  | z.infer<typeof PinnedEvent>
+  | z.infer<typeof ProjectV2ItemStatusChangedEvent>
+  | z.infer<typeof PullRequestCommit>
+  | z.infer<typeof PullRequestCommitCommentThread>
+  | z.infer<typeof PullRequestReview>
+  | z.infer<typeof PullRequestReviewThreadSchema>
+  | z.infer<typeof ReadyForReviewEvent>
+  | z.infer<typeof ReferencedEvent>
+  | z.infer<typeof RemovedFromMergeQueueEvent>
+  | z.infer<typeof RemovedFromProjectEvent>
+  | z.infer<typeof RemovedFromProjectV2Event>
+  | z.infer<typeof RenamedTitleEvent>
+  | z.infer<typeof ReopenedEvent>
+  | z.infer<typeof ReviewDismissedEvent>
+  | z.infer<typeof ReviewRequestedEvent>
+  | z.infer<typeof ReviewRequestRemovedEvent>
+  | z.infer<typeof SubIssueAddedEvent>
+  | z.infer<typeof SubIssueRemovedEvent>
+  | z.infer<typeof SubscribedEvent>
+  | z.infer<typeof TransferredEvent>
+  | z.infer<typeof UnassignedEvent>
+  | z.infer<typeof UnlabeledEvent>
+  | z.infer<typeof UnlockedEvent>
+  | z.infer<typeof UnmarkedAsDuplicateEvent>
+  | z.infer<typeof UnpinnedEvent>
+  | z.infer<typeof UnsubscribedEvent>
+  | z.infer<typeof UserBlockedEvent>;
+
+const list: z.ZodType<TimelineEvents> = z.discriminatedUnion('__typename', [
   AddedToMergeQueueEvent,
   AddedToProjectEvent,
+  AddedToProjectV2Event,
   AssignedEvent,
+  AutomaticBaseChangeFailedEvent,
+  AutomaticBaseChangeSucceededEvent,
   AutoMergeDisabledEvent,
   AutoMergeEnabledEvent,
   AutoRebaseEnabledEvent,
   AutoSquashEnabledEvent,
-  AutomaticBaseChangeFailedEvent,
-  AutomaticBaseChangeSucceededEvent,
   BaseRefChangedEvent,
   BaseRefDeletedEvent,
   BaseRefForcePushedEvent,
@@ -538,9 +638,10 @@ const list = z.discriminatedUnion('__typename', [
   ClosedEvent,
   CommentDeletedEvent,
   ConnectedEvent,
-  ConvertToDraftEvent,
+  ConvertedFromDraftEvent,
   ConvertedNoteToIssueEvent,
   ConvertedToDiscussionEvent,
+  ConvertToDraftEvent,
   CrossReferencedEvent,
   DemilestonedEvent,
   DeployedEvent,
@@ -563,6 +664,7 @@ const list = z.discriminatedUnion('__typename', [
   ParentIssueAddedEvent,
   ParentIssueRemovedEvent,
   PinnedEvent,
+  ProjectV2ItemStatusChangedEvent,
   PullRequestCommit,
   PullRequestCommitCommentThread,
   PullRequestReview,
@@ -571,11 +673,12 @@ const list = z.discriminatedUnion('__typename', [
   ReferencedEvent,
   RemovedFromMergeQueueEvent,
   RemovedFromProjectEvent,
+  RemovedFromProjectV2Event,
   RenamedTitleEvent,
   ReopenedEvent,
   ReviewDismissedEvent,
-  ReviewRequestRemovedEvent,
   ReviewRequestedEvent,
+  ReviewRequestRemovedEvent,
   SubIssueAddedEvent,
   SubIssueRemovedEvent,
   SubscribedEvent,
@@ -587,10 +690,8 @@ const list = z.discriminatedUnion('__typename', [
   UnpinnedEvent,
   UnsubscribedEvent,
   UserBlockedEvent
-]);
+]) as z.ZodType<TimelineEvents>;
 
-export const TimelineItemSchema = zodSanitize(
-  list as z.ZodType<z.output<typeof list>, ZodDiscriminatedUnionDef<'__typename'>, z.input<typeof list>>
-);
+export const TimelineItemSchema = zodSanitize(list);
 
 export type TimelineItem = z.output<typeof TimelineItemSchema>;

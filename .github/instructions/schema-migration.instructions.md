@@ -111,7 +111,6 @@ Antes de iniciar qualquer migração:
    - Campos/tipos adicionados
    - Campos/tipos modificados
    - Campos/tipos deprecados (mas ainda disponíveis)
-   - Ignore todos os campos inciados com viewer* (e.g., viewerCan*)
 
 ### 3.3. Analisar Impacto
 
@@ -193,6 +192,10 @@ const ClosedEventSchema = z.object({
    - O campo é útil para os casos de uso do GitTrends?
    - Adiciona valor significativo?
    - Se sim, prosseguir; se não, documentar decisão de não incluir
+   - *Importante:* 
+      - Ignore todos os campos inciados com viewer* (e.g., viewerCan*)
+      - Verifique se já existe um campo similar
+
 
 3. **Implementar** (se relevante):
 

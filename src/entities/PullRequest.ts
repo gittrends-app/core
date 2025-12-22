@@ -1,4 +1,4 @@
-import { ZodObjectDef, z } from 'zod';
+import { z } from 'zod';
 import { zodSanitize } from '../helpers/sanitize';
 import { ActorSchema } from './Actor';
 import { CommentSchema } from './base/Comment';
@@ -7,7 +7,8 @@ import { ReactableSchema } from './base/Reactable';
 import { RepositoryNodeSchema } from './base/RepositoryNode';
 import { TimelineItemSchema } from './TimelineItem';
 
-const pr = NodeSchema.merge(RepositoryNodeSchema)
+// Schema base sem timeline_items para reduzir complexidade de inferência
+const basePr = NodeSchema.merge(RepositoryNodeSchema)
   .merge(CommentSchema)
   .merge(ReactableSchema)
   .extend({
@@ -73,11 +74,22 @@ const pr = NodeSchema.merge(RepositoryNodeSchema)
         })
       )
       .optional(),
-    total_comments_count: z.number().int(),
-
-    timeline_items: z.union([z.string().array(), TimelineItemSchema.array()]).optional()
+    total_comments_count: z.number().int()
   });
 
-export const PullRequestSchema = zodSanitize(pr as z.ZodType<z.output<typeof pr>, ZodObjectDef, z.input<typeof pr>>);
+// Tipo base inferido
+type BasePullRequest = z.infer<typeof basePr>;
+
+// Tipo extendido inferido
+type ExtendedPullRequest = z.ZodType<
+  BasePullRequest & {
+    timeline_items?: z.infer<typeof TimelineItemSchema>[];
+  }
+>;
+
+// Schema completo com timeline_items
+export const PullRequestSchema = zodSanitize(
+  basePr.extend({ timeline_items: z.array(TimelineItemSchema).optional() }) as ExtendedPullRequest
+);
 
 export type PullRequest = z.output<typeof PullRequestSchema>;
