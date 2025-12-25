@@ -6,17 +6,18 @@
     "tag": true,
     "tagName": "v${version}",
     "tagAnnotation": "Release v${version}",
-    "changelog": "npx auto-changelog --stdout --commit-limit false -u --template https://raw.githubusercontent.com/release-it/release-it/main/templates/changelog-compact.hbs",
     "push": true
   },
   "npm": false,
   "github": {
-    "release": true,
     "web": true,
-    "autoGenerate": true
+    "autoGenerate": true,
+    "release": true,
+    "releaseName": "Release ${version}",
+    "releaseNotes": "auto-changelog -p"
   },
   "hooks": {
     "before:init": ["npm run lint", "npm run test"],
-    "after:bump": ["yarn build", "npx auto-changelog -p"]
+    "after:bump": ["yarn build"]
   }
 }
