@@ -8,7 +8,9 @@
     "tagAnnotation": "Release v${version}",
     "push": true
   },
-  "npm": false,
+  "npm": {
+    "publish": false
+  },
   "github": {
     "web": true,
     "autoGenerate": true,
