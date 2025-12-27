@@ -2,86 +2,14 @@
 
 ## 1. Visão Geral
 
-GitTrends core é um pacote TypeScript para coletar dados da API GraphQL do GitHub. Embora a API GraphQL permita consultas dinâmicas, o GitTrends core usa um esquema fortemente tipado para garantir validade das consultas e formato dos dados retornados.
+Este documento orienta o processo de migração do esquema do GitTrends core quando há atualizações na API GraphQL do GitHub.
 
-Este documento orienta a migração do esquema quando há atualizações na API GraphQL do GitHub.
+**Documentação relacionada**:
+- [architecture.instructions.md](./architecture.instructions.md) - Entenda a arquitetura do sistema, componentes e fluxo de dados
 
-## 2. Arquitetura do Sistema
+## 2. Processo de Migração
 
-### 2.1. Componentes Principais
-
-```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐     ┌──────────┐
-│   Entity    │ ←── │   Fragment   │ ←── │   Lookup    │ ←── │ Resource │
-│  (Zod Schema)│     │  (GraphQL)   │     │  (Query)    │     │ (Service)│
-└─────────────┘     └──────────────┘     └─────────────┘     └──────────┘
-```
-
-**1. Entities (`src/entities/`)**: Schemas Zod que definem tipos e validações
-   - Exemplo: `Issue.ts`, `Repository.ts`, `PullRequest.ts`
-   - Define a estrutura dos dados em TypeScript
-
-**2. Fragments (`src/services/github/graphql/fragments/`)**: Fragmentos GraphQL reutilizáveis
-   - Exemplo: `IssueFragment.ts`, `RepositoryFragment.ts`
-   - Especificam campos a buscar na API
-   - Mapeiam para os schemas das entities
-
-**3. Lookups (`src/services/github/graphql/lookups/`)**: Queries GraphQL completas
-   - Exemplo: `IssuesLookup.ts`, `RepositoryLookup.ts`
-   - Usam fragments para construir consultas
-   - Implementam parsing dos dados retornados
-
-**4. Resources (`src/services/github/resources/`)**: Funções de alto nível
-   - Consolidam lookups com lógica de negócio
-   - Interface pública da biblioteca
-
-**5. Services (`src/services/`)**: Abstrações com padrão decorator
-   - `GitHubService`: Base para comunicação com API
-   - `CacheService`: Adiciona caching
-   - `PassThroughService`: Middleware transparente
-
-### 2.2. Fluxo de Dados
-
-```typescript
-// 1. ENTITY - Define o schema (src/entities/Issue.ts)
-const baseIssue = NodeSchema.extend({
-  __typename: z.literal('Issue'),
-  number: z.number().int(),
-  title: z.string(),
-  state: z.string(),
-  // ...
-});
-
-// 2. FRAGMENT - Define campos GraphQL (src/services/github/graphql/fragments/IssueFragment.ts)
-toString(): string {
-  return `
-    fragment ${this.alias} on Issue {
-      __typename
-      number
-      title
-      state
-      // ...
-    }
-  `;
-}
-
-// 3. LOOKUP - Constrói query (src/services/github/graphql/lookups/IssuesLookup.ts)
-toString(): string {
-  return `
-    issues(first: 100) {
-      nodes { ...${this.fragments[0].alias} }
-    }
-  `;
-}
-
-parse(data: any) {
-  return data.nodes.map(node => this.fragments[0].parse(node));
-}
-```
-
-## 3. Processo de Migração
-
-### 3.1. Pré-requisitos
+### 2.1. Pré-requisitos
 
 Antes de iniciar qualquer migração:
 
@@ -91,7 +19,7 @@ Antes de iniciar qualquer migração:
 - [ ] Criar branch específica para migração: `git checkout -b feat/schema-YYYY-MM-DD`
 - [ ] Não ter mudanças não commitadas no repositório
 
-### 3.2. Identificar Mudanças
+### 2.2. Identificar Mudanças
 
 1. Acesse o [changelog da API GraphQL do GitHub](https://docs.github.com/pt/graphql/overview/changelog)
 
@@ -112,7 +40,7 @@ Antes de iniciar qualquer migração:
    - Campos/tipos modificados
    - Campos/tipos deprecados (mas ainda disponíveis)
 
-### 3.3. Analisar Impacto
+### 2.3. Analisar Impacto
 
 Para cada mudança identificada, mapeie os arquivos afetados:
 
@@ -137,18 +65,20 @@ grep -r "stateReason" src/services/github/graphql/fragments/
 grep -r "state_reason" src/entities/
 ```
 
-### 3.4. Implementar Mudanças
+### 2.4. Implementar Mudanças
 
-#### 3.4.1. Remoção de Campos
+**Importante**: Consulte [architecture.instructions.md](./architecture.instructions.md) para entender o relacionamento entre Entity, Fragment, Lookup e Resource.
+
+#### 2.4.1. Remoção de Campos
 
 **Exemplo**: Remover campo `stateReason` de `ClosedEvent`
 
 **ANTES**:
-```typescript
-// src/services/github/graphql/fragments/TimelineItemFragment.ts
-... on ClosedEvent {
+```ton ClosedEvent {
   __typename
-  createdAt
+  crea4. Implementar Mudanças
+
+#### 2tedAt
   stateReason  // ← Será removido
 }
 
@@ -177,7 +107,7 @@ const ClosedEventSchema = z.object({
 });
 ```
 
-#### 3.4.2. Adição de Campos
+#### 2.4.2. Adição de Campos
 
 **Exemplo**: Adicionar campo `duplicateOf` ao tipo `Issue`
 
@@ -218,7 +148,7 @@ fragment ${this.alias} on Issue {
 // IssuesLookup.ts continua igual, usa o fragment atualizado
 ```
 
-#### 3.4.3. Renomeação de Campos
+#### 2.4.3. Renomeação de Campos
 
 **Exemplo**: Campo `assignees` renomeado para `assignedActors`
 
@@ -242,7 +172,7 @@ assigned_actors: z.array(ActorSchema).optional()
 // Lógica de parsing no Fragment para usar assignedActors se disponível, senão assignees
 ```
 
-#### 3.4.4. Mudança de Tipo
+#### 2.4.4. Mudança de Tipo
 
 **Exemplo**: Campo `state` muda de `String` para `IssueState` (enum)
 
@@ -257,7 +187,7 @@ state: z.enum(['OPEN', 'CLOSED'])
 state: z.union([z.string(), z.enum(['OPEN', 'CLOSED'])])
 ```
 
-#### 3.4.5. Remoção de Tipos
+#### 2.4.5. Remoção de Tipos
 
 **Exemplo**: Tipo `BotOrUser` foi removido
 
@@ -270,7 +200,7 @@ state: z.union([z.string(), z.enum(['OPEN', 'CLOSED'])])
 
 3. Atualizar entities, fragments e lookups conforme necessário
 
-### 3.5. Validação
+### 2.5. Validação
 
 Após cada mudança, execute a validação completa:
 
@@ -296,7 +226,7 @@ npm run test:coverage
 - [ ] Tipos exportados estão corretos (`dist/index.d.ts`)
 - [ ] Não há breaking changes não documentadas
 
-### 3.6. Documentação
+### 2.6. Documentação
 
 1. **Atualizar `schemaRevision`** em `package.json`:
    ```json
@@ -311,9 +241,9 @@ npm run test:coverage
    - Se optou por NÃO adicionar um campo disponível, documente o porquê
    - Se manteve compatibilidade temporária, documente até quando
 
-## 4. Casos Especiais
+## 3. Casos Especiais
 
-### 4.1. Campos Deprecados (mas não removidos)
+### 3.1. Campos Deprecados (mas não removidos)
 
 Quando um campo é marcado como deprecated mas ainda funciona:
 
@@ -329,7 +259,7 @@ Quando um campo é marcado como deprecated mas ainda funciona:
 
 3. **Planeje migração futura**: Adicione issue no GitHub
 
-### 4.2. Breaking Changes (Mudanças Incompatíveis)
+### 3.2. Breaking Changes (Mudanças Incompatíveis)
 
 Se a mudança quebra compatibilidade com código existente:
 
@@ -343,7 +273,7 @@ Se a mudança quebra compatibilidade com código existente:
 
 4. **Considerar período de transição**: Suportar ambas as versões temporariamente
 
-### 4.3. Campos Opcionais vs Obrigatórios
+### 3.3. Campos Opcionais vs Obrigatórios
 
 ```typescript
 // Sempre confira na documentação oficial se o campo é nullable
@@ -361,7 +291,7 @@ locked_reason: z.string().nullable()
 license: z.string().optional().nullable()
 ```
 
-### 4.4. Mudanças em Campos Aninhados
+### 3.4. Mudanças em Campos Aninhados
 
 **Exemplo**: `repository.owner` mudou de `User` para `Actor`
 
@@ -379,7 +309,7 @@ owner: ActorSchema  // Actor é union de User | Organization
 
 Buscar e atualizar todos os usos de `repository.owner.email` no código.
 
-## 5. Workflow Completo
+## 4. Workflow Completo
 
 ### Exemplo: Migração da revisão 2024-07-01
 
@@ -418,7 +348,7 @@ git push origin feat/schema-2024-07-01
 # Criar PR com descrição detalhada das mudanças
 ```
 
-## 6. Troubleshooting
+## 5. Troubleshooting
 
 ### Problema: Testes falhando após mudança
 
