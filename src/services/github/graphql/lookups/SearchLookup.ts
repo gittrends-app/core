@@ -6,6 +6,7 @@ type SearchQueryLookupParams = {
   limit: number;
   name?: string;
   language?: string;
+  org?: string;
 };
 
 /**
@@ -24,6 +25,7 @@ export class SearchLookup extends QueryLookup<Repository[], SearchQueryLookupPar
 
     if (this.params.language) query.push(`language:${this.params.language}`);
     if (this.params.name) query.push(this.params.name);
+    if (this.params.org) query.push(`org:${this.params.org}`);
 
     const total = Math.min(this.params.per_page || 100, this.params.limit);
 

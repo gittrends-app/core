@@ -34,8 +34,14 @@ import { GithubClient, GithubService, Service } from '../src/index.js';
       required: false
     });
 
+    // We can filter the repositories by organization.
+    const org = await input({
+      message: 'Would you like to filter by organization:',
+      required: false
+    });
+
     // Now, we can search for the repositories using the selected parameters.
-    const it = service.search(total!, { per_page: 10, language, name });
+    const it = service.search(total!, { per_page: 10, language, name, org });
     const stream = createStream({
       columns: [{ width: 3 }, {}, { width: 7 }, { width: 15 }],
       columnDefault: { width: 50, truncate: 50 },

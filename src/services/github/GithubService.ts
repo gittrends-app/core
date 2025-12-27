@@ -132,7 +132,8 @@ export class GithubService implements Service {
         limit: total,
         per_page: opts?.per_page,
         name: opts?.name,
-        language: opts?.language
+        language: opts?.language,
+        org: opts?.org
       })
     );
 

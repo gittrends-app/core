@@ -49,6 +49,7 @@ export type ServiceResourceParams = RepositoryNode & PageableParams;
 export type SearchParams = PageableParams & {
   name?: string;
   language?: string;
+  org?: string;
 };
 
 /**
