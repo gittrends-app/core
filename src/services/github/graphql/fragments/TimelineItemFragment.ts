@@ -27,8 +27,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
 
       fragment ${this.alias}_AddedToProjectV2Event on AddedToProjectV2Event {
         actor { ...${this.fragments[0].alias} }
-        createdAt
-        wasAutomated
       }
 
       fragment ${this.alias}_AssignedEvent on AssignedEvent {
@@ -91,8 +89,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
 
       fragment ${this.alias}_ConvertedFromDraftEvent on ConvertedFromDraftEvent {
         actor { ...${this.fragments[0].alias} }
-        createdAt
-        wasAutomated
       }
 
       fragment ${this.alias}_ConvertedToDiscussionEvent on ConvertedToDiscussionEvent {
@@ -215,10 +211,8 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
 
       fragment ${this.alias}_ProjectV2ItemStatusChangedEvent on ProjectV2ItemStatusChangedEvent {
         actor { ...${this.fragments[0].alias} }
-        createdAt
         previousStatus
         status
-        wasAutomated
       }
 
       fragment ${this.alias}_ReferencedEvent on ReferencedEvent {
@@ -237,8 +231,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
 
       fragment ${this.alias}_RemovedFromProjectV2Event on RemovedFromProjectV2Event {
         actor { ...${this.fragments[0].alias} }
-        createdAt
-        wasAutomated
       }
 
       fragment ${this.alias}_RenamedTitleEvent on RenamedTitleEvent {
@@ -660,9 +652,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       case 'AddedToProjectV2Event':
         _data = {
           ..._data,
-          actor: data.actor && this.fragments[0].parse(data.actor),
-          created_at: data.createdAt,
-          was_automated: data.wasAutomated
+          actor: data.actor && this.fragments[0].parse(data.actor)
         };
         break;
       case 'ConvertedNoteToIssueEvent':
@@ -732,9 +722,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       case 'ConvertedFromDraftEvent':
         _data = {
           ..._data,
-          actor: data.actor && this.fragments[0].parse(data.actor),
-          created_at: data.createdAt,
-          was_automated: data.wasAutomated
+          actor: data.actor && this.fragments[0].parse(data.actor)
         };
         break;
       case 'ConvertedToDiscussionEvent':
@@ -856,10 +844,8 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         _data = {
           ..._data,
           actor: data.actor && this.fragments[0].parse(data.actor),
-          created_at: data.createdAt,
           previous_status: data.previousStatus,
-          status: data.status,
-          was_automated: data.wasAutomated
+          status: data.status
         };
         break;
       case 'UserBlockedEvent':
@@ -906,9 +892,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       case 'RemovedFromProjectV2Event':
         _data = {
           ..._data,
-          actor: data.actor && this.fragments[0].parse(data.actor),
-          created_at: data.createdAt,
-          was_automated: data.wasAutomated
+          actor: data.actor && this.fragments[0].parse(data.actor)
         };
         break;
       case 'RenamedTitleEvent':
