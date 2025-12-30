@@ -211,8 +211,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
 
       fragment ${this.alias}_ProjectV2ItemStatusChangedEvent on ProjectV2ItemStatusChangedEvent {
         actor { ...${this.fragments[0].alias} }
-        previousStatus
-        status
       }
 
       fragment ${this.alias}_ReferencedEvent on ReferencedEvent {
@@ -843,9 +841,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       case 'ProjectV2ItemStatusChangedEvent':
         _data = {
           ..._data,
-          actor: data.actor && this.fragments[0].parse(data.actor),
-          previous_status: data.previousStatus,
-          status: data.status
+          actor: data.actor && this.fragments[0].parse(data.actor)
         };
         break;
       case 'UserBlockedEvent':

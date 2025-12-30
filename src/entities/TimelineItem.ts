@@ -445,32 +445,22 @@ const MergedEvent = NodeSchema.extend({
 
 const AddedToProjectV2Event = NodeSchema.extend({
   __typename: z.literal('AddedToProjectV2Event'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date().optional(),
-  was_automated: z.boolean().optional()
+  actor: z.union([z.string(), ActorSchema]).optional()
 });
 
 const ConvertedFromDraftEvent = NodeSchema.extend({
   __typename: z.literal('ConvertedFromDraftEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date().optional(),
-  was_automated: z.boolean().optional()
+  actor: z.union([z.string(), ActorSchema]).optional()
 });
 
 const ProjectV2ItemStatusChangedEvent = NodeSchema.extend({
   __typename: z.literal('ProjectV2ItemStatusChangedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date().optional(),
-  previous_status: z.string(),
-  status: z.string(),
-  was_automated: z.boolean().optional()
+  actor: z.union([z.string(), ActorSchema]).optional()
 });
 
 const RemovedFromProjectV2Event = NodeSchema.extend({
   __typename: z.literal('RemovedFromProjectV2Event'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date().optional(),
-  was_automated: z.boolean().optional()
+  actor: z.union([z.string(), ActorSchema]).optional()
 });
 
 const PullRequestCommit = NodeSchema.extend({
