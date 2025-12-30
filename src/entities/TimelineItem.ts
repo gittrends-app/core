@@ -447,7 +447,6 @@ const AddedToProjectV2Event = NodeSchema.extend({
   __typename: z.literal('AddedToProjectV2Event'),
   actor: z.union([z.string(), ActorSchema]).optional(),
   created_at: z.coerce.date(),
-  project: z.string().optional(),
   was_automated: z.boolean()
 });
 
@@ -455,7 +454,6 @@ const ConvertedFromDraftEvent = NodeSchema.extend({
   __typename: z.literal('ConvertedFromDraftEvent'),
   actor: z.union([z.string(), ActorSchema]).optional(),
   created_at: z.coerce.date(),
-  project: z.string().optional(),
   was_automated: z.boolean()
 });
 
@@ -464,7 +462,6 @@ const ProjectV2ItemStatusChangedEvent = NodeSchema.extend({
   actor: z.union([z.string(), ActorSchema]).optional(),
   created_at: z.coerce.date(),
   previous_status: z.string(),
-  project: z.string().optional(),
   status: z.string(),
   was_automated: z.boolean()
 });
@@ -473,7 +470,6 @@ const RemovedFromProjectV2Event = NodeSchema.extend({
   __typename: z.literal('RemovedFromProjectV2Event'),
   actor: z.union([z.string(), ActorSchema]).optional(),
   created_at: z.coerce.date(),
-  project: z.string().optional(),
   was_automated: z.boolean()
 });
 

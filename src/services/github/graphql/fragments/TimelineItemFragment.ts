@@ -28,7 +28,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias}_AddedToProjectV2Event on AddedToProjectV2Event {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        project { id }
         wasAutomated
       }
 
@@ -93,7 +92,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias}_ConvertedFromDraftEvent on ConvertedFromDraftEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        project { id }
         wasAutomated
       }
 
@@ -219,7 +217,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         actor { ...${this.fragments[0].alias} }
         createdAt
         previousStatus
-        project { id }
         status
         wasAutomated
       }
@@ -241,7 +238,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias}_RemovedFromProjectV2Event on RemovedFromProjectV2Event {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        project { id }
         wasAutomated
       }
 
@@ -666,7 +662,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           ..._data,
           actor: data.actor && this.fragments[0].parse(data.actor),
           created_at: data.createdAt,
-          project: data.project?.id,
           was_automated: data.wasAutomated
         };
         break;
@@ -739,7 +734,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           ..._data,
           actor: data.actor && this.fragments[0].parse(data.actor),
           created_at: data.createdAt,
-          project: data.project?.id,
           was_automated: data.wasAutomated
         };
         break;
@@ -864,7 +858,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           actor: data.actor && this.fragments[0].parse(data.actor),
           created_at: data.createdAt,
           previous_status: data.previousStatus,
-          project: data.project?.id,
           status: data.status,
           was_automated: data.wasAutomated
         };
@@ -915,7 +908,6 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           ..._data,
           actor: data.actor && this.fragments[0].parse(data.actor),
           created_at: data.createdAt,
-          project: data.project?.id,
           was_automated: data.wasAutomated
         };
         break;
