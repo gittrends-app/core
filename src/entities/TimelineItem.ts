@@ -446,25 +446,35 @@ const MergedEvent = NodeSchema.extend({
 const AddedToProjectV2Event = NodeSchema.extend({
   __typename: z.literal('AddedToProjectV2Event'),
   actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date()
+  created_at: z.coerce.date(),
+  project: z.string().optional(),
+  was_automated: z.boolean()
 });
 
 const ConvertedFromDraftEvent = NodeSchema.extend({
   __typename: z.literal('ConvertedFromDraftEvent'),
   actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date()
+  created_at: z.coerce.date(),
+  project: z.string().optional(),
+  was_automated: z.boolean()
 });
 
 const ProjectV2ItemStatusChangedEvent = NodeSchema.extend({
   __typename: z.literal('ProjectV2ItemStatusChangedEvent'),
   actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date()
+  created_at: z.coerce.date(),
+  previous_status: z.string(),
+  project: z.string().optional(),
+  status: z.string(),
+  was_automated: z.boolean()
 });
 
 const RemovedFromProjectV2Event = NodeSchema.extend({
   __typename: z.literal('RemovedFromProjectV2Event'),
   actor: z.union([z.string(), ActorSchema]).optional(),
-  created_at: z.coerce.date()
+  created_at: z.coerce.date(),
+  project: z.string().optional(),
+  was_automated: z.boolean()
 });
 
 const PullRequestCommit = NodeSchema.extend({
@@ -540,6 +550,13 @@ const ReviewRequestedEvent = NodeSchema.extend({
   actor: z.union([z.string(), ActorSchema]).optional(),
   created_at: z.coerce.date(),
   requested_reviewer: z.union([z.string(), ActorSchema]).optional()
+});
+
+const UnknownEvent = z.looseObject({
+  id: z.string(),
+  __typename: z.string().refine((val) => val.endsWith('Event'), {
+    message: 'Unknown timeline item type must be a valid event'
+  })
 });
 
 // Tipos dos eventos (apenas assinaturas, sem corpo completo)
@@ -689,7 +706,8 @@ const list: z.ZodType<TimelineEvents> = z.discriminatedUnion('__typename', [
   UnmarkedAsDuplicateEvent,
   UnpinnedEvent,
   UnsubscribedEvent,
-  UserBlockedEvent
+  UserBlockedEvent,
+  UnknownEvent
 ]) as z.ZodType<TimelineEvents>;
 
 export const TimelineItemSchema = zodSanitize(list);

@@ -25,6 +25,13 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         createdAt
       }
 
+      fragment ${this.alias}_AddedToProjectV2Event on AddedToProjectV2Event {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        project { id }
+        wasAutomated
+      }
+
       fragment ${this.alias}_AssignedEvent on AssignedEvent {
         actor { ...${this.fragments[0].alias} }
         assignee { ...${this.fragments[0].alias} }
@@ -81,6 +88,13 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         createdAt
         databaseId
         projectColumnName
+      }
+
+      fragment ${this.alias}_ConvertedFromDraftEvent on ConvertedFromDraftEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        project { id }
+        wasAutomated
       }
 
       fragment ${this.alias}_ConvertedToDiscussionEvent on ConvertedToDiscussionEvent {
@@ -201,6 +215,15 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         createdAt
       }
 
+      fragment ${this.alias}_ProjectV2ItemStatusChangedEvent on ProjectV2ItemStatusChangedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        previousStatus
+        project { id }
+        status
+        wasAutomated
+      }
+
       fragment ${this.alias}_ReferencedEvent on ReferencedEvent {
         actor { ...${this.fragments[0].alias} }
         commit { id }
@@ -213,6 +236,13 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias}_RemovedFromProjectEvent on RemovedFromProjectEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
+      }
+
+      fragment ${this.alias}_RemovedFromProjectV2Event on RemovedFromProjectV2Event {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        project { id }
+        wasAutomated
       }
 
       fragment ${this.alias}_RenamedTitleEvent on RenamedTitleEvent {
@@ -536,6 +566,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
       fragment ${this.alias} on Node {
         ...${this.alias}_Node						
         ...${this.alias}_AddedToProjectEvent
+        ...${this.alias}_AddedToProjectV2Event
         ...${this.alias}_AssignedEvent
         ...${this.alias}_BlockedByAddedEvent
         ...${this.alias}_BlockedByRemovedEvent
@@ -545,6 +576,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         ...${this.alias}_CommentDeletedEvent
         ...${this.alias}_ConnectedEvent
         ...${this.alias}_ConvertedNoteToIssueEvent
+        ...${this.alias}_ConvertedFromDraftEvent
         ...${this.alias}_ConvertedToDiscussionEvent
         ...${this.alias}_CrossReferencedEvent
         ...${this.alias}_DemilestonedEvent
@@ -562,8 +594,10 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         ...${this.alias}_ParentIssueAddedEvent
         ...${this.alias}_ParentIssueRemovedEvent
         ...${this.alias}_PinnedEvent
+        ...${this.alias}_ProjectV2ItemStatusChangedEvent
         ...${this.alias}_ReferencedEvent
         ...${this.alias}_RemovedFromProjectEvent
+        ...${this.alias}_RemovedFromProjectV2Event
         ...${this.alias}_RenamedTitleEvent
         ...${this.alias}_ReopenedEvent
         ...${this.alias}_SubIssueAddedEvent
@@ -625,6 +659,15 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           ..._data,
           actor: data.actor && this.fragments[0].parse(data.actor),
           created_at: data.createdAt
+        };
+        break;
+      case 'AddedToProjectV2Event':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          project: data.project?.id,
+          was_automated: data.wasAutomated
         };
         break;
       case 'ConvertedNoteToIssueEvent':
@@ -689,6 +732,15 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           created_at: data.createdAt,
           is_cross_repository: data.isCrossRepository,
           source: data.source
+        };
+        break;
+      case 'ConvertedFromDraftEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          project: data.project?.id,
+          was_automated: data.wasAutomated
         };
         break;
       case 'ConvertedToDiscussionEvent':
@@ -806,6 +858,17 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           created_at: data.createdAt
         };
         break;
+      case 'ProjectV2ItemStatusChangedEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          previous_status: data.previousStatus,
+          project: data.project?.id,
+          status: data.status,
+          was_automated: data.wasAutomated
+        };
+        break;
       case 'UserBlockedEvent':
         _data = {
           ..._data,
@@ -845,6 +908,15 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           ..._data,
           actor: data.actor && this.fragments[0].parse(data.actor),
           created_at: data.createdAt
+        };
+        break;
+      case 'RemovedFromProjectV2Event':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          project: data.project?.id,
+          was_automated: data.wasAutomated
         };
         break;
       case 'RenamedTitleEvent':
@@ -1096,7 +1168,14 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         break;
 
       default:
-        throw new Error(`Unknown timeline item type: ${data.__typename}`);
+        // biome-ignore lint/suspicious/noConsole: This is useful for debugging unknown types
+        console.warn(`Unknown timeline item type: ${data.__typename}. Using UnknownEvent fallback.`);
+        _data = {
+          __typename: data.__typename,
+          id: (data as any).id,
+          ...(data as any)
+        };
+        break;
     }
 
     return TimelineItemSchema.parse(_data);
