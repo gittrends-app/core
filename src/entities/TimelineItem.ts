@@ -538,12 +538,14 @@ const ReviewRequestedEvent = NodeSchema.extend({
   requested_reviewer: z.union([z.string(), ActorSchema]).optional()
 });
 
-const UnknownEvent = z.looseObject({
-  id: z.string(),
-  __typename: z.string().refine((val) => val.endsWith('Event'), {
-    message: 'Unknown timeline item type must be a valid event'
-  })
-});
+const UnknownEvent = z.looseObject(
+  NodeSchema.extend({
+    __typename: z.literal('UnknownEvent'),
+    typename: z.string().refine((val) => val.endsWith('Event'), {
+      message: 'Unknown timeline item type must be a valid event'
+    })
+  }).shape
+);
 
 // Tipos dos eventos (apenas assinaturas, sem corpo completo)
 type TimelineEvents =

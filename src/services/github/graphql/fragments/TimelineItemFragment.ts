@@ -1143,9 +1143,10 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         // biome-ignore lint/suspicious/noConsole: This is useful for debugging unknown types
         console.warn(`Unknown timeline item type: ${data.__typename}. Using UnknownEvent fallback.`);
         _data = {
-          __typename: data.__typename,
           id: (data as any).id,
-          ...(data as any)
+          ...(data as any),
+          typename: data.__typename,
+          __typename: 'UnknownEvent'
         };
         break;
     }
