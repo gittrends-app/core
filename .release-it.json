@@ -15,11 +15,10 @@
     "web": true,
     "autoGenerate": true,
     "release": true,
-    "releaseName": "Release ${version}",
-    "releaseNotes": "auto-changelog -p"
+    "releaseName": "Release ${version}"
   },
   "hooks": {
     "before:init": ["npm run lint", "npm run test"],
-    "after:bump": ["yarn build"]
+    "after:bump": ["yarn build", "auto-changelog -p && git add CHANGELOG.md"]
   }
 }
