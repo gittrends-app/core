@@ -11,72 +11,72 @@ import { ReactableSchema } from './base/Reactable';
 
 const AddedToProjectEvent = NodeSchema.extend({
   __typename: z.literal('AddedToProjectEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const AssignedEvent = NodeSchema.extend({
   __typename: z.literal('AssignedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
-  assignee: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
+  assignee: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const BlockedByAddedEvent = NodeSchema.extend({
   __typename: z.literal('BlockedByAddedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  blocking_issue: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) }).optional()
+  blocking_issue: NodeSchema.optional()
 });
 
 const BlockedByRemovedEvent = NodeSchema.extend({
   __typename: z.literal('BlockedByRemovedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  blocking_issue: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) }).optional()
+  blocking_issue: NodeSchema.optional()
 });
 
 const BlockingAddedEvent = NodeSchema.extend({
   __typename: z.literal('BlockingAddedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  blocked_issue: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) }).optional()
+  blocked_issue: NodeSchema.optional()
 });
 
 const BlockingRemovedEvent = NodeSchema.extend({
   __typename: z.literal('BlockingRemovedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  blocked_issue: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) }).optional()
+  blocked_issue: NodeSchema.optional()
 });
 
 const ClosedEvent = NodeSchema.extend({
   __typename: z.literal('ClosedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
-  closer: z.object({ id: z.string(), __typename: z.string() }).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
+  closer: NodeSchema.optional(),
   created_at: z.coerce.date(),
   duplicate_of: z.string().optional()
 });
 
 const CommentDeletedEvent = NodeSchema.extend({
   __typename: z.literal('CommentDeletedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   database_id: z.number().int().optional(),
-  deleted_comment_author: z.union([z.string(), ActorSchema]).optional()
+  deleted_comment_author: z.union([ActorSchema, NodeSchema]).optional()
 });
 
 const ConnectedEvent = NodeSchema.extend({
   __typename: z.literal('ConnectedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   is_cross_repository: z.boolean(),
-  source: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) })
+  source: NodeSchema.optional()
 });
 
 const ConvertedNoteToIssueEvent = NodeSchema.extend({
   __typename: z.literal('ConvertedNoteToIssueEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   database_id: z.number().int().optional(),
   project_column_name: z.string()
@@ -84,34 +84,34 @@ const ConvertedNoteToIssueEvent = NodeSchema.extend({
 
 const ConvertedToDiscussionEvent = NodeSchema.extend({
   __typename: z.literal('ConvertedToDiscussionEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   discussion: z.string().optional()
 });
 
 const CrossReferencedEvent = NodeSchema.extend({
   __typename: z.literal('CrossReferencedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   is_cross_repository: z.boolean(),
   referenced_at: z.coerce.date(),
-  source: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) }),
+  source: NodeSchema,
   will_close_target: z.boolean()
 });
 
 const DemilestonedEvent = NodeSchema.extend({
   __typename: z.literal('DemilestonedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   milestone_title: z.string()
 });
 
 const DisconnectedEvent = NodeSchema.extend({
   __typename: z.literal('DisconnectedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   is_cross_repository: z.boolean(),
-  source: z.object({ id: z.string(), __typename: z.enum(['Issue', 'PullRequest']) })
+  source: NodeSchema
 });
 
 const IssueComment = NodeSchema.extend(CommentSchema.shape)
@@ -125,14 +125,14 @@ const IssueComment = NodeSchema.extend(CommentSchema.shape)
 
 const IssueTypeAddedEvent = NodeSchema.extend({
   __typename: z.literal('IssueTypeAddedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   issue_type: z.string().optional()
 });
 
 const IssueTypeChangedEvent = NodeSchema.extend({
   __typename: z.literal('IssueTypeChangedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   issue_type: z.string().optional(),
   prev_issue_type: z.string().optional()
@@ -140,76 +140,76 @@ const IssueTypeChangedEvent = NodeSchema.extend({
 
 const IssueTypeRemovedEvent = NodeSchema.extend({
   __typename: z.literal('IssueTypeRemovedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   issue_type: z.string().optional()
 });
 
 const LabeledEvent = NodeSchema.extend({
   __typename: z.literal('LabeledEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   label: z.string()
 });
 
 const LockedEvent = NodeSchema.extend({
   __typename: z.literal('LockedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   lock_reason: z.string().optional()
 });
 
 const MarkedAsDuplicateEvent = NodeSchema.extend({
   __typename: z.literal('MarkedAsDuplicateEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
-  canonical: NodeSchema.extend({ id: z.string(), __typename: z.string() }).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
+  canonical: NodeSchema.optional(),
   created_at: z.coerce.date(),
   is_cross_repository: z.boolean()
 });
 
 const MentionedEvent = NodeSchema.extend({
   __typename: z.literal('MentionedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   database_id: z.number().int().optional()
 });
 
 const MilestonedEvent = NodeSchema.extend({
   __typename: z.literal('MilestonedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   milestone_title: z.string()
 });
 
 const MovedColumnsInProjectEvent = NodeSchema.extend({
   __typename: z.literal('MovedColumnsInProjectEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const ParentIssueAddedEvent = NodeSchema.extend({
   __typename: z.literal('ParentIssueAddedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   parent: z.string().optional()
 });
 
 const ParentIssueRemovedEvent = NodeSchema.extend({
   __typename: z.literal('ParentIssueRemovedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   parent: z.string().optional()
 });
 
 const PinnedEvent = NodeSchema.extend({
   __typename: z.literal('PinnedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const ReferencedEvent = NodeSchema.extend({
   __typename: z.literal('ReferencedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   commit: z.string().optional(),
   commit_repository: z.string(),
   created_at: z.coerce.date(),
@@ -219,13 +219,13 @@ const ReferencedEvent = NodeSchema.extend({
 
 const RemovedFromProjectEvent = NodeSchema.extend({
   __typename: z.literal('RemovedFromProjectEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const RenamedTitleEvent = NodeSchema.extend({
   __typename: z.literal('RenamedTitleEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   current_title: z.string(),
   previous_title: z.string()
@@ -233,126 +233,126 @@ const RenamedTitleEvent = NodeSchema.extend({
 
 const ReopenedEvent = NodeSchema.extend({
   __typename: z.literal('ReopenedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   state_reason: z.string().optional()
 });
 
 const SubIssueAddedEvent = NodeSchema.extend({
   __typename: z.literal('SubIssueAddedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   sub_issue: z.string().optional()
 });
 
 const SubIssueRemovedEvent = NodeSchema.extend({
   __typename: z.literal('SubIssueRemovedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   sub_issue: z.string().optional()
 });
 
 const SubscribedEvent = NodeSchema.extend({
   __typename: z.literal('SubscribedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const TransferredEvent = NodeSchema.extend({
   __typename: z.literal('TransferredEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   from_repository: z.string().optional()
 });
 
 const UnassignedEvent = NodeSchema.extend({
   __typename: z.literal('UnassignedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
-  assignee: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
+  assignee: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const UnlabeledEvent = NodeSchema.extend({
   __typename: z.literal('UnlabeledEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   label: z.string()
 });
 
 const UnlockedEvent = NodeSchema.extend({
   __typename: z.literal('UnlockedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const UnmarkedAsDuplicateEvent = NodeSchema.extend({
   __typename: z.literal('UnmarkedAsDuplicateEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
-  canonical: NodeSchema.extend({ id: z.string(), __typename: z.string() }).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
+  canonical: NodeSchema.optional(),
   created_at: z.coerce.date(),
   is_cross_repository: z.boolean()
 });
 
 const UnpinnedEvent = NodeSchema.extend({
   __typename: z.literal('UnpinnedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const UnsubscribedEvent = NodeSchema.extend({
   __typename: z.literal('UnsubscribedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const UserBlockedEvent = NodeSchema.extend({
   __typename: z.literal('UserBlockedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   block_duration: z.string(),
   created_at: z.coerce.date()
 });
 
 const AddedToMergeQueueEvent = NodeSchema.extend({
   __typename: z.literal('AddedToMergeQueueEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  enqueuer: z.union([z.string(), ActorSchema]).optional(),
+  enqueuer: z.union([ActorSchema, NodeSchema]).optional(),
   merge_queue: z.string().optional()
 });
 
 const AutoMergeDisabledEvent = NodeSchema.extend({
   __typename: z.literal('AutoMergeDisabledEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  disabler: z.union([z.string(), ActorSchema]).optional(),
+  disabler: z.union([ActorSchema, NodeSchema]).optional(),
   reason: z.string().optional(),
   reason_code: z.string().optional()
 });
 
 const AutoMergeEnabledEvent = NodeSchema.extend({
   __typename: z.literal('AutoMergeEnabledEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  enabler: z.union([z.string(), ActorSchema]).optional()
+  enabler: z.union([ActorSchema, NodeSchema]).optional()
 });
 
 const AutoRebaseEnabledEvent = NodeSchema.extend({
   __typename: z.literal('AutoRebaseEnabledEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  enabler: z.union([z.string(), ActorSchema]).optional()
+  enabler: z.union([ActorSchema, NodeSchema]).optional()
 });
 
 const AutoSquashEnabledEvent = NodeSchema.extend({
   __typename: z.literal('AutoSquashEnabledEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  enabler: z.union([z.string(), ActorSchema]).optional()
+  enabler: z.union([ActorSchema, NodeSchema]).optional()
 });
 
 const AutomaticBaseChangeFailedEvent = NodeSchema.extend({
   __typename: z.literal('AutomaticBaseChangeFailedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   new_base: z.string(),
   old_base: z.string()
@@ -360,7 +360,7 @@ const AutomaticBaseChangeFailedEvent = NodeSchema.extend({
 
 const AutomaticBaseChangeSucceededEvent = NodeSchema.extend({
   __typename: z.literal('AutomaticBaseChangeSucceededEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   new_base: z.string(),
   old_base: z.string()
@@ -368,7 +368,7 @@ const AutomaticBaseChangeSucceededEvent = NodeSchema.extend({
 
 const BaseRefChangedEvent = NodeSchema.extend({
   __typename: z.literal('BaseRefChangedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   current_ref_name: z.string(),
   database_id: z.number().int().optional(),
@@ -377,14 +377,14 @@ const BaseRefChangedEvent = NodeSchema.extend({
 
 const BaseRefDeletedEvent = NodeSchema.extend({
   __typename: z.literal('BaseRefDeletedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   base_ref_name: z.string().optional(),
   created_at: z.coerce.date()
 });
 
 const BaseRefForcePushedEvent = NodeSchema.extend({
   __typename: z.literal('BaseRefForcePushedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   after_commit: z.string().optional(),
   before_commit: z.string().optional(),
   created_at: z.coerce.date(),
@@ -393,13 +393,13 @@ const BaseRefForcePushedEvent = NodeSchema.extend({
 
 const ConvertToDraftEvent = NodeSchema.extend({
   __typename: z.literal('ConvertToDraftEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const DeployedEvent = NodeSchema.extend({
   __typename: z.literal('DeployedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   database_id: z.number().int().optional(),
   deployment: z.string(),
@@ -408,27 +408,27 @@ const DeployedEvent = NodeSchema.extend({
 
 const DeploymentEnvironmentChangedEvent = NodeSchema.extend({
   __typename: z.literal('DeploymentEnvironmentChangedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   deployment_status: z.string()
 });
 
 const HeadRefDeletedEvent = NodeSchema.extend({
   __typename: z.literal('HeadRefDeletedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   head_ref_name: z.string()
 });
 
 const HeadRefRestoredEvent = NodeSchema.extend({
   __typename: z.literal('HeadRefRestoredEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const HeadRefForcePushedEvent = NodeSchema.extend({
   __typename: z.literal('HeadRefForcePushedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   after_commit: z.string().optional(),
   before_commit: z.string().optional(),
   created_at: z.coerce.date(),
@@ -437,7 +437,7 @@ const HeadRefForcePushedEvent = NodeSchema.extend({
 
 const MergedEvent = NodeSchema.extend({
   __typename: z.literal('MergedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   commit: z.string().optional(),
   created_at: z.coerce.date(),
   merge_ref_name: z.string()
@@ -445,22 +445,22 @@ const MergedEvent = NodeSchema.extend({
 
 const AddedToProjectV2Event = NodeSchema.extend({
   __typename: z.literal('AddedToProjectV2Event'),
-  actor: z.union([z.string(), ActorSchema]).optional()
+  actor: z.union([ActorSchema, NodeSchema]).optional()
 });
 
 const ConvertedFromDraftEvent = NodeSchema.extend({
   __typename: z.literal('ConvertedFromDraftEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional()
+  actor: z.union([ActorSchema, NodeSchema]).optional()
 });
 
 const ProjectV2ItemStatusChangedEvent = NodeSchema.extend({
   __typename: z.literal('ProjectV2ItemStatusChangedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional()
+  actor: z.union([ActorSchema, NodeSchema]).optional()
 });
 
 const RemovedFromProjectV2Event = NodeSchema.extend({
   __typename: z.literal('RemovedFromProjectV2Event'),
-  actor: z.union([z.string(), ActorSchema]).optional()
+  actor: z.union([ActorSchema, NodeSchema]).optional()
 });
 
 const PullRequestCommit = NodeSchema.extend({
@@ -491,31 +491,31 @@ const PullRequestReview = NodeSchema.extend(CommentSchema.shape)
     submitted_at: z.coerce.date().optional()
   });
 
-// const PullRequestRevisionMarker = node.extend({
-//   __typename: z.literal('PullRequestRevisionMarker'),
-//   created_at: z.coerce.date(),
-//   last_seen_commit: z.string()
-// });
+const PullRequestRevisionMarker = NodeSchema.extend({
+  __typename: z.literal('PullRequestRevisionMarker'),
+  created_at: z.coerce.date(),
+  last_seen_commit: z.string()
+});
 
 const ReadyForReviewEvent = NodeSchema.extend({
   __typename: z.literal('ReadyForReviewEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date()
 });
 
 const RemovedFromMergeQueueEvent = NodeSchema.extend({
   __typename: z.literal('RemovedFromMergeQueueEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   before_commit: z.string().optional(),
   created_at: z.coerce.date(),
-  enqueuer: z.union([z.string(), ActorSchema]).optional(),
+  enqueuer: z.union([ActorSchema, NodeSchema]).optional(),
   merge_queue: z.string().optional(),
   reason: z.string().optional()
 });
 
 const ReviewDismissedEvent = NodeSchema.extend({
   __typename: z.literal('ReviewDismissedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
   database_id: z.number().int().optional(),
   dismissal_message: z.string().optional(),
@@ -526,16 +526,16 @@ const ReviewDismissedEvent = NodeSchema.extend({
 
 const ReviewRequestRemovedEvent = NodeSchema.extend({
   __typename: z.literal('ReviewRequestRemovedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  requested_reviewer: z.union([z.string(), ActorSchema]).optional()
+  requested_reviewer: z.union([ActorSchema, NodeSchema]).optional()
 });
 
 const ReviewRequestedEvent = NodeSchema.extend({
   __typename: z.literal('ReviewRequestedEvent'),
-  actor: z.union([z.string(), ActorSchema]).optional(),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  requested_reviewer: z.union([z.string(), ActorSchema]).optional()
+  requested_reviewer: z.union([ActorSchema, NodeSchema]).optional()
 });
 
 const UnknownEvent = z.looseObject(
@@ -600,6 +600,7 @@ type TimelineEvents =
   | z.infer<typeof PullRequestCommitCommentThread>
   | z.infer<typeof PullRequestReview>
   | z.infer<typeof PullRequestReviewThreadSchema>
+  | z.infer<typeof PullRequestRevisionMarker>
   | z.infer<typeof ReadyForReviewEvent>
   | z.infer<typeof ReferencedEvent>
   | z.infer<typeof RemovedFromMergeQueueEvent>
@@ -674,6 +675,7 @@ const list: z.ZodType<TimelineEvents> = z.discriminatedUnion('__typename', [
   PullRequestCommitCommentThread,
   PullRequestReview,
   PullRequestReviewThreadSchema,
+  PullRequestRevisionMarker,
   ReadyForReviewEvent,
   ReferencedEvent,
   RemovedFromMergeQueueEvent,

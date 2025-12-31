@@ -57,7 +57,7 @@ export default function (client: GithubClient, opts: QueryLookupParams): Iterabl
                 })
               );
 
-              const pullRequestsReviews = (pr.timeline_items || []).filter(
+              const pullRequestsReviews = ((pr.timeline_items || []) as TimelineItem[]).filter(
                 (item) => (item as TimelineItem).__typename === 'PullRequestReview'
               );
 
@@ -80,7 +80,7 @@ export default function (client: GithubClient, opts: QueryLookupParams): Iterabl
                 }
               }
 
-              const reatables = pr.timeline_items!.reduce((reactables: Reactable[], item) => {
+              const reatables = (pr.timeline_items as TimelineItem[]).reduce((reactables: Reactable[], item) => {
                 if (typeof item === 'string') return reactables;
                 switch (item.__typename) {
                   case 'IssueComment':

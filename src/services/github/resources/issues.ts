@@ -1,3 +1,4 @@
+import { TimelineItem } from '../../../entities';
 import { Issue } from '../../../entities/Issue';
 import { Iterable } from '../../Service';
 import { GithubClient } from '../GithubClient';
@@ -30,8 +31,8 @@ export default function (client: GithubClient, opts: QueryLookupParams): Iterabl
                 .then(({ data }) => data);
 
               await Promise.all(
-                issue
-                  .timeline_items!.filter((item) => typeof item !== 'string' && item.__typename === 'IssueComment')
+                (issue.timeline_items as TimelineItem[])
+                  .filter((item) => item.__typename === 'IssueComment')
                   .map(async (comment) => {
                     if (comment.reactions_count) {
                       comment.reactions = await QueryRunner.create(client)
