@@ -33,7 +33,6 @@ export class ReactionsLookup extends QueryLookup<Reaction[]> {
   }
 
   parse(data: any) {
-    const typename: string = (data[this.alias] || data).__typename;
     const _data: ReactionConnection = (data[this.alias] || data).reactions;
     return {
       next: _data.pageInfo.hasNextPage
@@ -50,7 +49,7 @@ export class ReactionsLookup extends QueryLookup<Reaction[]> {
           content: data!.content,
           created_at: data!.createdAt,
           user: data!.user ? this.fragments[0].parse(data!.user) : undefined,
-          reactable: { id: this.params.id, name: typename }
+          reactable: data!.reactable
         })
       ),
       params: { ...this.params, cursor: _data.pageInfo.endCursor || this.params.cursor }

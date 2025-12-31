@@ -10,7 +10,7 @@ export const ReleaseSchema = zodSanitize(
     .extend(ReactableSchema.shape)
     .extend({
       __typename: z.literal('Release'),
-      author: ActorSchema.optional(),
+      author: z.union([ActorSchema, NodeSchema]).optional(),
       created_at: z.coerce.date(),
       database_id: z.number().int().optional(),
       immutable: z.boolean().optional(),

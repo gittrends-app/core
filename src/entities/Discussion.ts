@@ -15,9 +15,9 @@ export const DiscussionSchema = zodSanitize(
       __typename: z.literal('Discussion'),
       database_id: z.number(),
       active_lock_reason: z.string().optional(),
-      answer: z.union([z.string(), DiscussionCommentSchema]).optional(),
+      answer: z.union([DiscussionCommentSchema, NodeSchema]).optional(),
       answer_chosen_at: z.coerce.date().optional(),
-      answer_chosen_by: z.union([z.string(), ActorSchema]).optional(),
+      answer_chosen_by: z.union([ActorSchema, NodeSchema]).optional(),
       category: z.string(),
       closed: z.boolean(),
       closed_at: z.coerce.date().optional(),
@@ -30,7 +30,7 @@ export const DiscussionSchema = zodSanitize(
       title: z.string(),
       upvote_count: z.number(),
 
-      comments: z.union([z.string().array(), DiscussionCommentSchema.array()]).optional()
+      comments: z.union([DiscussionCommentSchema.array(), NodeSchema.array()]).optional()
     })
 );
 

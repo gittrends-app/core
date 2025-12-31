@@ -9,7 +9,7 @@ const baseRepository = NodeSchema.extend({
   description: z.string().optional(),
   name: z.string(),
   name_with_owner: z.string(),
-  owner: z.union([z.string(), ActorSchema]),
+  owner: z.union([ActorSchema, NodeSchema]),
   primary_language: z.string().optional()
 });
 

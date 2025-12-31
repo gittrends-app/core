@@ -44,7 +44,7 @@ export class CommitFragment extends AbstractFragment<Commit> {
         messageBody
         messageHeadline
         oid
-        parents(first: 100) { nodes { id } }
+        parents(first: 100) { nodes { oid } }
         repository { id }
         status { state }
       }
@@ -76,7 +76,7 @@ export class CommitFragment extends AbstractFragment<Commit> {
       message_body: data.messageBody,
       message_headline: data.messageHeadline,
       oid: data.oid,
-      parents: data.parents!.nodes?.map((node) => node!.id),
+      parents: data.parents!.nodes?.map((node) => node!.oid),
       repository: data.repository.id,
       status: data.status && data.status.state
     });

@@ -3,12 +3,12 @@ import { ActorSchema } from '../Actor';
 import { NodeSchema } from './Node';
 
 export const CommentSchema = NodeSchema.extend({
-  author: z.union([z.string(), ActorSchema]).optional(),
+  author: z.union([ActorSchema, NodeSchema]).optional(),
   author_association: z.string(),
   body: z.string(),
   created_at: z.coerce.date(),
   created_via_email: z.boolean(),
-  editor: z.union([z.string(), ActorSchema]).optional(),
+  editor: z.union([ActorSchema, NodeSchema]).optional(),
   includes_created_edit: z.boolean(),
   last_edited_at: z.coerce.date().optional(),
   published_at: z.coerce.date().optional(),

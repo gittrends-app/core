@@ -14,7 +14,7 @@ const basePr = NodeSchema.extend(RepositoryNodeSchema.shape)
   .extend({
     __typename: z.literal('PullRequest'),
     active_lock_reason: z.string().optional(),
-    assignees: z.union([z.array(ActorSchema), z.array(z.string())]).optional(),
+    assignees: z.union([ActorSchema.array(), NodeSchema.array()]).optional(),
     closed: z.boolean(),
     closed_at: z.coerce.date().optional(),
     comments_count: z.number().int(),
@@ -38,7 +38,7 @@ const basePr = NodeSchema.extend(RepositoryNodeSchema.shape)
         commit_body: z.string().optional(),
         commit_headline: z.string().optional(),
         enabled_at: z.coerce.date().optional(),
-        enabled_by: z.union([z.string(), ActorSchema]).optional(),
+        enabled_by: z.union([ActorSchema, NodeSchema]).optional(),
         merge_method: z.string().optional()
       })
       .optional(),
@@ -61,7 +61,7 @@ const basePr = NodeSchema.extend(RepositoryNodeSchema.shape)
     mergeable: z.string(),
     merged: z.boolean(),
     merged_at: z.coerce.date().optional(),
-    merged_by: z.union([ActorSchema, z.string()]).optional(),
+    merged_by: z.union([ActorSchema, NodeSchema]).optional(),
     potential_merge_commit: z.string().optional(),
     review_decision: z.string().optional(),
     reviews_count: z.number().int(),
@@ -83,14 +83,14 @@ type BasePullRequest = z.infer<typeof basePr>;
 // Tipo extendido inferido
 type ExtendedPullRequest = z.ZodType<
   BasePullRequest & {
-    timeline_items?: (z.infer<typeof TimelineItemSchema> | string)[];
+    timeline_items?: z.infer<typeof TimelineItemSchema>[] | z.infer<typeof NodeSchema>[];
   }
 >;
 
 // Schema completo com timeline_items
 export const PullRequestSchema = zodSanitize(
   basePr.extend({
-    timeline_items: z.union([z.array(TimelineItemSchema), z.array(z.string())]).optional()
+    timeline_items: z.union([TimelineItemSchema.array(), NodeSchema.array()]).optional()
   }) as ExtendedPullRequest
 );
 

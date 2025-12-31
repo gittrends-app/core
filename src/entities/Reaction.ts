@@ -8,13 +8,13 @@ export const ReactionSchema = zodSanitize(
   NodeSchema.extend({
     __typename: z.literal('Reaction'),
     database_id: z.number().int(),
-    user: z.union([z.string(), ActorSchema]).optional(),
+    user: z.union([ActorSchema, NodeSchema]).optional(),
     content: z.preprocess(
       (v) => (typeof v === 'string' ? snakeCase(v) : v),
       z.enum(['thumbs_up', 'thumbs_down', 'laugh', 'confused', 'heart', 'hooray', 'rocket', 'eyes'])
     ),
     created_at: z.coerce.date(),
-    reactable: z.object({ name: z.string(), id: z.string() })
+    reactable: NodeSchema
   })
 );
 

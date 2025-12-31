@@ -22,17 +22,17 @@ const base = NodeSchema.extend(CommentSchema.shape)
 
 type Input = z.input<typeof base> & {
   reactions?: z.input<typeof ReactionSchema>[];
-  replies?: string[] | Input[];
+  replies?: z.input<typeof NodeSchema>[] | Input[];
 };
 
 type Output = z.output<typeof base> & {
   reactions?: z.input<typeof ReactionSchema>[];
-  replies?: string[] | Output[];
+  replies?: z.input<typeof NodeSchema>[] | Output[];
 };
 
 const Comment: z.ZodType<Output, Input> = base.extend({
   reactions: z.array(ReactionSchema).optional(),
-  replies: z.lazy(() => z.union([z.string().array(), Comment.array()])).optional()
+  replies: z.lazy(() => z.union([Comment.array(), NodeSchema.array()])).optional()
 });
 
 export const DiscussionCommentSchema = zodSanitize(Comment);

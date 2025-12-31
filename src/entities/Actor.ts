@@ -62,7 +62,7 @@ const User = Actor.extend({ __typename: z.literal('User') }).extend(
 const Mannequin = Actor.extend({ __typename: z.literal('Mannequin') }).extend(
   z
     .object({
-      claimant: z.union([z.string(), User]),
+      claimant: z.union([User, NodeSchema]),
       created_at: z.coerce.date(),
       database_id: z.number().int().optional(),
       email: z.string().optional(),
@@ -77,7 +77,7 @@ const Enterprise = Actor.extend({ __typename: z.literal('EnterpriseUserAccount')
     .object({
       name: z.string(),
       updated_at: z.coerce.date(),
-      user: z.union([z.string(), User])
+      user: z.union([User, NodeSchema])
     })
     .partial().shape
 );
