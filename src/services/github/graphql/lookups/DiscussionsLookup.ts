@@ -19,7 +19,7 @@ export class DiscussionsLookup extends QueryLookup<Discussion[]> {
           nodes {
             __typename
             activeLockReason
-            answer { id }
+            answer { id __typename }
             answerChosenAt
             answerChosenBy { ...${this.fragments[0].alias} }
             author { ...${this.fragments[0].alias} }
@@ -69,7 +69,7 @@ export class DiscussionsLookup extends QueryLookup<Discussion[]> {
           id: data!.id,
           database_id: data!.databaseId!,
           active_lock_reason: data!.activeLockReason,
-          answer: data!.answer?.id,
+          answer: data!.answer && { id: data!.answer.id, __typename: data!.answer.__typename },
           answer_chosen_at: data!.answerChosenAt,
           answer_chosen_by: data!.answerChosenBy ? this.fragments[0].parse(data!.answerChosenBy) : undefined,
           author: data!.author ? this.fragments[0].parse(data!.author) : undefined,

@@ -704,7 +704,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           actor: data.actor && this.fragments[0].parse(data.actor),
           created_at: data.createdAt,
           database_id: data.databaseId,
-          deleted_comment_author: data.deletedCommentAuthor?.login
+          deleted_comment_author: data.deletedCommentAuthor && this.fragments[0].parse(data.deletedCommentAuthor)
         };
         break;
       case 'ConnectedEvent':
