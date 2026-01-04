@@ -7,6 +7,7 @@ type SearchQueryLookupParams = {
   name?: string;
   language?: string;
   org?: string;
+  maxStargazers?: number;
 };
 
 /**
@@ -21,7 +22,8 @@ export class SearchLookup extends QueryLookup<Repository[], SearchQueryLookupPar
     let name = this.params.name?.toLocaleLowerCase().trim() || '';
     if (name) name = `${name} in:name`;
 
-    const query = [name, 'stars:1..*', 'sort:stars-desc'];
+    const maxStars = this.params.maxStargazers || '*';
+    const query = [name, `stars:1..${maxStars}`, 'sort:stars-desc'];
 
     if (this.params.language) query.push(`language:${this.params.language}`);
     if (this.params.name) query.push(this.params.name);

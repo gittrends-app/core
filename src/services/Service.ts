@@ -50,6 +50,7 @@ export type SearchParams = PageableParams & {
   name?: string;
   language?: string;
   org?: string;
+  maxStargazers?: number;
 };
 
 /**

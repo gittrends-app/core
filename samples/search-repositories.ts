@@ -41,9 +41,9 @@ import { GithubClient, GithubService, Service } from '../src/index.js';
     });
 
     // Now, we can search for the repositories using the selected parameters.
-    const it = service.search(total!, { per_page: 10, language, name, org });
+    const it = service.search(total!, { per_page: 50, language, name, org });
     const stream = createStream({
-      columns: [{ width: 3 }, {}, { width: 7 }, { width: 15 }],
+      columns: [{ width: 4 }, {}, { width: 7 }, { width: 16 }],
       columnDefault: { width: 50, truncate: 50 },
       columnCount: 4
     });

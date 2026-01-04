@@ -126,24 +126,65 @@ export class GithubService implements Service {
   }
 
   search(total: number, opts?: SearchParams): Iterable<Repository> {
-    const it = QueryRunner.create(this.client).iterator(
-      new SearchLookup({
-        factory: this.factory,
-        limit: total,
-        per_page: opts?.per_page,
-        name: opts?.name,
-        language: opts?.language,
-        org: opts?.org
-      })
-    );
+    const client = this.client;
+    const factory = this.factory;
+    const initialOpts = opts;
+    const originalTotal = total;
 
     return {
       [Symbol.asyncIterator]: async function* () {
-        for await (const searchRes of it) {
-          yield {
-            data: searchRes.data,
-            metadata: { has_more: !!searchRes.next, ...searchRes.params }
-          };
+        const seenIds = new Set<string>();
+        let remainingLimit = originalTotal;
+        let currentMaxStargazers = initialOpts?.maxStargazers;
+
+        while (remainingLimit > 0) {
+          const it = QueryRunner.create(client).iterator(
+            new SearchLookup({
+              factory: factory,
+              limit: remainingLimit,
+              per_page: initialOpts?.per_page,
+              name: initialOpts?.name,
+              language: initialOpts?.language,
+              org: initialOpts?.org,
+              maxStargazers: currentMaxStargazers
+            })
+          );
+
+          let lastRepo: Repository | null = null;
+          let fetchedInWindow = 0;
+          let hasNextPage = false;
+
+          for await (const searchRes of it) {
+            // Filter out duplicates by ID
+            const uniqueData = searchRes.data.filter((repo: Repository) => {
+              if (seenIds.has(repo.id)) return false;
+              seenIds.add(repo.id);
+              return true;
+            });
+
+            if (uniqueData.length > 0) {
+              lastRepo = uniqueData[uniqueData.length - 1];
+              fetchedInWindow += uniqueData.length;
+              remainingLimit -= uniqueData.length;
+
+              yield {
+                data: uniqueData,
+                metadata: {
+                  has_more: !!searchRes.next || (remainingLimit > 0 && fetchedInWindow > 0),
+                  ...searchRes.params
+                }
+              };
+            }
+
+            hasNextPage = !!searchRes.next;
+          }
+
+          if (remainingLimit > 0 && fetchedInWindow > 0 && !hasNextPage) {
+            currentMaxStargazers = lastRepo!.stargazers_count;
+            continue;
+          }
+
+          break;
         }
       }
     };
