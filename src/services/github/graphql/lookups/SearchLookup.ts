@@ -25,7 +25,7 @@ export class SearchLookup extends QueryLookup<Repository[], SearchQueryLookupPar
     // TODO: should we default to 1 star only for org searches? Github search API excludes relevant results with 0 stars.
     const minStars = this.params.org ? 0 : 1;
     const maxStars = this.params.maxStargazers || '*';
-    const query = [name, `stars:${minStars}..${maxStars}`, 'sort:stars-desc'];
+    const query = [name, `stars:${minStars}..${maxStars}`, 'sort:stars-desc', 'fork:true'];
 
     if (this.params.language) query.push(`language:${this.params.language}`);
     if (this.params.name) query.push(this.params.name);
