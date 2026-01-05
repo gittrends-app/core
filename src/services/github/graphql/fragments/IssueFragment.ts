@@ -83,7 +83,7 @@ export class IssueFragment extends AbstractFragment {
       issue_type: data.issueType?.name,
       labels: data.labels?.nodes?.map((node) => node!.name),
       last_edited_at: data.lastEditedAt,
-      linked_branches: data.linkedBranches?.nodes?.map((node) => node!.ref?.name || node!.ref?.prefix),
+      linked_branches: data.linkedBranches?.nodes?.map((node) => node!.ref?.name).filter((name) => name !== undefined),
       locked: data.locked,
       milestone: data.milestone?.title,
       number: data.number,
