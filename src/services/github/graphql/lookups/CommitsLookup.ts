@@ -42,7 +42,15 @@ export class CommitsLookup extends QueryLookup<Commit[], { since?: Date; until?:
   }
 
   parse(data: any) {
-    const _data: CommitHistoryConnection = (data[this.alias] || data).defaultBranchRef.target.history;
+    let defaultBranch = (data[this.alias] || data).defaultBranchRef;
+    if (!defaultBranch) {
+      // Repository has no branches
+      defaultBranch = {
+        target: { history: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: [] } }
+      };
+    }
+
+    const _data: CommitHistoryConnection = defaultBranch.target.history;
     if (!_data) throw Object.assign(new Error('Failed to parse tags.'), { data, query: this.toString() });
 
     const parsedData: ReturnType<CommitFragment['parse']>[] = (_data.nodes || []).map((data) =>
