@@ -68,8 +68,8 @@ export class CommitsLookup extends QueryLookup<Commit[], { since?: Date; until?:
       params: {
         ...this.params,
         cursor: _data.pageInfo.endCursor || this.params.cursor,
-        since: this.params.since || parsedData.at(0)?.committed_date,
-        until: parsedData.at(-1)?.committed_date || this.params.until
+        since: parsedData.at(-1)?.committed_date || this.params.since,
+        until: parsedData.at(0)?.committed_date || this.params.until
       }
     };
   }

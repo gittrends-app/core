@@ -17,38 +17,21 @@ export default function commits(
     [Symbol.asyncIterator]: async function* () {
       let { since, until } = opts;
 
-      if (until || !since) {
-        const untilIt = QueryRunner.create(client).iterator(new CommitsLookup({ ...opts, since: undefined, until }));
+      const untilIt = QueryRunner.create(client).iterator(new CommitsLookup(opts));
 
-        for await (const response of untilIt) {
-          yield {
-            data: response.data,
-            metadata: {
-              has_more: !!response.next,
-              since: (since = response.params.since
-                ? new Date(Math.max(response.params.since.getTime(), since?.getTime() || 0))
-                : since),
-              until: (until = response.params.until),
-              per_page: opts.per_page
-            }
-          };
-        }
-      }
+      for await (const response of untilIt) {
+        if (!until) until = response.params.until;
+        if (response.params.since) since = response.params.since;
 
-      if (since) {
-        const sinceIt = QueryRunner.create(client).iterator(new CommitsLookup({ ...opts, since, until: undefined }));
-
-        for await (const response of sinceIt) {
-          yield {
-            data: response.data,
-            metadata: {
-              has_more: !!response.next,
-              since: new Date(Math.max(response.params.since?.getDate() || 0, since.getTime())),
-              until,
-              per_page: opts.per_page
-            }
-          };
-        }
+        yield {
+          data: response.data,
+          metadata: {
+            has_more: !!response.next,
+            since: response.next ? undefined : since,
+            until,
+            per_page: opts.per_page
+          }
+        };
       }
     }
   };
