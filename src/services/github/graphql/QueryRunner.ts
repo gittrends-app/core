@@ -56,7 +56,7 @@ export class QueryRunner {
       })
       .then((response) => lookup.parse(response[lookup.alias]))
       .catch((error) => {
-        if (error.response?.status === 502 && (lookup.params.per_page || 100) > 1) {
+        if ([500, 502, 504].includes(error.response?.status || error.status) && (lookup.params.per_page || 100) > 1) {
           lookup.params.per_page = Math.ceil((lookup.params.per_page || 100) / 2);
           return this.fetch(lookup).then((response) => {
             if (response.next) response.next.params.per_page = lookup.params.per_page! * 2;
