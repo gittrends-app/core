@@ -24,7 +24,7 @@ export default function commits(
           yield {
             data: response.data,
             metadata: {
-              has_more: true,
+              has_more: !!response.next,
               since: (since = response.params.since
                 ? new Date(Math.max(response.params.since.getTime(), since?.getTime() || 0))
                 : since),
