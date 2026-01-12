@@ -27,7 +27,7 @@ export default function commits(
           data: response.data,
           metadata: {
             has_more: !!response.next,
-            since: response.next ? undefined : since,
+            since,
             until,
             per_page: opts.per_page
           }
