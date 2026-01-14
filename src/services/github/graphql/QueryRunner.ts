@@ -80,14 +80,17 @@ export class QueryRunner {
         // Retry with reduced page sizes on server errors
         if ([500, 502, 504].includes(error.response?.status || error.status) || error instanceof GraphqlResponseError) {
           // Save original per_page values and set to 0 for initial request
-          const pageSizes = lookups.map((lookup) => lookup.params.per_page);
+
           // Reduce page sizes by half for retry
-          if (lookups.some((lookup) => (lookup.params.per_page || 100) > 1)) {
+          if (lookups.some((lookup) => (lookup.params.per_page || 0) > 1)) {
+            const pageSizes = lookups.map((lookup) => lookup.params.per_page);
+
             lookups.forEach((lookup) => {
-              if ((lookup.params.per_page || 100) > 1) {
-                lookup.params.per_page = Math.ceil((lookup.params.per_page || 100) / 2);
+              if ((lookup.params.per_page || 0) > 1) {
+                lookup.params.per_page = Math.ceil(lookup.params.per_page! / 2);
               }
             });
+
             return this.fetchBatch(lookups).then((data) => {
               // restore page sizes after successful retry
               lookups.forEach((lookup) => {
