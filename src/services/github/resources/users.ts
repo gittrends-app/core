@@ -3,19 +3,15 @@ import { Actor } from '../../../entities/Actor';
 import { GithubClient } from '../GithubClient';
 import { FragmentFactory } from '../graphql/fragments/Fragment';
 import { UserLookup } from '../graphql/lookups/UserLookup';
-import { QueryBuilder } from '../graphql/QueryBuilder';
+import { QueryRunner } from '../graphql/QueryRunner';
 
 type Params = { factory: FragmentFactory; client: GithubClient; byLogin?: boolean };
 
 async function users(idsArr: string[], params: Params): Promise<(Actor | null)[]> {
   if (idsArr.length === 0) return [];
 
-  const result = await idsArr
-    .reduce(
-      (builder, id) => builder.add(new UserLookup({ id, byLogin: params.byLogin, factory: params.factory })),
-      QueryBuilder.create(params.client)
-    )
-    .fetch()
+  const result = await QueryRunner.create(params.client)
+    .fetch(idsArr.map((id) => new UserLookup({ id, byLogin: params.byLogin, factory: params.factory })))
     .then((result) => result.map((d) => d?.data as Actor | undefined))
     .catch((error) => {
       if ([502, 504].includes(error.status)) {
