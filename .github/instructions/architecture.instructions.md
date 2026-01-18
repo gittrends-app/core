@@ -50,11 +50,15 @@ Funções de alto nível que encapsulam a lógica de negócio.
 
 ### 2.5. Services (`src/services/`)
 
-Abstrações com padrão decorator para logging, retry, cache, etc.
+Abstrações com padrão decorator para logging, retry, cache, buffering, etc.
 
 - **Localização**: `src/services/`
-- **Responsabilidade**: Adicionar comportamentos transversais (logging, retry, cache)
+- **Responsabilidade**: Adicionar comportamentos transversais (logging, retry, cache, buffering)
 - **Padrões**: Decorator pattern
+- **Decorators disponíveis**:
+  - `PassThroughService`: Decorator transparente que repassa todas as chamadas
+  - `CacheService`: Adiciona cache de respostas
+  - `BufferedService`: Agrupa múltiplas iterações antes de retornar ao caller, reduzindo overhead
 
 ## 3. Fluxo de Dados
 

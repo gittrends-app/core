@@ -35,6 +35,9 @@ class MyCache implements Cache {
   console.log('Wraps base services with caching capabilities');
   service = new CacheService(service, new MyCache());
 
+  console.log('Wraps services with buffering capabilities to reduce iteration overhead');
+  service = new BufferedService(service, 10); // Buffer 10 iterations
+
   console.log('Fetching resources from GitHub ...');
   const repo = await service.repository('owner', 'repo');
 
