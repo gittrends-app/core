@@ -1,69 +1,72 @@
-import 'dotenv/config';
-import { BufferedService, CacheService, GithubClient, GithubService } from '../src';
-import type { Cache } from '../src/services/CacheService';
+/* eslint-disable require-jsdoc */
+import { input, number } from '@inquirer/prompts';
+import consola from 'consola';
+import { createStream } from 'table';
+import { BufferedService, CacheService, GithubClient, GithubService, Service } from '../src/index.js';
 
-// Simple in-memory cache implementation for the example
-class MemoryCache implements Cache {
-  private map = new Map<string, any>();
+// Simple in-memory cache implementation consistent with other samples
+class MemCache {
+  private readonly cache: Map<string, any> = new Map();
 
   async get<T>(key: string): Promise<T | null> {
-    return this.map.has(key) ? (this.map.get(key) as T) : null;
+    return this.cache.get(key) ?? null;
   }
 
   async set<T>(key: string, value: T): Promise<void> {
-    this.map.set(key, value);
+    this.cache.set(key, value);
   }
 
   async remove(key: string): Promise<void> {
-    this.map.delete(key);
+    this.cache.delete(key);
   }
 
   async clear(): Promise<void> {
-    this.map.clear();
+    this.cache.clear();
   }
 }
 
-async function main() {
-  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || process.env.GITHUB_API_TOKEN;
-  if (!token) {
-    console.error('Set GITHUB_TOKEN environment variable with a GitHub personal access token.');
-    process.exit(1);
-  }
+// This sample follows the interactive style of other samples and prompts for search params.
+(async function main() {
+  consola.info('Creating Github client ...');
+  const client = new GithubClient('https://api.github.com', { apiToken: process.env.GH_TOKEN });
 
-  // Create client and base service
-  const client = new GithubClient('https://api.github.com', { apiToken: token });
-  const base = new GithubService(client);
+  consola.info('Preparing Github service ...');
+  let service: Service = new GithubService(client);
 
-  // Wrap with cache (in-memory for the example)
-  const cache = new MemoryCache();
-  const cached = new CacheService(base, cache);
+  // Wrap with cache (in-memory) and buffer to follow existing samples pattern
+  service = new CacheService(service, new MemCache());
+  service = new BufferedService(service, 5);
 
-  // Optional: buffer results into batches of 5 iterations
-  const buffered = new BufferedService(cached, 5);
+  const total = await number({ message: 'Number of repositories to search:', default: 20, required: true });
+  const name = await input({ message: 'Filter by name (optional):', required: false });
+  const language = await input({ message: 'Filter by language (optional):', required: false });
+  const org = await input({ message: 'Filter by organization (optional):', required: false });
 
-  // Run a simple search for TypeScript repositories
-  const total = 20;
-  // NOTE: search() expects SearchParams; this example demonstrates name/language filtering
-  const opts = { name: 'language:TypeScript', per_page: 5 } as any;
+  consola.info('Searching repositories ...');
 
-  console.log('Searching GitHub repositories (this will use the cache for repeated runs)...');
+  const it = service.search(total!, {
+    per_page: 50,
+    language: language || undefined,
+    name: name || undefined,
+    org: org || undefined
+  });
 
-  for await (const page of buffered.search(total, opts)) {
-    console.log('--- page ---');
-    for (const repo of page.data) {
-      // Some Repository shapes may differ depending on fragment fields; be defensive
-      const owner = repo.owner?.login || repo.owner?.name || 'unknown';
-      const repoName = repo.name || repo.full_name || `${owner}/${repo.name}`;
-      console.log(`${repoName} — ★ ${repo.stargazers_count ?? repo.stargazers_count}`);
+  const stream = createStream({
+    columns: [{ width: 4 }, {}, { width: 7 }, { width: 16 }],
+    columnDefault: { width: 50, truncate: 50 },
+    columnCount: 4
+  });
+
+  consola.info('Repositories found:');
+  stream.write(['#', 'Repository', 'Stars', 'Language']);
+
+  let count = 0;
+  for await (const { data } of it) {
+    for (const repo of data) {
+      stream.write([`${++count}`, repo.name_with_owner, `${repo.stargazers_count!}`, repo.primary_language || '']);
     }
-
-    if (!page.metadata.has_more) break;
   }
 
-  console.log('Done.');
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+  process.stdout.write('\n');
+  consola.success('Done.');
+})();
