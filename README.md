@@ -19,37 +19,31 @@ yarn add @gittrends-app/core
 Here is an example of how to use the `@gittrends-app/core` package to fetch resources from a GitHub repository:
 
 ```typescript
-import { Cache, GithubClient, GithubService, Service } from '@gittrends-app/core';
+import { Cache, GithubClient, GithubService, Service, CacheService, BufferedService } from '@gittrends-app/core';
 
 class MyCache implements Cache {
   // Implement cache methods here
 }
 
 (async function main() {
-  console.log('Creating Github client ...');
   const client = new GithubClient('https://api.github.com', { apiToken: '<your_access_token>' });
-
-  console.log('Fetching resources from GitHub ...');
   let service: Service = new GithubService(client);
 
-  console.log('Wraps base services with caching capabilities');
+  // Wrap the base service with caching
   service = new CacheService(service, new MyCache());
 
-  console.log('Wraps services with buffering capabilities to reduce iteration overhead');
-  service = new BufferedService(service, 10); // Buffer 10 iterations
+  // Optional: wrap with buffering to reduce iteration overhead
+  service = new BufferedService(service, 10);
 
-  console.log('Fetching resources from GitHub ...');
   const repo = await service.repository('owner', 'repo');
-
   if (!repo) throw new Error('Repository not found!');
 
-  console.log(`Fetching tags of repository owner/repo ...`);
-  const it = service.resources(resource, { repository: repo.id });
+  const it = service.resources('tags', { repository: repo.id });
   for await (const res of it) console.log(res.data);
-
-  console.log('Done!');
 })();
 ```
+
+See the `samples/` folder for runnable examples (TypeScript) demonstrating search, caching, and resource iteration: `samples/search-with-cache.ts`, `samples/search-repositories.ts`, and `samples/get-resources.ts`.
 
 ## Features
 
