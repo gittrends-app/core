@@ -34,10 +34,10 @@ class MemCache {
   let service: Service = new GithubService(client);
 
   // Optional decorators
-  const useCache = await confirm({ message: 'Wrap service with CacheService?', initial: true });
+  const useCache = await confirm({ message: 'Wrap service with CacheService?', default: true });
   if (useCache) service = new CacheService(service, new MemCache());
 
-  const useBuffer = await confirm({ message: 'Wrap service with BufferedService?', initial: true });
+  const useBuffer = await confirm({ message: 'Wrap service with BufferedService?', default: true });
   if (useBuffer) {
     const bufferSize = await number({ message: 'Buffer size (iterations):', default: 5, required: true });
     service = new BufferedService(service, bufferSize ?? 5);
