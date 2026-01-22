@@ -4,6 +4,7 @@ import { GithubClient } from '../GithubClient';
 import { FragmentFactory } from '../graphql/fragments/Fragment';
 import { UserLookup } from '../graphql/lookups/UserLookup';
 import { QueryRunner } from '../graphql/QueryRunner';
+import { GraphqlResponseError } from '@octokit/graphql';
 
 type Params = { factory: FragmentFactory; client: GithubClient; byLogin?: boolean };
 
@@ -14,7 +15,7 @@ async function users(idsArr: string[], params: Params): Promise<(Actor | null)[]
     .fetch(idsArr.map((id) => new UserLookup({ id, byLogin: params.byLogin, factory: params.factory })))
     .then((result) => result.map((d) => d?.data as Actor | undefined))
     .catch((error) => {
-      if ([500, 502, 504].includes(error.status)) {
+      if ([500, 502, 504].includes(error.status) || error instanceof GraphqlResponseError) {
         if (idsArr.length === 1) return [null];
         else return Promise.all(chunk(idsArr, 1).map((chunk) => users(chunk, params))).then((data) => data.flat());
       }
