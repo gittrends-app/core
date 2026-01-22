@@ -1,10 +1,10 @@
+import { GraphqlResponseError } from '@octokit/graphql';
 import chunk from 'lodash/chunk.js';
 import { Actor } from '../../../entities/Actor';
 import { GithubClient } from '../GithubClient';
 import { FragmentFactory } from '../graphql/fragments/Fragment';
 import { UserLookup } from '../graphql/lookups/UserLookup';
 import { QueryRunner } from '../graphql/QueryRunner';
-import { GraphqlResponseError } from '@octokit/graphql';
 
 type Params = { factory: FragmentFactory; client: GithubClient; byLogin?: boolean };
 
