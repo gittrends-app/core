@@ -6,8 +6,8 @@ on:
       - "v*"
 
 permissions:
+  id-token: write # Required for OIDC
   contents: read
-  packages: write
 
 jobs:
   publish:
@@ -20,8 +20,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          registry-url: "https://npm.pkg.github.com"
-          scope: "@gittrends-app"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: npm install
@@ -29,7 +28,5 @@ jobs:
       - name: Run verification
         run: npm run verify
 
-      - name: Publish to GitHub Package Registry
+      - name: Publish to npm Registry
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
