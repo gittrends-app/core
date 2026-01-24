@@ -9,10 +9,6 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org"
-  },
   "scripts": {
     "lint": "biome check ./src",
     "lint:fix": "biome check --write ./src",
@@ -69,12 +65,7 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },
-  "files": [
-    "dist",
-    "package.json",
-    "CHANGELOG.md",
-    "README.md"
-  ],
+  "files": ["dist", "package.json", "CHANGELOG.md", "README.md"],
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
