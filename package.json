@@ -65,18 +65,13 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },
-  "files": [
-    "dist",
-    "package.json",
-    "CHANGELOG.md",
-    "README.md"
-  ],
+  "files": ["dist", "package.json", "CHANGELOG.md", "README.md"],
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
   },
   "gittrends": {
-    "schemaRevision": "2025-12-22"
+    "schemaRevision": "2026-02-20"
   }
 }
