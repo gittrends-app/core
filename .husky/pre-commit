@@ -1,1 +1,1 @@
-npm run verify
+npm run spellcheck && npm run verify

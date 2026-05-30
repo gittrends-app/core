@@ -12,9 +12,9 @@
 ## Installation
 
 ```bash
-npm install @gittrends-app/core
-# or
 yarn add @gittrends-app/core
+# or
+npm install @gittrends-app/core
 ```
 
 ## Quick Start
@@ -75,7 +75,7 @@ See runnable examples in [`samples/`](./samples):
 ## Development (repo)
 
 ```bash
-npm install
+yarn install
 npm run verify
 ```
 
@@ -85,6 +85,7 @@ Useful commands:
 npm run lint
 npm run build
 npm test
+npm run spellcheck
 npm run generate:schema
 ```
 

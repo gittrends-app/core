@@ -1,0 +1,29 @@
+{
+  "version": "0.2",
+  "import": ["@cspell/dict-pt-br/cspell-ext.json"],
+  "language": "en,pt-BR",
+  "files": ["**/*.md"],
+  "dictionaries": ["softwareTerms", "typescript", "node", "npm", "git", "pt_BR"],
+  "ignorePaths": [
+    "node_modules/**",
+    "dist/**",
+    "coverage/**",
+    "tsconfig.tsbuildinfo",
+    "src/services/github/graphql-schema.d.ts",
+    "yarn.lock",
+    ".opencode/**"
+  ],
+  "words": [
+    "AGENTS",
+    "autochangelog",
+    "biomejs",
+    "codegen",
+    "commitizen",
+    "gittrends",
+    "nodeschema",
+    "octokit",
+    "opencode",
+    "tsbuildinfo",
+    "tsup"
+  ]
+}
