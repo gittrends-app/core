@@ -1,151 +1,54 @@
 # AGENTS.md
 
-Guide for coding agents working in `@gittrends-app/core`.
+Guidance for OpenCode agents in `@gittrends-app/core`.
 
-## 1) Project Quick Facts
-- Stack: TypeScript (ESM), Node.js >= 20.
-- Package manager: npm scripts are canonical (yarn lock is present).
-- Output: `dist/`.
-- Architecture: Entity (Zod) <- Fragment (GraphQL) <- Lookup <- Resource/Service.
-- Public API entrypoints: `src/index.ts`, `src/entities/index.ts`, `src/services/index.ts`.
+## Fast Facts
 
-## 2) Setup and Daily Commands
-Run commands from the repository root.
+- Single-package TypeScript ESM library (Node `>=20`), published from `dist/`.
+- Public API boundaries: `src/index.ts`, `src/entities/index.ts`, `src/services/index.ts`.
+- Data flow for GitHub data changes: `Entity (Zod) -> Fragment -> Lookup -> Resource/Service`.
 
-```bash
-npm install
-```
+## Commands (source of truth: `package.json`)
 
-### Lint / Format / Build / Test
-```bash
-npm run lint          # biome check ./src
-npm run lint:fix      # biome check --write ./src
-npm run format        # biome format --write ./src
-npm run build         # clean + tsup compile + declaration build
-npm test              # vitest run
-npm run test:coverage # vitest run --coverage
-npm run verify        # lint + build + test
-```
+- Install: `npm install`
+- Lint: `npm run lint`
+- Auto-fix lint: `npm run lint:fix`
+- Format: `npm run format`
+- Build: `npm run build`
+- Test all: `npm test`
+- Coverage: `npm run test:coverage`
+- Full gate: `npm run verify` (runs `lint -> build -> test`)
+- Regenerate GraphQL schema types: `npm run generate:schema`
 
-### Run a Single Test (important)
-```bash
-npx vitest run src/helpers/sanitize.spec.ts
-npx vitest run src/helpers/sanitize.spec.ts -t "should remove null values at root"
-npm test -- src/helpers/sanitize.spec.ts
-npm test -- src/helpers/sanitize.spec.ts -t "should remove null values at root"
-```
+## Focused Testing
 
-Notes:
-- Tests currently follow `src/**/*.spec.ts` (`src/helpers/sanitize.spec.ts` exists).
-- `tsconfig.json` excludes `src/**/*.spec.ts` and `src/**/*.test.ts` from type declaration emit.
+- Single file: `npx vitest run src/helpers/sanitize.spec.ts`
+- Single test: `npx vitest run src/helpers/sanitize.spec.ts -t "should remove null values at root"`
+- `npm test -- <file>` also works.
 
-### Schema generation
-```bash
-npm run generate:schema
-```
-Generates `src/services/github/graphql-schema.d.ts` from GitHub GraphQL schema.
+## Commit/Hook Constraints
 
-## 3) Hooks and Required Checks
-- Pre-commit hook (`.husky/pre-commit`) runs `npm run verify`.
-- Commit-msg hook (`.husky/commit-msg`) runs commitlint.
-- Allowed commit types (`.commitlintrc.json`):
-  - `ci`, `chore`, `docs`, `ticket`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`
-- Expect commits to fail locally if lint/build/tests do not pass.
+- Pre-commit hook runs `npm run verify`.
+- Commit-msg hook runs commitlint (`npx --no-install commitlint --edit`).
+- Allowed commit types: `ci`, `chore`, `docs`, `ticket`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`.
 
-## 4) Formatting Rules (Biome + EditorConfig)
-Sources: `biome.json`, `.editorconfig`.
+## Repo-Specific Gotchas
 
-- Indent: 2 spaces.
-- EOL: LF.
-- Charset: UTF-8.
-- Line width: 120.
-- Quotes: single.
-- Semicolons: always.
-- Trailing commas: none.
-- Import organization: enabled (`assist.actions.source.organizeImports`).
-- Lint rule: `noConsole` is error.
-- Lint rule: `noExplicitAny` is off (still prefer specific typing).
+- Biome enforces `noConsole` as error.
+- TS declaration emit excludes tests (`src/**/*.spec.ts`, `src/**/*.test.ts`).
+- Generated file: `src/services/github/graphql-schema.d.ts` (from `codegen.ts`); prefer regenerate over manual edits.
+- `gittrends.schemaRevision` in `package.json` tracks current upstream schema revision.
 
-Recommended loop after edits:
-1. `npm run lint` (or `npm run lint:fix`)
-2. targeted test(s)
-3. `npm run verify` for final pass
+## Change Workflow (for schema/field changes)
 
-## 5) Import Conventions
-- Use ESM imports only.
-- Keep external imports before local imports.
-- Let Biome organize exact order.
-- Prefer explicit local module paths when clarity matters (e.g. `../entities/Issue`).
-- Use barrel exports (`../entities`, `../services`) for broader API-level imports.
+1. Update entity schema (`src/entities/**`).
+2. Update GraphQL fragment selection + mapping (`src/services/github/graphql/fragments/**`).
+3. Update lookup pagination/parse (`src/services/github/graphql/lookups/**`).
+4. Update service/resource outputs (`src/services/github/resources/**`, `src/services/github/GithubService.ts`).
+5. Update tests.
+6. Run `npm run verify`.
 
-## 6) Types and Validation Conventions
-The repo is schema-first with Zod.
+## OpenCode Local Command
 
-- Define data contracts in `src/entities/**` using `zod`.
-- Export domain types from schemas (`z.output<typeof Schema>`).
-- Compose schemas via `.extend(...)` when reusing node/comment/reactable fields.
-- Use coercion for API values (`z.coerce.date()`, `z.coerce.number()`).
-- Use `.optional()` and `.nullable()` intentionally.
-- Prefer schema inference over duplicate hand-written interfaces.
-
-When changing fields, keep these synchronized:
-1. Entity schema
-2. GraphQL fragment fields
-3. Fragment parse mapping
-4. Lookup/output behavior
-
-## 7) Naming Conventions
-- Types/classes/interfaces: `PascalCase`.
-- Functions/variables/methods: `camelCase`.
-- Service resource discriminators: snake_case strings (`pull_requests`, `stargazers`, etc.).
-- Paging metadata keys are snake_case (`per_page`, `has_more`).
-- File naming patterns:
-  - entities/fragments/lookups/classes: mostly `PascalCase.ts`
-  - resource modules: often `snake_case.ts`
-  - tests: `*.spec.ts`
-
-Data mapping convention:
-- GraphQL payload keys are usually camelCase.
-- Internal/domain object keys are often snake_case.
-
-## 8) Error Handling Guidelines
-Follow existing patterns in `src/services/github/graphql/QueryRunner.ts` and `src/services/github/resources/users.ts`.
-
-- Throw `Error` for invalid local input/state.
-- For GitHub GraphQL failures, branch on status + `GraphqlResponseError` where needed.
-- Preserve context on thrown errors when practical (lookup/query info).
-- Keep retries bounded; avoid unbounded recursion/loops.
-- Do not silently swallow unexpected failures.
-- Return `null` only when the public contract already allows nullable results.
-
-## 9) Architecture Workflow for Changes
-For new/changed data fields:
-1. Update entity schema (`src/entities/**`)
-2. Update fragment query + parsing (`src/services/github/graphql/fragments/**`)
-3. Update lookup query/pagination behavior (`src/services/github/graphql/lookups/**`)
-4. Update resource/service plumbing (`src/services/github/resources/**`, `GithubService.ts`)
-5. Add/update tests
-
-Important: batched lookup aliases must be unique (`QueryRunner` enforces this).
-
-## 10) Generated Files
-- Generated: `src/services/github/graphql-schema.d.ts`
-- Build artifacts: `dist/**`
-- Prefer regenerating over hand-editing generated files.
-- After generation updates, run `npm run verify`.
-
-## 11) OpenCode Preferences
-This repository uses OpenCode under `.opencode/`.
-
-- Preferences/config: `.opencode/opencode.json`
-- Architecture instructions: `.opencode/instructions/architecture.md`
-- Schema migration instructions: `.opencode/instructions/schema-migration.md`
-- Commit instructions: `.opencode/instructions/committing.md`
-
-## 12) Recommended Agent Checklist
-1. Read impacted entity/fragment/lookup/resource files before editing.
-2. Make minimal, style-consistent changes.
-3. Run single test(s) for touched area.
-4. Run `npm run verify` before finalizing.
-5. Ensure no `console.*` remains.
-6. Use conventional commit types.
+- Repo provides `/schema-migration` in `.opencode/opencode.json`.
+- It uses the `plan` agent and is intended to plan first, then execute using the `schema-migration` skill.
