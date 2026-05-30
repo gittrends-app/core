@@ -123,6 +123,47 @@ const IssueComment = NodeSchema.extend(CommentSchema.shape)
     full_database_id: z.coerce.number().int().optional()
   });
 
+const IssueCommentPinnedEvent = NodeSchema.extend({
+  __typename: z.literal('IssueCommentPinnedEvent'),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
+  created_at: z.coerce.date(),
+  issue_comment: z.string().optional()
+});
+
+const IssueCommentUnpinnedEvent = NodeSchema.extend({
+  __typename: z.literal('IssueCommentUnpinnedEvent'),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
+  created_at: z.coerce.date(),
+  issue_comment: z.string().optional()
+});
+
+const IssueFieldAddedEvent = NodeSchema.extend({
+  __typename: z.literal('IssueFieldAddedEvent'),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
+  color: z.string().optional(),
+  created_at: z.coerce.date(),
+  issue_field: z.string().optional(),
+  value: z.string().optional()
+});
+
+const IssueFieldChangedEvent = NodeSchema.extend({
+  __typename: z.literal('IssueFieldChangedEvent'),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
+  created_at: z.coerce.date(),
+  issue_field: z.string().optional(),
+  new_color: z.string().optional(),
+  new_value: z.string().optional(),
+  previous_color: z.string().optional(),
+  previous_value: z.string().optional()
+});
+
+const IssueFieldRemovedEvent = NodeSchema.extend({
+  __typename: z.literal('IssueFieldRemovedEvent'),
+  actor: z.union([ActorSchema, NodeSchema]).optional(),
+  created_at: z.coerce.date(),
+  issue_field: z.string().optional()
+});
+
 const IssueTypeAddedEvent = NodeSchema.extend({
   __typename: z.literal('IssueTypeAddedEvent'),
   actor: z.union([ActorSchema, NodeSchema]).optional(),
@@ -582,6 +623,11 @@ type TimelineEvents =
   | z.infer<typeof HeadRefForcePushedEvent>
   | z.infer<typeof HeadRefRestoredEvent>
   | z.infer<typeof IssueComment>
+  | z.infer<typeof IssueCommentPinnedEvent>
+  | z.infer<typeof IssueCommentUnpinnedEvent>
+  | z.infer<typeof IssueFieldAddedEvent>
+  | z.infer<typeof IssueFieldChangedEvent>
+  | z.infer<typeof IssueFieldRemovedEvent>
   | z.infer<typeof IssueTypeAddedEvent>
   | z.infer<typeof IssueTypeChangedEvent>
   | z.infer<typeof IssueTypeRemovedEvent>
@@ -657,6 +703,11 @@ const list: z.ZodType<TimelineEvents> = z.discriminatedUnion('__typename', [
   HeadRefForcePushedEvent,
   HeadRefRestoredEvent,
   IssueComment,
+  IssueCommentPinnedEvent,
+  IssueCommentUnpinnedEvent,
+  IssueFieldAddedEvent,
+  IssueFieldChangedEvent,
+  IssueFieldRemovedEvent,
   IssueTypeAddedEvent,
   IssueTypeChangedEvent,
   IssueTypeRemovedEvent,

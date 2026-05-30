@@ -37,6 +37,7 @@ export class IssueFragment extends AbstractFragment {
         includesCreatedEdit
         isPinned
         issueType { name }
+        issueFieldValues(first: 100) { totalCount }
         labels(first: 100) { nodes { name } }
         lastEditedAt
         linkedBranches(first: 100) { nodes { ref { name } } }
@@ -45,6 +46,7 @@ export class IssueFragment extends AbstractFragment {
         number
         parent { id }
         participants { totalCount }
+        pinnedIssueComment { id }
         publishedAt
         reactions { totalCount }
         repository { id }
@@ -81,6 +83,7 @@ export class IssueFragment extends AbstractFragment {
       includes_created_edit: data.includesCreatedEdit,
       is_pinned: data.isPinned,
       issue_type: data.issueType?.name,
+      issue_field_values_count: data.issueFieldValues?.totalCount,
       labels: data.labels?.nodes?.map((node) => node!.name),
       last_edited_at: data.lastEditedAt,
       linked_branches: data.linkedBranches?.nodes?.map((node) => node!.ref?.name).filter((name) => name !== undefined),
@@ -89,6 +92,7 @@ export class IssueFragment extends AbstractFragment {
       number: data.number,
       parent: data.parent?.id,
       participants_count: data.participants.totalCount,
+      pinned_issue_comment: data.pinnedIssueComment?.id,
       published_at: data.publishedAt,
       reactions_count: data.reactions.totalCount,
       repository: data.repository.id,

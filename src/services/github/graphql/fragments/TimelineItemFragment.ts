@@ -137,6 +137,42 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         updatedAt
       }
 
+      fragment ${this.alias}_IssueCommentPinnedEvent on IssueCommentPinnedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        issueComment { id }
+      }
+
+      fragment ${this.alias}_IssueCommentUnpinnedEvent on IssueCommentUnpinnedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        issueComment { id }
+      }
+
+      fragment ${this.alias}_IssueFieldAddedEvent on IssueFieldAddedEvent {
+        actor { ...${this.fragments[0].alias} }
+        color
+        createdAt
+        issueField { ... on IssueFieldDate { id name } ... on IssueFieldNumber { id name } ... on IssueFieldSingleSelect { id name } ... on IssueFieldText { id name } }
+        value
+      }
+
+      fragment ${this.alias}_IssueFieldChangedEvent on IssueFieldChangedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        issueField { ... on IssueFieldDate { id name } ... on IssueFieldNumber { id name } ... on IssueFieldSingleSelect { id name } ... on IssueFieldText { id name } }
+        newColor
+        newValue
+        previousColor
+        previousValue
+      }
+
+      fragment ${this.alias}_IssueFieldRemovedEvent on IssueFieldRemovedEvent {
+        actor { ...${this.fragments[0].alias} }
+        createdAt
+        issueField { ... on IssueFieldDate { id name } ... on IssueFieldNumber { id name } ... on IssueFieldSingleSelect { id name } ... on IssueFieldText { id name } }
+      }
+
       fragment ${this.alias}_IssueTypeAddedEvent on IssueTypeAddedEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
@@ -568,6 +604,11 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         ...${this.alias}_DemilestonedEvent
         ...${this.alias}_DisconnectedEvent
         ...${this.alias}_IssueComment
+        ...${this.alias}_IssueCommentPinnedEvent
+        ...${this.alias}_IssueCommentUnpinnedEvent
+        ...${this.alias}_IssueFieldAddedEvent
+        ...${this.alias}_IssueFieldChangedEvent
+        ...${this.alias}_IssueFieldRemovedEvent
         ...${this.alias}_IssueTypeAddedEvent
         ...${this.alias}_IssueTypeChangedEvent
         ...${this.alias}_IssueTypeRemovedEvent
@@ -769,6 +810,45 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           published_at: data.publishedAt,
           reactions_count: data.reactions?.totalCount,
           updated_at: data.updatedAt
+        };
+        break;
+      case 'IssueCommentPinnedEvent':
+      case 'IssueCommentUnpinnedEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          issue_comment: data.issueComment?.id
+        };
+        break;
+      case 'IssueFieldAddedEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          color: data.color,
+          created_at: data.createdAt,
+          issue_field: data.issueField?.name,
+          value: data.value
+        };
+        break;
+      case 'IssueFieldChangedEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          issue_field: data.issueField?.name,
+          new_color: data.newColor,
+          new_value: data.newValue,
+          previous_color: data.previousColor,
+          previous_value: data.previousValue
+        };
+        break;
+      case 'IssueFieldRemovedEvent':
+        _data = {
+          ..._data,
+          actor: data.actor && this.fragments[0].parse(data.actor),
+          created_at: data.createdAt,
+          issue_field: data.issueField?.name
         };
         break;
       case 'IssueTypeAddedEvent':

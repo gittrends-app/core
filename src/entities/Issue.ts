@@ -5,7 +5,6 @@ import { CommentSchema } from './base/Comment';
 import { NodeSchema } from './base/Node';
 import { ReactableSchema } from './base/Reactable';
 import { RepositoryNodeSchema } from './base/RepositoryNode';
-import { TimelineItemSchema } from './TimelineItem';
 
 const baseIssue = NodeSchema.extend(RepositoryNodeSchema.shape)
   .extend(ReactableSchema.shape)
@@ -26,6 +25,7 @@ const baseIssue = NodeSchema.extend(RepositoryNodeSchema.shape)
     full_database_id: z.coerce.number().int().optional(),
     is_pinned: z.boolean().optional(),
     issue_type: z.string().optional(),
+    issue_field_values_count: z.number().int().optional(),
     labels: z.array(z.string()).optional(),
     linked_branches: z.array(z.string()).optional(),
     locked: z.boolean(),
@@ -33,11 +33,12 @@ const baseIssue = NodeSchema.extend(RepositoryNodeSchema.shape)
     number: z.number().int(),
     parent: z.string().optional(),
     participants_count: z.number().int(),
+    pinned_issue_comment: z.string().optional(),
     state: z.string(),
     timeline_items_count: z.number().int(),
     title: z.string(),
 
-    timeline_items: z.union([TimelineItemSchema.array(), NodeSchema.array()]).optional()
+    timeline_items: NodeSchema.array().optional()
   });
 
 export const IssueSchema = zodSanitize(baseIssue as z.ZodType<z.output<typeof baseIssue>, z.input<typeof baseIssue>>);
