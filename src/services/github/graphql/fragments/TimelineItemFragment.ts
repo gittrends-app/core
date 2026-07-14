@@ -153,24 +153,28 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
         actor { ...${this.fragments[0].alias} }
         color
         createdAt
-        issueField { ... on IssueFieldDate { id name } ... on IssueFieldNumber { id name } ... on IssueFieldSingleSelect { id name } ... on IssueFieldText { id name } }
+        issueField { ... on IssueFieldDate { id name } ... on IssueFieldMultiSelect { id name } ... on IssueFieldNumber { id name } ... on IssueFieldSingleSelect { id name } ... on IssueFieldText { id name } }
+        options { color name }
         value
       }
 
       fragment ${this.alias}_IssueFieldChangedEvent on IssueFieldChangedEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        issueField { ... on IssueFieldDate { id name } ... on IssueFieldNumber { id name } ... on IssueFieldSingleSelect { id name } ... on IssueFieldText { id name } }
+        issueField { ... on IssueFieldDate { id name } ... on IssueFieldMultiSelect { id name } ... on IssueFieldNumber { id name } ... on IssueFieldSingleSelect { id name } ... on IssueFieldText { id name } }
         newColor
+        newOptions { color name }
         newValue
         previousColor
+        previousOptions { color name }
         previousValue
       }
 
       fragment ${this.alias}_IssueFieldRemovedEvent on IssueFieldRemovedEvent {
         actor { ...${this.fragments[0].alias} }
         createdAt
-        issueField { ... on IssueFieldDate { id name } ... on IssueFieldNumber { id name } ... on IssueFieldSingleSelect { id name } ... on IssueFieldText { id name } }
+        issueField { ... on IssueFieldDate { id name } ... on IssueFieldMultiSelect { id name } ... on IssueFieldNumber { id name } ... on IssueFieldSingleSelect { id name } ... on IssueFieldText { id name } }
+        options { color name }
       }
 
       fragment ${this.alias}_IssueTypeAddedEvent on IssueTypeAddedEvent {
@@ -828,6 +832,7 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           color: data.color,
           created_at: data.createdAt,
           issue_field: data.issueField?.name,
+          options: data.options,
           value: data.value
         };
         break;
@@ -838,8 +843,10 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           created_at: data.createdAt,
           issue_field: data.issueField?.name,
           new_color: data.newColor,
+          new_options: data.newOptions,
           new_value: data.newValue,
           previous_color: data.previousColor,
+          previous_options: data.previousOptions,
           previous_value: data.previousValue
         };
         break;
@@ -848,7 +855,8 @@ class TimelineItemFragment extends AbstractFragment<TimelineItem> {
           ..._data,
           actor: data.actor && this.fragments[0].parse(data.actor),
           created_at: data.createdAt,
-          issue_field: data.issueField?.name
+          issue_field: data.issueField?.name,
+          options: data.options
         };
         break;
       case 'IssueTypeAddedEvent':

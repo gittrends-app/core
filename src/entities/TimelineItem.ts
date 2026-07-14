@@ -137,12 +137,18 @@ const IssueCommentUnpinnedEvent = NodeSchema.extend({
   issue_comment: z.string().optional()
 });
 
+const IssueFieldTimelineOption = z.object({
+  color: z.string().optional(),
+  name: z.string()
+});
+
 const IssueFieldAddedEvent = NodeSchema.extend({
   __typename: z.literal('IssueFieldAddedEvent'),
   actor: z.union([ActorSchema, NodeSchema]).optional(),
   color: z.string().optional(),
   created_at: z.coerce.date(),
   issue_field: z.string().optional(),
+  options: z.array(IssueFieldTimelineOption).optional(),
   value: z.string().optional()
 });
 
@@ -152,8 +158,10 @@ const IssueFieldChangedEvent = NodeSchema.extend({
   created_at: z.coerce.date(),
   issue_field: z.string().optional(),
   new_color: z.string().optional(),
+  new_options: z.array(IssueFieldTimelineOption).optional(),
   new_value: z.string().optional(),
   previous_color: z.string().optional(),
+  previous_options: z.array(IssueFieldTimelineOption).optional(),
   previous_value: z.string().optional()
 });
 
@@ -161,7 +169,8 @@ const IssueFieldRemovedEvent = NodeSchema.extend({
   __typename: z.literal('IssueFieldRemovedEvent'),
   actor: z.union([ActorSchema, NodeSchema]).optional(),
   created_at: z.coerce.date(),
-  issue_field: z.string().optional()
+  issue_field: z.string().optional(),
+  options: z.array(IssueFieldTimelineOption).optional()
 });
 
 const IssueTypeAddedEvent = NodeSchema.extend({
