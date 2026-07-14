@@ -48,27 +48,29 @@ export class BufferedService extends PassThroughService {
 
     return {
       async *[Symbol.asyncIterator]() {
+        if (total <= 0) return;
+
         const iterator = service.search(total, opts)[Symbol.asyncIterator]();
         let buffer: Repository[] = [];
         let lastMetadata: any = null;
         let totalPerPage = 0;
         let bufferedIterations = 0;
+        let remaining = total;
 
-        for await (const { data, metadata } of { [Symbol.asyncIterator]: () => iterator }) {
+        for await (const { data: pageData, metadata } of { [Symbol.asyncIterator]: () => iterator }) {
+          const data = pageData.slice(0, remaining);
           buffer.push(...data);
           lastMetadata = metadata;
-          totalPerPage += metadata.per_page || data.length;
+          totalPerPage += data.length;
+          remaining -= data.length;
           bufferedIterations++;
+          const hasMore = remaining > 0 && metadata.has_more;
 
           // Check if we've accumulated enough iterations or if there are no more results
-          if (bufferedIterations >= bufferSize || !metadata.has_more) {
+          if (bufferedIterations >= bufferSize || !hasMore) {
             yield {
               data: buffer,
-              metadata: {
-                ...lastMetadata,
-                per_page: totalPerPage,
-                has_more: metadata.has_more
-              }
+              metadata: bufferedMetadata(lastMetadata, totalPerPage, hasMore)
             };
 
             // Reset buffer for next batch
@@ -77,7 +79,7 @@ export class BufferedService extends PassThroughService {
             bufferedIterations = 0;
 
             // If no more results, stop iterating
-            if (!metadata.has_more) {
+            if (!hasMore) {
               break;
             }
           }
@@ -87,11 +89,7 @@ export class BufferedService extends PassThroughService {
         if (buffer.length > 0) {
           yield {
             data: buffer,
-            metadata: {
-              ...lastMetadata,
-              per_page: totalPerPage,
-              has_more: lastMetadata?.has_more || false
-            }
+            metadata: bufferedMetadata(lastMetadata, totalPerPage, false)
           };
         }
       }
@@ -126,18 +124,15 @@ export class BufferedService extends PassThroughService {
         for await (const { data, metadata } of { [Symbol.asyncIterator]: () => iterator }) {
           buffer.push(...(data as T[]));
           lastMetadata = metadata;
-          totalPerPage += metadata.per_page || data.length;
+          totalPerPage += data.length;
           bufferedIterations++;
+          const hasMore = metadata.has_more && !!metadata.cursor;
 
           // Check if we've accumulated enough iterations or if there are no more results
-          if (bufferedIterations >= bufferSize || !metadata.has_more) {
+          if (bufferedIterations >= bufferSize || !hasMore) {
             yield {
               data: buffer,
-              metadata: {
-                ...lastMetadata,
-                per_page: totalPerPage,
-                has_more: metadata.has_more
-              }
+              metadata: bufferedMetadata(lastMetadata, totalPerPage, hasMore)
             };
 
             // Reset buffer for next batch
@@ -146,7 +141,7 @@ export class BufferedService extends PassThroughService {
             bufferedIterations = 0;
 
             // If no more results, stop iterating
-            if (!metadata.has_more) {
+            if (!hasMore) {
               break;
             }
           }
@@ -156,14 +151,20 @@ export class BufferedService extends PassThroughService {
         if (buffer.length > 0) {
           yield {
             data: buffer,
-            metadata: {
-              ...lastMetadata,
-              per_page: totalPerPage,
-              has_more: lastMetadata?.has_more || false
-            }
+            metadata: bufferedMetadata(lastMetadata, totalPerPage, false)
           };
         }
       }
     } as Iterable<T, P>;
   }
+}
+
+function bufferedMetadata(metadata: any, perPage: number, hasMore: boolean) {
+  const { cursor, ...rest } = metadata || {};
+  return {
+    ...rest,
+    per_page: perPage,
+    has_more: hasMore,
+    ...(hasMore && cursor ? { cursor } : {})
+  };
 }

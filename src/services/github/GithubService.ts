@@ -12,7 +12,15 @@ import { Stargazer } from '../../entities/Stargazer';
 import { Tag } from '../../entities/Tag';
 import { Watcher } from '../../entities/Watcher';
 import { Booleanify, NullableFields } from '../../helpers/types';
-import { Iterable, SearchParams, Service, ServiceCommitsParams, ServiceResourceParams } from '../Service';
+import {
+  Iterable,
+  SearchParams,
+  Service,
+  ServiceCommitsParams,
+  ServiceResource,
+  ServiceResourceMap,
+  ServiceResourceParams
+} from '../Service';
 import { GithubClient } from './GithubClient';
 import { ActorFragment } from './graphql/fragments/ActorFragment';
 import { BaseFragmentFactory, Fragment, FragmentFactory } from './graphql/fragments/Fragment';
@@ -136,6 +144,7 @@ export class GithubService implements Service {
         const seenIds = new Set<string>();
         let remainingLimit = originalTotal;
         let currentMaxStargazers = initialOpts?.maxStargazers;
+        let cursor = initialOpts?.cursor;
 
         while (remainingLimit > 0) {
           const it = QueryRunner.create(client).iterator(
@@ -143,6 +152,7 @@ export class GithubService implements Service {
               factory: factory,
               limit: remainingLimit,
               per_page: initialOpts?.per_page,
+              cursor,
               name: initialOpts?.name,
               language: initialOpts?.language,
               org: initialOpts?.org,
@@ -156,30 +166,38 @@ export class GithubService implements Service {
 
           for await (const searchRes of it) {
             // Filter out duplicates by ID
-            const uniqueData = searchRes.data.filter((repo: Repository) => {
-              if (seenIds.has(repo.id)) return false;
-              seenIds.add(repo.id);
-              return true;
-            });
+            const uniqueData = searchRes.data
+              .filter((repo: Repository) => {
+                if (seenIds.has(repo.id)) return false;
+                seenIds.add(repo.id);
+                return true;
+              })
+              .slice(0, remainingLimit);
 
             if (uniqueData.length > 0) {
               lastRepo = uniqueData[uniqueData.length - 1];
               fetchedInWindow += uniqueData.length;
               remainingLimit -= uniqueData.length;
+              const hasMore =
+                remainingLimit > 0 && !!searchRes.params.cursor && (!!searchRes.next || fetchedInWindow > 0);
+              const { cursor: _cursor, ...params } = searchRes.params;
 
               yield {
                 data: uniqueData,
                 metadata: {
-                  has_more: !!searchRes.next || (remainingLimit > 0 && fetchedInWindow > 0),
-                  ...searchRes.params
+                  ...params,
+                  has_more: hasMore,
+                  ...(hasMore && searchRes.params.cursor ? { cursor: searchRes.params.cursor } : {}),
+                  per_page: uniqueData.length
                 }
               };
             }
 
             hasNextPage = !!searchRes.next;
+            cursor = searchRes.params.cursor;
           }
 
-          if (remainingLimit > 0 && fetchedInWindow > 0 && !hasNextPage) {
+          if (remainingLimit > 0 && fetchedInWindow > 0 && !hasNextPage && cursor) {
             currentMaxStargazers = lastRepo!.stargazers_count;
             continue;
           }
@@ -223,7 +241,10 @@ export class GithubService implements Service {
   resources(resource: 'stargazers', opts: ServiceResourceParams): Iterable<Stargazer>;
   resources(resource: 'tags', opts: ServiceResourceParams): Iterable<Tag>;
   resources(resource: 'watchers', opts: ServiceResourceParams): Iterable<Watcher>;
-  resources(resource: any, opts: any): Iterable<any> {
+  resources<R extends ServiceResource>(
+    resource: R,
+    opts: ServiceResourceParams & Partial<{ since: Date; until: Date }>
+  ): Iterable<ServiceResourceMap[R]> {
     const params: QueryLookupParams & Partial<{ since: Date; until: Date }> = {
       id: opts.repository,
       cursor: opts.cursor,
@@ -233,21 +254,23 @@ export class GithubService implements Service {
 
     switch (resource) {
       case 'commits':
-        return commits(this.client, { ...params, since: opts.since, until: opts.until });
+        return commits(this.client, { ...params, since: opts.since, until: opts.until }) as Iterable<
+          ServiceResourceMap[R]
+        >;
       case 'discussions':
-        return discussions(this.client, params);
+        return discussions(this.client, params) as Iterable<ServiceResourceMap[R]>;
       case 'issues':
-        return issues(this.client, params);
+        return issues(this.client, params) as Iterable<ServiceResourceMap[R]>;
       case 'pull_requests':
-        return pullRequests(this.client, params);
+        return pullRequests(this.client, params) as Iterable<ServiceResourceMap[R]>;
       case 'releases':
-        return releases(this.client, params);
+        return releases(this.client, params) as Iterable<ServiceResourceMap[R]>;
       case 'stargazers':
-        return genericIterator(this.client, new StargazersLookup(params));
+        return genericIterator(this.client, new StargazersLookup(params)) as Iterable<ServiceResourceMap[R]>;
       case 'tags':
-        return genericIterator(this.client, new TagsLookup(params));
+        return genericIterator(this.client, new TagsLookup(params)) as Iterable<ServiceResourceMap[R]>;
       case 'watchers':
-        return genericIterator(this.client, new WatchersLookup(params));
+        return genericIterator(this.client, new WatchersLookup(params)) as Iterable<ServiceResourceMap[R]>;
       default:
         throw new Error('Repository resource not implemented.');
     }
@@ -261,12 +284,15 @@ function genericIterator<R>(client: GithubClient, lookup: QueryLookup<R[]>): Ite
   return {
     [Symbol.asyncIterator]: async function* () {
       for await (const searchRes of QueryRunner.create(client).iterator(lookup)) {
+        const hasMore = !!searchRes.next;
+        const { cursor: _cursor, ...params } = searchRes.params;
         yield {
           data: searchRes.data,
           metadata: {
-            has_more: !!searchRes.next,
-            cursor: searchRes.params.cursor,
-            per_page: searchRes.params.per_page
+            ...params,
+            has_more: hasMore,
+            ...(hasMore && searchRes.params.cursor ? { cursor: searchRes.params.cursor } : {}),
+            per_page: searchRes.data.length
           }
         };
       }

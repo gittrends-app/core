@@ -50,6 +50,7 @@ export default function (client: GithubClient, opts: QueryLookupParams): Iterabl
     [Symbol.asyncIterator]: async function* () {
       for await (const searchRes of QueryRunner.create(client).iterator(new DiscussionsLookup(opts))) {
         const data: Discussion[] = searchRes.data;
+        const hasMore = !!searchRes.next;
 
         await Promise.all(
           data.map(async (discussion) => {
@@ -68,9 +69,9 @@ export default function (client: GithubClient, opts: QueryLookupParams): Iterabl
         yield {
           data,
           metadata: {
-            has_more: !!searchRes.next,
-            cursor: searchRes.params.cursor,
-            per_page: searchRes.params.per_page
+            has_more: hasMore,
+            ...(hasMore && searchRes.params.cursor ? { cursor: searchRes.params.cursor } : {}),
+            per_page: data.length
           }
         };
       }

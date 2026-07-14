@@ -25,18 +25,39 @@ export type PageableParams = {
 };
 
 /**
+ * Metadata emitted with a service page.
+ */
+export type PageMetadata<P extends object = object> = PageableParams & P & { has_more: boolean };
+
+/**
  * Iterable type.
  */
-export type Iterable<T = any, P extends object = object> = AsyncIterable<{
+export type Iterable<T = unknown, P extends object = object> = AsyncIterable<{
   /**
    * The data.
    */
   data: T[];
   /**
-   * The metadata.
+   * The page metadata.
    */
-  metadata: PageableParams & P & { has_more: boolean };
+  metadata: PageMetadata<P>;
 }>;
+
+/**
+ * Resource names and their corresponding entity types.
+ */
+export type ServiceResourceMap = {
+  commits: Commit;
+  discussions: Discussion;
+  issues: Issue;
+  pull_requests: PullRequest;
+  releases: Release;
+  stargazers: Stargazer;
+  tags: Tag;
+  watchers: Watcher;
+};
+
+export type ServiceResource = keyof ServiceResourceMap;
 
 /**
  * Service resource parameters.

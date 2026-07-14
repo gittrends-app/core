@@ -9,7 +9,34 @@ import { Repository } from '../entities/Repository';
 import { Stargazer } from '../entities/Stargazer';
 import { Tag } from '../entities/Tag';
 import { Watcher } from '../entities/Watcher';
-import { Iterable, SearchParams, Service, ServiceCommitsParams, ServiceResourceParams } from './Service';
+import {
+  Iterable,
+  SearchParams,
+  Service,
+  ServiceCommitsParams,
+  ServiceResourceMap,
+  ServiceResourceParams
+} from './Service';
+
+const CACHE_VERSION = 'service-cache:v1';
+
+function canonicalize(value: unknown): unknown {
+  if (value instanceof Date) return value.toISOString();
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([, entry]) => entry !== undefined)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, entry]) => [key, canonicalize(entry)])
+    );
+  }
+  return value;
+}
+
+function cacheKey(operation: string, identity: unknown): string {
+  return `${CACHE_VERSION}:${operation}:${hash(canonicalize(identity))}`;
+}
 
 /**
  * Represents a mechanism for caching data.
@@ -72,28 +99,62 @@ export class CacheService implements Service {
       async *[Symbol.asyncIterator]() {
         if (total <= 0) return;
 
-        const _opts = { total, ...(opts || {}) };
+        let remaining = total;
+        let cursor = opts?.cursor;
 
-        let cached: { data: Repository[]; metadata: any } | null;
-        let hasMore = true;
+        while (remaining > 0) {
+          const pageOpts = { ...(opts || {}), ...(cursor === undefined ? {} : { cursor }) };
+          const key = cacheKey(CacheService.SEARCH_PREFIX, pageOpts);
+          const cached = await safeGet<{ data: Repository[]; metadata: any }>(cache, key);
 
-        do {
-          cached = await cache.get(`${CacheService.SEARCH_PREFIX}:${hash(_opts)}`);
           if (cached) {
-            yield cached;
-            _opts.total -= cached.data.length;
-            _opts.cursor = cached.metadata.cursor;
-            hasMore = cached.metadata.has_more;
-          }
-        } while (cached !== null && hasMore && _opts.total > 0);
+            const data = cached.data.slice(0, remaining);
+            if (data.length === 0) return;
 
-        if (_opts.total > 0 && hasMore) {
-          for await (const { data, metadata } of service.search(_opts.total, _opts)) {
-            cache.set(`${CacheService.SEARCH_PREFIX}:${hash(_opts)}`, { data, metadata });
-            yield { data, metadata };
-            _opts.total -= data.length;
-            _opts.cursor = metadata.cursor;
+            remaining -= data.length;
+            const hasMore = remaining > 0 && cached.metadata.has_more && !!cached.metadata.cursor;
+            const { cursor: _cursor, ...metadata } = cached.metadata;
+            yield {
+              data,
+              metadata: {
+                ...metadata,
+                per_page: data.length,
+                has_more: hasMore,
+                ...(hasMore ? { cursor: cached.metadata.cursor } : {})
+              }
+            };
+
+            if (!hasMore) return;
+            cursor = cached.metadata.cursor;
+            continue;
           }
+
+          let yielded = false;
+          for await (const { data: pageData, metadata } of service.search(remaining, pageOpts)) {
+            const data = pageData.slice(0, remaining);
+            if (data.length === 0) return;
+
+            yielded = true;
+            await safeSet(cache, key, { data: pageData, metadata });
+            remaining -= data.length;
+            const hasMore = remaining > 0 && metadata.has_more && !!metadata.cursor;
+            const { cursor: _cursor, ...metadataWithoutCursor } = metadata;
+            yield {
+              data,
+              metadata: {
+                ...metadataWithoutCursor,
+                per_page: data.length,
+                has_more: hasMore,
+                ...(hasMore ? { cursor: metadata.cursor } : {})
+              }
+            };
+
+            if (!hasMore) return;
+            cursor = metadata.cursor;
+            break;
+          }
+
+          if (!yielded) return;
         }
       }
     };
@@ -106,14 +167,21 @@ export class CacheService implements Service {
 
     const users = await Promise.all(
       ids.map((i) =>
-        this.cache.get<Actor>(`${CacheService.USER_PREFIX}:${i}`).then((cached) => {
-          if (cached) return cached;
+        safeGet<Actor>(this.cache, cacheKey(CacheService.USER_PREFIX, { id: i, byLogin: opts?.byLogin ?? false })).then(
+          (cached) => {
+            if (cached) return cached;
 
-          return this.service.user(i, opts).then((user) => {
-            if (user) this.cache.set(`${CacheService.USER_PREFIX}:${i}`, user);
-            return user;
-          });
-        })
+            return this.service.user(i, opts).then((user) => {
+              if (user)
+                void safeSet(
+                  this.cache,
+                  cacheKey(CacheService.USER_PREFIX, { id: i, byLogin: opts?.byLogin ?? false }),
+                  user
+                );
+              return user;
+            });
+          }
+        )
       )
     );
 
@@ -121,12 +189,12 @@ export class CacheService implements Service {
   }
 
   async repository(ownerOrId: string, name?: string): Promise<Repository | null> {
-    const cacheKey = `${CacheService.REPOSITORY_PREFIX}:${ownerOrId}:${name}`;
-    const cached = await this.cache.get<Repository>(cacheKey);
+    const key = cacheKey(CacheService.REPOSITORY_PREFIX, { ownerOrId, name });
+    const cached = await safeGet<Repository>(this.cache, key);
     if (cached) return cached;
 
     const result = await this.service.repository(ownerOrId, name);
-    if (result) await this.cache.set(cacheKey, result);
+    if (result) await safeSet(this.cache, key, result);
 
     return result;
   }
@@ -139,26 +207,55 @@ export class CacheService implements Service {
   resources(res: 'stargazers', opts: object & ServiceResourceParams): Iterable<Stargazer>;
   resources(res: 'tags', opts: object & ServiceResourceParams): Iterable<Tag>;
   resources(res: 'watchers', opts: object & ServiceResourceParams): Iterable<Watcher>;
-  resources<T>(res: any, opts: any): Iterable<T> {
+  resources<R extends keyof ServiceResourceMap>(res: R, opts: ServiceResourceParams): Iterable<ServiceResourceMap[R]> {
     const { cache, service } = this;
 
     return {
       async *[Symbol.asyncIterator]() {
         const _opts: ServiceResourceParams = { ...opts };
-        let cached: { data: T[]; metadata: any } | null;
+        let cached: { data: ServiceResourceMap[R][]; metadata: any } | null;
 
-        while ((cached = await cache.get(`${res}:${hash(_opts)}`))) {
-          yield cached as any;
-          if (!cached.metadata.has_more) return;
+        while ((cached = await safeGet(cache, cacheKey(res, _opts)))) {
+          const hasMore = cached.metadata.has_more && !!cached.metadata.cursor;
+          const { cursor: _cursor, ...metadata } = cached.metadata;
+          yield {
+            data: cached.data,
+            metadata: { ...metadata, has_more: hasMore, ...(hasMore ? { cursor: cached.metadata.cursor } : {}) }
+          } as any;
+          if (!hasMore) return;
           Object.assign(_opts, { cursor: cached.metadata.cursor });
         }
 
-        for await (const { data, metadata } of service.resources(res, _opts)) {
-          if (data.length > 0) cache.set(`${res}:${hash(_opts)}`, { data, metadata });
-          yield { data, metadata };
+        for await (const { data, metadata } of service.resources(res as any, _opts) as Iterable<
+          ServiceResourceMap[R]
+        >) {
+          if (data.length > 0) void safeSet(cache, cacheKey(res, _opts), { data, metadata });
+          const hasMore = metadata.has_more && !!metadata.cursor;
+          const { cursor: _cursor, ...metadataWithoutCursor } = metadata;
+          yield {
+            data,
+            metadata: { ...metadataWithoutCursor, has_more: hasMore, ...(hasMore ? { cursor: metadata.cursor } : {}) }
+          };
+          if (!hasMore) return;
           Object.assign(_opts, { cursor: metadata.cursor });
         }
       }
     };
+  }
+}
+
+async function safeGet<T>(cache: Cache, key: string): Promise<T | null> {
+  try {
+    return await cache.get<T>(key);
+  } catch {
+    return null;
+  }
+}
+
+async function safeSet<T>(cache: Cache, key: string, value: T): Promise<void> {
+  try {
+    await cache.set(key, value);
+  } catch {
+    // Cache failures are intentionally best effort.
   }
 }

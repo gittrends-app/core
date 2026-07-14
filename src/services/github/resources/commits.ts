@@ -22,14 +22,16 @@ export default function commits(
       for await (const response of untilIt) {
         if (!until) until = response.params.until;
         if (response.params.since) since = response.params.since;
+        const hasMore = !!response.next;
 
         yield {
           data: response.data,
           metadata: {
-            has_more: !!response.next,
+            has_more: hasMore,
             since,
             until,
-            per_page: opts.per_page
+            per_page: response.data.length,
+            ...(hasMore && response.params.cursor ? { cursor: response.params.cursor } : {})
           }
         };
       }

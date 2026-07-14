@@ -62,46 +62,39 @@ export class QueryRunner {
       throw new Error(`Lookups must have unique aliases.`);
     }
 
-    // Execute batch query with combined error handling
-    return this.client
-      .graphql<Record<string, any>>(QueryRunner.toString(lookups), {})
-      .catch((error) => {
-        const only = (type: string) =>
-          (error.response.errors as Array<{ type: string }>).every((err) => err.type === type);
+    try {
+      const response = await this.client.graphql<Record<string, any>>(QueryRunner.toString(lookups), {});
+      return lookups.map((lookup) => lookup.parse(response[lookup.alias]));
+    } catch (error) {
+      const response = getResponse(error);
+      const errors = Array.isArray(response?.errors) ? response.errors : [];
 
-        if (error.response?.status === 200 || error instanceof GraphqlResponseError) {
-          if (only('NOT_FOUND')) return error.data;
-          if (only('FORBIDDEN') || only('SERVICE_UNAVAILABLE')) return sanitize(error.data, (v) => v === null, true);
+      if (response?.status === 200 || error instanceof GraphqlResponseError) {
+        if (errors.length > 0 && errors.every((entry) => entry.type === 'NOT_FOUND')) {
+          const data = (error as GraphqlResponseError<any>).data || {};
+          return lookups.map((lookup) => lookup.parse(data[lookup.alias]));
         }
-        throw Object.assign(error, { lookups: lookups.map((l) => ({ alias: l.alias })) });
-      })
-      .then((res) => lookups.map((lookup) => lookup.parse(res[lookup.alias])))
-      .catch((error) => {
-        // Retry with reduced page sizes on server errors
-        if ([500, 502, 504].includes(error.response?.status || error.status) || error instanceof GraphqlResponseError) {
-          // Save original per_page values and set to 0 for initial request
-
-          // Reduce page sizes by half for retry
-          if (lookups.some((lookup) => (lookup.params.per_page || 0) > 1)) {
-            const pageSizes = lookups.map((lookup) => lookup.params.per_page);
-
-            lookups.forEach((lookup) => {
-              if ((lookup.params.per_page || 0) > 1) {
-                lookup.params.per_page = Math.ceil(lookup.params.per_page! / 2);
-              }
-            });
-
-            return this.fetchBatch(lookups).then((data) => {
-              // restore page sizes after successful retry
-              lookups.forEach((lookup) => {
-                lookup.params.per_page = pageSizes[lookups.indexOf(lookup)];
-              });
-              return data;
-            });
-          }
+        if (
+          errors.length > 0 &&
+          (errors.every((entry) => entry.type === 'FORBIDDEN') ||
+            errors.every((entry) => entry.type === 'SERVICE_UNAVAILABLE'))
+        ) {
+          const data = sanitize((error as GraphqlResponseError<any>).data, (value) => value === null, true) || {};
+          return lookups.map((lookup) => lookup.parse(data[lookup.alias]));
         }
-        throw Object.assign(error, { lookups });
-      });
+      }
+
+      if (isTransient(error) && lookups.some((lookup) => (lookup.params.per_page || 0) > 1)) {
+        const retriedLookups = lookups.map((lookup) => {
+          const pageSize = lookup.params.per_page;
+          return pageSize && pageSize > 1 ? cloneLookup(lookup, { per_page: Math.ceil(pageSize / 2) }) : lookup;
+        });
+
+        return this.fetchBatch(retriedLookups);
+      }
+
+      throw withLookupContext(error, lookups);
+    }
   }
 
   public async fetchAll<R, P>(lookup: QueryLookup<R, P>): Promise<{ data: R; params: P }>;
@@ -131,4 +124,35 @@ export class QueryRunner {
       }
     };
   }
+}
+
+function getResponse(error: unknown): { status?: number; errors?: Array<{ type?: string }> } | undefined {
+  if (!error || typeof error !== 'object') return undefined;
+  const response = (error as { response?: unknown }).response;
+  return response && typeof response === 'object'
+    ? (response as { status?: number; errors?: Array<{ type?: string }> })
+    : undefined;
+}
+
+function isTransient(error: unknown): boolean {
+  const response = getResponse(error);
+  const status =
+    response?.status ?? (error && typeof error === 'object' ? (error as { status?: number }).status : undefined);
+  return status !== undefined && [500, 502, 504].includes(status);
+}
+
+function cloneLookup<R, P>(lookup: QueryLookup<R, P>, params: { per_page?: number }): QueryLookup<R, P> {
+  const clone = Object.create(Object.getPrototypeOf(lookup)) as QueryLookup<R, P>;
+  Object.assign(clone, lookup, { params: { ...lookup.params, ...params } });
+  return clone;
+}
+
+function withLookupContext(error: unknown, lookups: QueryLookup<unknown, unknown>[]): Error {
+  const context = lookups.map((lookup) => ({ alias: lookup.alias }));
+  if (error instanceof Error) {
+    Object.assign(error, { lookups: context });
+    return error;
+  }
+
+  return Object.assign(new Error('GitHub GraphQL request failed.', { cause: error }), { lookups: context });
 }

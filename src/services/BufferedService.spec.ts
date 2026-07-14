@@ -62,11 +62,11 @@ describe('BufferedService', () => {
     await expect(collect(buffered.search(3))).resolves.toEqual([
       {
         data: ['one', 'two'],
-        metadata: { has_more: true, cursor: 'cursor-2', per_page: 20 }
+        metadata: { has_more: true, cursor: 'cursor-2', per_page: 2 }
       },
       {
         data: ['three'],
-        metadata: { has_more: false, cursor: 'cursor-3', per_page: 10 }
+        metadata: { has_more: false, per_page: 1 }
       }
     ]);
     expect(service.search).toHaveBeenCalledWith(3, undefined);
@@ -75,33 +75,54 @@ describe('BufferedService', () => {
   it('flushes every page when buffer size is one', async () => {
     const service = createServiceMock();
     const pages: Page<string>[] = [
-      { data: ['one'], metadata: { has_more: true, per_page: 100 } },
-      { data: ['two'], metadata: { has_more: false, per_page: 100 } }
+      { data: ['one'], metadata: { has_more: true, cursor: 'cursor-1', per_page: 1 } },
+      { data: ['two'], metadata: { has_more: false, per_page: 1 } }
     ];
     const buffered = new BufferedService(service as unknown as Service, 1);
 
     service.search.mockReturnValue(createIterable(pages));
 
     await expect(collect(buffered.search(2))).resolves.toEqual([
-      { data: ['one'], metadata: { has_more: true, per_page: 100 } },
-      { data: ['two'], metadata: { has_more: false, per_page: 100 } }
+      { data: ['one'], metadata: { has_more: true, cursor: 'cursor-1', per_page: 1 } },
+      { data: ['two'], metadata: { has_more: false, per_page: 1 } }
     ]);
   });
 
   it('flushes a partial search buffer when the source ends', async () => {
     const service = createServiceMock();
     const pages: Page<string>[] = [
-      { data: ['one'], metadata: { has_more: true, per_page: 2 } },
-      { data: ['two'], metadata: { has_more: true, per_page: 2 } },
-      { data: ['three'], metadata: { has_more: true, per_page: 2 } }
+      { data: ['one'], metadata: { has_more: true, cursor: 'cursor-1', per_page: 2 } },
+      { data: ['two'], metadata: { has_more: true, cursor: 'cursor-2', per_page: 2 } },
+      { data: ['three'], metadata: { has_more: true, cursor: 'cursor-3', per_page: 2 } }
     ];
     const buffered = new BufferedService(service as unknown as Service, 2);
 
     service.search.mockReturnValue(createIterable(pages));
 
     await expect(collect(buffered.search(3))).resolves.toEqual([
-      { data: ['one', 'two'], metadata: { has_more: true, per_page: 4 } },
-      { data: ['three'], metadata: { has_more: true, per_page: 2 } }
+      { data: ['one', 'two'], metadata: { has_more: true, cursor: 'cursor-2', per_page: 2 } },
+      { data: ['three'], metadata: { has_more: false, per_page: 1 } }
+    ]);
+  });
+
+  it('does not request the source or emit pages for a non-positive total', async () => {
+    const service = createServiceMock();
+    const buffered = new BufferedService(service as unknown as Service, 2);
+
+    await expect(collect(buffered.search(0))).resolves.toEqual([]);
+    expect(service.search).not.toHaveBeenCalled();
+  });
+
+  it('truncates a search page at the requested total', async () => {
+    const service = createServiceMock();
+    const buffered = new BufferedService(service as unknown as Service, 2);
+
+    service.search.mockReturnValue(
+      createIterable([{ data: ['one', 'two', 'three'], metadata: { has_more: true, cursor: 'next-cursor' } }])
+    );
+
+    await expect(collect(buffered.search(2))).resolves.toEqual([
+      { data: ['one', 'two'], metadata: { has_more: false, per_page: 2 } }
     ]);
   });
 
@@ -119,7 +140,7 @@ describe('BufferedService', () => {
     await expect(collect(buffered.resources('issues', opts))).resolves.toEqual([
       {
         data: ['one', 'two'],
-        metadata: { has_more: false, cursor: 'cursor-2', per_page: 20 }
+        metadata: { has_more: false, per_page: 2 }
       }
     ]);
     expect(service.resources).toHaveBeenCalledWith('issues', opts);
@@ -128,17 +149,17 @@ describe('BufferedService', () => {
   it('flushes a partial resource buffer when the source ends', async () => {
     const service = createServiceMock();
     const pages: Page<string>[] = [
-      { data: ['one'], metadata: { has_more: true, per_page: 2 } },
-      { data: ['two'], metadata: { has_more: true, per_page: 2 } },
-      { data: ['three'], metadata: { has_more: true, per_page: 2 } }
+      { data: ['one'], metadata: { has_more: true, cursor: 'cursor-1', per_page: 2 } },
+      { data: ['two'], metadata: { has_more: true, cursor: 'cursor-2', per_page: 2 } },
+      { data: ['three'], metadata: { has_more: true, cursor: 'cursor-3', per_page: 2 } }
     ];
     const buffered = new BufferedService(service as unknown as Service, 2);
 
     service.resources.mockReturnValue(createIterable(pages));
 
     await expect(collect(buffered.resources('issues', { repository: 'octocat/hello-world' }))).resolves.toEqual([
-      { data: ['one', 'two'], metadata: { has_more: true, per_page: 4 } },
-      { data: ['three'], metadata: { has_more: true, per_page: 2 } }
+      { data: ['one', 'two'], metadata: { has_more: true, cursor: 'cursor-2', per_page: 2 } },
+      { data: ['three'], metadata: { has_more: false, per_page: 1 } }
     ]);
   });
 

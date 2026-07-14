@@ -109,10 +109,15 @@ export default function (client: GithubClient, opts: QueryLookupParams): Iterabl
             }
           })
         );
+        const hasMore = !!res.next;
 
         yield {
           data: res.data,
-          metadata: { has_more: !!res.next, per_page: res.params.per_page, cursor: res.params.cursor }
+          metadata: {
+            has_more: hasMore,
+            per_page: res.data.length,
+            ...(hasMore && res.params.cursor ? { cursor: res.params.cursor } : {})
+          }
         };
       }
 

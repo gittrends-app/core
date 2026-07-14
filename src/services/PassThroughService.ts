@@ -8,7 +8,15 @@ import { Repository } from '../entities/Repository';
 import { Stargazer } from '../entities/Stargazer';
 import { Tag } from '../entities/Tag';
 import { Watcher } from '../entities/Watcher';
-import { Iterable, SearchParams, Service, ServiceCommitsParams, ServiceResourceParams } from './Service';
+import {
+  Iterable,
+  SearchParams,
+  Service,
+  ServiceCommitsParams,
+  ServiceResource,
+  ServiceResourceMap,
+  ServiceResourceParams
+} from './Service';
 
 /**
  * A service that passes all requests through to the underlying service.
@@ -42,7 +50,7 @@ export class PassThroughService implements Service {
   resources(resource: 'stargazers', opts: ServiceResourceParams): Iterable<Stargazer>;
   resources(resource: 'tags', opts: ServiceResourceParams): Iterable<Tag>;
   resources(resource: 'watchers', opts: ServiceResourceParams): Iterable<Watcher>;
-  resources<T>(resource: any, opts: any): Iterable<T> {
-    return this.service.resources(resource, opts) as Iterable<T>;
+  resources<R extends ServiceResource>(resource: R, opts: ServiceResourceParams): Iterable<ServiceResourceMap[R]> {
+    return this.service.resources(resource as never, opts) as Iterable<ServiceResourceMap[R]>;
   }
 }

@@ -47,11 +47,11 @@ async function main() {
   const repository = await service.repository('owner', 'repo');
   if (!repository) throw new Error('Repository not found');
 
-  const tags = service.resources('tags', { repository: repository.id });
+   const tags = service.resources('tags', { repository: repository.id });
 
-  for await (const page of tags) {
-    console.log(page.data);
-  }
+   for await (const page of tags) {
+     console.log(page.data, page.metadata.per_page, page.metadata.has_more);
+   }
 }
 
 void main();
@@ -63,6 +63,23 @@ void main();
 - GraphQL-to-domain mapping through typed service APIs
 - Resource iteration for paginated data
 - Optional `CacheService` and `BufferedService` composition
+
+Service pages expose an opaque continuation `metadata.cursor`. Pass it back as
+`cursor` to resume an iteration. `metadata.per_page` is the number of emitted
+items, and `metadata.has_more` is false on terminal pages. Cache backend
+failures are best effort and do not fail source requests.
+
+`GithubClient` accepts an optional `timeout` in milliseconds and a shared
+`maxConcurrentRequests` limit (default `2`) for API and nested enrichment
+requests:
+
+```ts
+const client = new GithubClient('https://api.github.com', {
+  apiToken: process.env.GITHUB_TOKEN ?? '',
+  timeout: 30_000,
+  maxConcurrentRequests: 4
+});
+```
 
 ## Samples
 

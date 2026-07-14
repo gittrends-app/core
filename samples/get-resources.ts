@@ -75,7 +75,10 @@ class MemCache implements Cache {
       // The service provides methods to fetch commits, discussions, issues, pull requests, releases, stargazers, tags, and watchers.
       // Each method returns an async generator that yields the resources.
       consola.info(`Fetching ${resource} of repository ${repo.name_with_owner} ...`);
-      for await (const res of service.resources(resource, { repository: repo.id, per_page: 100 })) {
+      for await (const res of service.resources(resource, {
+        repository: repo.id,
+        per_page: ['issues', 'pull_requests'].includes(resource) ? 25 : 100
+      })) {
         consola.log(prettyjson.render(res));
       }
 
