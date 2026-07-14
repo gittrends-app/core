@@ -21,12 +21,18 @@ export default function sanitize<T extends object>(
 ): PartialDeep<T> {
   return cloneDeepWith(data, (value) => {
     if (isPlainObject(value)) {
-      return mapValues(
-        omitBy(value, (v) => criteria(v)),
-        (v) => sanitize(v, criteria, applyOnArrays)
+      return omitBy(
+        mapValues(
+          omitBy(value, (v) => criteria(v)),
+          (v) => sanitize(v, criteria, applyOnArrays)
+        ),
+        (v) => criteria(v)
       );
     } else if (Array.isArray(value) && applyOnArrays) {
-      return value.filter((v) => criteria(v) === false).map((v) => sanitize(v, criteria, applyOnArrays));
+      return value
+        .filter((v) => criteria(v) === false)
+        .map((v) => sanitize(v, criteria, applyOnArrays))
+        .filter((v) => criteria(v) === false);
     } else {
       return undefined;
     }

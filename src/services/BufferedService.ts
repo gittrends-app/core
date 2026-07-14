@@ -30,7 +30,7 @@ export class BufferedService extends PassThroughService {
   constructor(service: PassThroughService['service'], bufferSize: number) {
     super(service);
 
-    if (bufferSize < 1) {
+    if (!Number.isInteger(bufferSize) || bufferSize < 1) {
       throw new Error('Buffer size must be at least 1');
     }
 
@@ -52,15 +52,16 @@ export class BufferedService extends PassThroughService {
         let buffer: Repository[] = [];
         let lastMetadata: any = null;
         let totalPerPage = 0;
+        let bufferedIterations = 0;
 
         for await (const { data, metadata } of { [Symbol.asyncIterator]: () => iterator }) {
           buffer.push(...data);
           lastMetadata = metadata;
           totalPerPage += metadata.per_page || data.length;
+          bufferedIterations++;
 
           // Check if we've accumulated enough iterations or if there are no more results
-          const bufferCount = buffer.length / (metadata.per_page || 1);
-          if (bufferCount >= bufferSize || !metadata.has_more) {
+          if (bufferedIterations >= bufferSize || !metadata.has_more) {
             yield {
               data: buffer,
               metadata: {
@@ -73,6 +74,7 @@ export class BufferedService extends PassThroughService {
             // Reset buffer for next batch
             buffer = [];
             totalPerPage = 0;
+            bufferedIterations = 0;
 
             // If no more results, stop iterating
             if (!metadata.has_more) {
@@ -119,15 +121,16 @@ export class BufferedService extends PassThroughService {
         let buffer: T[] = [];
         let lastMetadata: any = null;
         let totalPerPage = 0;
+        let bufferedIterations = 0;
 
         for await (const { data, metadata } of { [Symbol.asyncIterator]: () => iterator }) {
           buffer.push(...(data as T[]));
           lastMetadata = metadata;
           totalPerPage += metadata.per_page || data.length;
+          bufferedIterations++;
 
           // Check if we've accumulated enough iterations or if there are no more results
-          const bufferCount = buffer.length / (metadata.per_page || 1);
-          if (bufferCount >= bufferSize || !metadata.has_more) {
+          if (bufferedIterations >= bufferSize || !metadata.has_more) {
             yield {
               data: buffer,
               metadata: {
@@ -140,6 +143,7 @@ export class BufferedService extends PassThroughService {
             // Reset buffer for next batch
             buffer = [];
             totalPerPage = 0;
+            bufferedIterations = 0;
 
             // If no more results, stop iterating
             if (!metadata.has_more) {

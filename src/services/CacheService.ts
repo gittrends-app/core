@@ -70,9 +70,12 @@ export class CacheService implements Service {
 
     return {
       async *[Symbol.asyncIterator]() {
+        if (total <= 0) return;
+
         const _opts = { total, ...(opts || {}) };
 
         let cached: { data: Repository[]; metadata: any } | null;
+        let hasMore = true;
 
         do {
           cached = await cache.get(`${CacheService.SEARCH_PREFIX}:${hash(_opts)}`);
@@ -80,10 +83,11 @@ export class CacheService implements Service {
             yield cached;
             _opts.total -= cached.data.length;
             _opts.cursor = cached.metadata.cursor;
+            hasMore = cached.metadata.has_more;
           }
-        } while (cached !== null);
+        } while (cached !== null && hasMore && _opts.total > 0);
 
-        if (_opts.total > 0) {
+        if (_opts.total > 0 && hasMore) {
           for await (const { data, metadata } of service.search(_opts.total, _opts)) {
             cache.set(`${CacheService.SEARCH_PREFIX}:${hash(_opts)}`, { data, metadata });
             yield { data, metadata };
@@ -145,6 +149,7 @@ export class CacheService implements Service {
 
         while ((cached = await cache.get(`${res}:${hash(_opts)}`))) {
           yield cached as any;
+          if (!cached.metadata.has_more) return;
           Object.assign(_opts, { cursor: cached.metadata.cursor });
         }
 

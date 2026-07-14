@@ -28,10 +28,50 @@ describe('sanitize', () => {
     expect(sanitize({ a: { b: {}, c: '', d: 'd' } })).toEqual({ a: { c: '', d: 'd' } });
   });
 
+  it('should remove objects that become empty after nested values are removed', () => {
+    expect(
+      sanitize({
+        a: { b: null },
+        c: { d: { e: undefined } },
+        f: 'keep'
+      })
+    ).toEqual({ f: 'keep' });
+  });
+
   it('should keep array entries when applyOnArrays is false', () => {
     expect(sanitize({ a: [null, '', { b: null, c: 'c' }] })).toEqual({
       a: [null, '', { c: 'c' }]
     });
+  });
+
+  it('should remove objects that become empty inside arrays when enabled', () => {
+    expect(sanitize({ a: [{ b: null }, { c: 'keep' }, { d: { e: null } }] }, undefined, true)).toEqual({
+      a: [{ c: 'keep' }]
+    });
+  });
+
+  it('should sanitize nested arrays recursively when enabled', () => {
+    expect(sanitize({ a: [[null, {}, { b: null }, { c: 'keep' }], []] }, undefined, true)).toEqual({
+      a: [[{ c: 'keep' }]]
+    });
+  });
+
+  it('should sanitize root arrays when enabled', () => {
+    expect(sanitize([{}, { a: null }, { a: 'keep' }], undefined, true)).toEqual([{ a: 'keep' }]);
+  });
+
+  it('should preserve non-empty falsy values', () => {
+    const result = sanitize({ zero: 0, false: false, empty: '', nan: Number.NaN });
+
+    expect(result).toMatchObject({ zero: 0, false: false, empty: '' });
+    expect(result.nan).toBeNaN();
+  });
+
+  it('should preserve non-plain objects', () => {
+    const date = new Date('2026-01-01T00:00:00.000Z');
+    const map = new Map([['key', null]]);
+
+    expect(sanitize({ date, map })).toEqual({ date, map });
   });
 
   it('should remove values in arrays when applyOnArrays is true', () => {
@@ -100,7 +140,7 @@ describe('zodSanitize', () => {
     );
 
     expect(schema.parse({ a: [{ b: null }, { b: 'ok' }] })).toEqual({
-      a: [{}, { b: 'ok' }]
+      a: [{ b: 'ok' }]
     });
   });
 });
