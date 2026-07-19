@@ -17,6 +17,10 @@ function repository(id: string) {
   };
 }
 
+function actor(id: string) {
+  return { __typename: 'User', id, login: id, avatarUrl: 'https://example.com/avatar.png' };
+}
+
 function createService(graphql: ReturnType<typeof vi.fn>) {
   return new GithubService({ graphql } as unknown as GithubClient);
 }
@@ -75,5 +79,63 @@ describe('GithubService', () => {
     for await (const page of service.search(3, { per_page: 2 })) second.push(...page.data);
     expect(second.map(({ id }) => id)).toEqual(['one', 'two', 'three']);
     expect(graphql).toHaveBeenCalledTimes(2);
+  });
+
+  it('fetches a user by id and supports login-based lookup', async () => {
+    const graphql = vi.fn().mockImplementation((query: string) => {
+      expect(query).toContain('repositoryOwner(login: "octocat")');
+      return Promise.resolve({ octocat: actor('U_1') });
+    });
+    const service = createService(graphql);
+
+    const result = await service.user('octocat', { byLogin: true });
+
+    expect(result).toMatchObject({ __typename: 'User', id: 'U_1', login: 'U_1' });
+  });
+
+  it('fetches multiple users while preserving input order', async () => {
+    const graphql = vi.fn().mockResolvedValue({ U1: actor('U1'), U2: actor('U2') });
+    const service = createService(graphql);
+
+    const result = await service.user(['U1', 'U2']);
+
+    expect(result.map((user) => user?.id)).toEqual(['U1', 'U2']);
+  });
+
+  it('rejects an empty user id instead of treating it as the viewer', async () => {
+    const service = createService(vi.fn());
+
+    await expect(service.user('')).rejects.toThrow('Invalid user ID.');
+  });
+
+  it('fetches a repository by owner and name', async () => {
+    const graphql = vi.fn().mockImplementation((query: string) => {
+      expect(query).toContain('repository(owner: "owner", name: "repo")');
+      return Promise.resolve({ ownerrepo: repository('R_1') });
+    });
+    const service = createService(graphql);
+
+    const result = await service.repository('owner', 'repo');
+
+    expect(result).toMatchObject({ __typename: 'Repository', id: 'R_1' });
+  });
+
+  it('dispatches repository resources through the requested lookup', async () => {
+    const graphql = vi.fn().mockResolvedValue({
+      repoid: {
+        watchers: {
+          nodes: [actor('U_1'), actor('U_2')],
+          pageInfo: { endCursor: null, hasNextPage: false }
+        }
+      }
+    });
+    const service = createService(graphql);
+    const pages = [];
+
+    for await (const page of service.resources('watchers', { repository: 'repo-id' })) pages.push(page);
+
+    expect(pages).toHaveLength(1);
+    expect(pages[0].data.map(({ user }) => user.id)).toEqual(['U_1', 'U_2']);
+    expect(pages[0].metadata).toMatchObject({ has_more: false, per_page: 2 });
   });
 });

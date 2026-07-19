@@ -2,15 +2,16 @@ import type { Fetch } from '@octokit/types';
 import { describe, expect, it, vi } from 'vitest';
 import { GithubClient } from './GithubClient';
 
-function getFetcher(client: GithubClient): Fetch {
-  return (client as unknown as { fetcher: Fetch }).fetcher;
+function response(data: unknown): Response {
+  return new Response(JSON.stringify({ data }), {
+    headers: { 'content-type': 'application/json' },
+    status: 200
+  });
 }
 
 describe('GithubClient', () => {
   it.each(['timeout', 'maxConcurrentRequests'])('rejects invalid %s values', (option) => {
-    const value = option === 'timeout' ? 0 : 0;
-
-    expect(() => new GithubClient('https://example.com', { [option]: value })).toThrow();
+    expect(() => new GithubClient('https://example.com', { [option]: 0 })).toThrow();
   });
 
   it('aborts requests that exceed the configured timeout', async () => {
@@ -21,24 +22,24 @@ describe('GithubClient', () => {
     });
     const client = new GithubClient('https://example.com', { fetcher: fetcher as unknown as Fetch, timeout: 10 });
 
-    await expect(getFetcher(client)('https://example.com')).rejects.toThrow('timed out after 10ms');
+    await expect(client.graphql('{ viewer { login } }')).rejects.toThrow('timed out after 10ms');
     expect(fetcher).toHaveBeenCalledWith(
-      'https://example.com',
+      expect.anything(),
       expect.objectContaining({ signal: expect.any(AbortSignal) })
     );
   });
 
   it('does not add an abort signal when no timeout is configured', async () => {
-    const fetcher = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-      return new Response(init?.signal ? 'signal' : 'no-signal');
+    const fetcher = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => {
+      return response({ viewer: { login: 'octocat' } });
     });
     const client = new GithubClient('https://example.com', { fetcher: fetcher as unknown as Fetch });
 
-    await expect(getFetcher(client)('https://example.com')).resolves.toMatchObject({ status: 200 });
-    expect(fetcher).toHaveBeenCalledWith('https://example.com');
+    await expect(client.graphql('{ viewer { login } }')).resolves.toMatchObject({ viewer: { login: 'octocat' } });
+    expect(fetcher.mock.calls[0][1]?.signal).toBeUndefined();
   });
 
-  it('limits custom fetchers to the configured concurrency', async () => {
+  it('limits concurrent requests to the configured maximum', async () => {
     let active = 0;
     let maximum = 0;
     const fetcher = vi.fn(async () => {
@@ -46,15 +47,14 @@ describe('GithubClient', () => {
       maximum = Math.max(maximum, active);
       await Promise.resolve();
       active--;
-      return new Response('ok');
+      return response({ viewer: { login: 'octocat' } });
     });
     const client = new GithubClient('https://example.com', {
       fetcher: fetcher as unknown as Fetch,
       maxConcurrentRequests: 1
     });
-    const limitedFetch = getFetcher(client);
 
-    await Promise.all([limitedFetch('https://example.com/1'), limitedFetch('https://example.com/2')]);
+    await Promise.all([client.graphql('{ viewer { login } }'), client.graphql('{ viewer { login } }')]);
 
     expect(maximum).toBe(1);
   });

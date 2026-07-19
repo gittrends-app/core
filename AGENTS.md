@@ -28,6 +28,18 @@ Guidance for OpenCode agents in `@gittrends-app/core`.
 - `npm test -- <file>` also works.
 - No vitest config file exists (defaults only). Tests are pure unit tests using `vi.fn`/`vi.spyOn`; no env vars, network, or fixtures required.
 
+## TDD Principles
+
+- Work in vertical red-green slices: write one failing behavior test, implement only enough to pass it, then repeat.
+- Agree on the public seam before adding tests. Prefer exported functions, `Service`, `GithubService`, lookup `toString()`/`parse()`, and injected `graphql`, `fetcher`, or `Cache` boundaries.
+- Test observable behavior through public interfaces; do not access private fields, test private methods, or mock internal collaborators.
+- Use minimal deterministic fakes at architectural boundaries. Do not use the network, environment-dependent fixtures, or implementation-specific mocks.
+- Name tests as behavioral specifications and derive expected values from known examples or requirements, not by reproducing the implementation.
+- Keep each test focused on one behavior while allowing multiple assertions that describe that behavior.
+- Do not write a complete test suite before implementation. Let each completed slice inform the next test.
+- Refactor only after the relevant tests are green, then run the focused test and `npm run verify`.
+- Entity schemas generally do not need direct tests when they only declare Zod validation. Test project-owned transformations, defaults, and integration behavior in fragments, lookups, resources, or services instead.
+
 ## Commit/Hook Constraints
 
 - Pre-commit hook runs `npm run spellcheck && npm run verify`.
