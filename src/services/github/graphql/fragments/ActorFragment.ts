@@ -5,6 +5,11 @@ import { CustomizableFragment, Fragment } from './Fragment';
 
 /**
  * A fragment to select the common fields for an actor.
+ *
+ * Intentionally keeps hand-written selection/parse (not the declarative `fieldMap`
+ * strategy) because it dispatches over the `Actor` union `__typename`
+ * (Bot/Mannequin/User/Organization) in both selection and parsing, which the
+ * flat `DeclarativeFragment` model cannot express.
  */
 export class ActorFragment extends CustomizableFragment {
   readonly fragments: Fragment[] = [];

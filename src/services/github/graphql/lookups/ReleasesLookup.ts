@@ -1,22 +1,22 @@
 import { Release, ReleaseSchema } from '../../../../entities/Release';
-import { ReleaseConnection } from '../../graphql-schema';
 import { ActorFragment } from '../fragments/ActorFragment';
-import { QueryLookup } from './Lookup';
+import { ConnectionDescriptor, ConnectionLookup } from './ConnectionLookup';
 
 /**
  *  A lookup to get repository releases.
  */
-export class ReleasesLookup extends QueryLookup<Release[]> {
-  toString(): string {
-    const params = [`first: ${this.params.per_page || 100}`, 'orderBy: { field: CREATED_AT direction: ASC }'];
-    if (this.params.cursor) params.push(`after: "${this.params.cursor}"`);
+export class ReleasesLookup extends ConnectionLookup<Release> {
+  protected get descriptor(): ConnectionDescriptor {
+    return {
+      field: 'releases',
+      typeCondition: 'Repository',
+      args: ['orderBy: { field: CREATED_AT direction: ASC }'],
+      missingDataError: 'Failed to parse tags.'
+    };
+  }
 
-    return `
-    ${this.alias}:node(id: "${this.params.id}") {
-      ... on Repository {
-        releases(${params.join(', ')}) {
-          pageInfo { hasNextPage endCursor }
-          nodes {
+  protected entriesSelection(): string {
+    return `nodes {
             __typename
             author { ...${this.fragments[0].alias} }
             createdAt
@@ -33,44 +33,27 @@ export class ReleasesLookup extends QueryLookup<Release[]> {
             tagCommit { id }
             tagName
             updatedAt
-          }
-        }
-      }
-    }
-    `;
+          }`;
   }
 
-  parse(data: any) {
-    const _data: ReleaseConnection = (data[this.alias] || data).releases;
-    if (!_data) throw Object.assign(new Error('Failed to parse tags.'), { data, query: this.toString() });
-    return {
-      next: _data.pageInfo.hasNextPage
-        ? new ReleasesLookup({
-            ...this.params,
-            cursor: _data.pageInfo.endCursor || this.params.cursor
-          })
-        : undefined,
-      data: (_data.nodes || []).map((data) => {
-        return ReleaseSchema.parse({
-          __typename: data!.__typename,
-          author: data!.author && this.fragments[0].parse(data!.author),
-          created_at: data!.createdAt,
-          database_id: data!.databaseId,
-          id: data!.id,
-          immutable: data!.immutable,
-          is_draft: data!.isDraft,
-          is_prerelease: data!.isPrerelease,
-          name: data!.name,
-          published_at: data!.publishedAt,
-          reactions_count: data!.reactions.totalCount,
-          repository: data!.repository.id,
-          tag_commit: data!.tagCommit?.id,
-          tag_name: data!.tagName,
-          updated_at: data!.updatedAt
-        });
-      }),
-      params: { ...this.params, cursor: _data.pageInfo.endCursor || this.params.cursor }
-    };
+  protected mapEntry(entry: any): Release {
+    return ReleaseSchema.parse({
+      __typename: entry.__typename,
+      author: entry.author && this.fragments[0].parse(entry.author),
+      created_at: entry.createdAt,
+      database_id: entry.databaseId,
+      id: entry.id,
+      immutable: entry.immutable,
+      is_draft: entry.isDraft,
+      is_prerelease: entry.isPrerelease,
+      name: entry.name,
+      published_at: entry.publishedAt,
+      reactions_count: entry.reactions.totalCount,
+      repository: entry.repository.id,
+      tag_commit: entry.tagCommit?.id,
+      tag_name: entry.tagName,
+      updated_at: entry.updatedAt
+    });
   }
 
   get fragments(): [ActorFragment] {

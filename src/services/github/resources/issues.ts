@@ -1,12 +1,11 @@
-import { TimelineItem } from '../../../entities';
 import { Issue } from '../../../entities/Issue';
+import { toPage } from '../../pagination';
 import { Iterable } from '../../Service';
 import { GithubClient } from '../GithubClient';
 import { IssuesLookup } from '../graphql/lookups/IssuesLookup';
 import { QueryLookupParams } from '../graphql/lookups/Lookup';
-import { ReactionsLookup } from '../graphql/lookups/ReactionsLookup';
-import { TimelineItemsLookup } from '../graphql/lookups/TimelineItemsLookup';
 import { QueryRunner } from '../graphql/QueryRunner';
+import { enrichIssue } from './enrichment';
 
 /**
  * Get the issues of a repository by its id
@@ -14,48 +13,12 @@ import { QueryRunner } from '../graphql/QueryRunner';
 export default function (client: GithubClient, opts: QueryLookupParams): Iterable<Issue> {
   return {
     [Symbol.asyncIterator]: async function* () {
-      const it = QueryRunner.create(client).iterator(new IssuesLookup(opts));
+      const runner = QueryRunner.create(client);
+      const it = runner.iterator(new IssuesLookup(opts));
 
       for await (const res of it) {
-        await Promise.all(
-          res.data.map(async (issue) => {
-            if (issue.reactions_count) {
-              issue.reactions = await QueryRunner.create(client)
-                .fetchAll(new ReactionsLookup({ id: issue.id, per_page: opts.per_page, factory: opts.factory }))
-                .then(({ data }) => data);
-            }
-
-            if (issue.timeline_items_count) {
-              issue.timeline_items = await QueryRunner.create(client)
-                .fetchAll(new TimelineItemsLookup({ id: issue.id, per_page: opts.per_page, factory: opts.factory }))
-                .then(({ data }) => data);
-
-              await Promise.all(
-                (issue.timeline_items as TimelineItem[])
-                  .filter((item) => item.__typename === 'IssueComment')
-                  .map(async (comment) => {
-                    if (comment.reactions_count) {
-                      comment.reactions = await QueryRunner.create(client)
-                        .fetchAll(
-                          new ReactionsLookup({ id: comment.id, per_page: opts.per_page, factory: opts.factory })
-                        )
-                        .then(({ data }) => data);
-                    }
-                  })
-              );
-            }
-          })
-        );
-        const hasMore = !!res.next;
-
-        yield {
-          data: res.data,
-          metadata: {
-            has_more: hasMore,
-            per_page: res.data.length,
-            ...(hasMore && res.params.cursor ? { cursor: res.params.cursor } : {})
-          }
-        };
+        await Promise.all(res.data.map((issue) => enrichIssue(issue, opts, runner)));
+        yield toPage(res);
       }
 
       return;

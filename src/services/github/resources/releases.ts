@@ -1,4 +1,5 @@
 import { Release } from '../../../entities/Release';
+import { toPage } from '../../pagination';
 import { Iterable } from '../../Service';
 import { GithubClient } from '../GithubClient';
 import { QueryLookupParams } from '../graphql/lookups/Lookup';
@@ -24,16 +25,7 @@ export default function (client: GithubClient, opts: QueryLookupParams): Iterabl
             }
           })
         );
-        const hasMore = !!res.next;
-
-        yield {
-          data: res.data,
-          metadata: {
-            has_more: hasMore,
-            per_page: res.data.length,
-            ...(hasMore && res.params.cursor ? { cursor: res.params.cursor } : {})
-          }
-        };
+        yield toPage(res);
       }
 
       return;

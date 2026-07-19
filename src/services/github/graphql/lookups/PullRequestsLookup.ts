@@ -1,41 +1,26 @@
 import { PullRequest } from '../../../../entities/PullRequest';
-import { PullRequestConnection } from '../../graphql-schema';
 import { PullRequestFragment } from '../fragments/PullRequestFragment';
-import { QueryLookup } from './Lookup';
+import { ConnectionDescriptor, ConnectionLookup } from './ConnectionLookup';
 
 /**
  *  A lookup to get repository prs.
  */
-export class PullRequestsLookup extends QueryLookup<PullRequest[]> {
-  toString(): string {
-    const params = [`first: ${this.params.per_page || 100}`, 'orderBy: { field: UPDATED_AT direction: ASC }'];
-    if (this.params.cursor) params.push(`after: "${this.params.cursor}"`);
-
-    return `
-    ${this.alias}:node(id: "${this.params.id}") {
-      ... on Repository {
-        pullRequests(${params.join(', ')}) {
-          pageInfo { hasNextPage endCursor }
-          nodes { ...${this.fragments[0].alias} }
-        }
-      }
-    }
-    `;
+export class PullRequestsLookup extends ConnectionLookup<PullRequest> {
+  protected get descriptor(): ConnectionDescriptor {
+    return {
+      field: 'pullRequests',
+      typeCondition: 'Repository',
+      args: ['orderBy: { field: UPDATED_AT direction: ASC }'],
+      missingDataError: 'Failed to parse pull requests.'
+    };
   }
 
-  parse(data: any) {
-    const _data: PullRequestConnection = (data[this.alias] || data).pullRequests;
-    if (!_data) throw Object.assign(new Error('Failed to parse pull requests.'), { data, query: this.toString() });
-    return {
-      next: _data.pageInfo.hasNextPage
-        ? new PullRequestsLookup({
-            ...this.params,
-            cursor: _data.pageInfo.endCursor || this.params.cursor
-          })
-        : undefined,
-      data: (_data.nodes || []).map((data) => this.fragments[0].parse(data!)),
-      params: { ...this.params, cursor: _data.pageInfo.endCursor || this.params.cursor }
-    };
+  protected entriesSelection(): string {
+    return `nodes { ...${this.fragments[0].alias} }`;
+  }
+
+  protected mapEntry(entry: any): PullRequest {
+    return this.fragments[0].parse(entry);
   }
 
   get fragments(): [PullRequestFragment] {

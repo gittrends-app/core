@@ -27,6 +27,56 @@ export abstract class AbstractFragment<R = any> implements Fragment<R> {
 }
 
 /**
+ * A GraphQL field and its corresponding entity value.
+ */
+export type FragmentField<T> = {
+  readonly key: string;
+  readonly selection: string | ((fragment: Fragment) => string);
+  readonly value: (data: T, fragment: Fragment) => unknown;
+  readonly additional?: readonly {
+    readonly key: string;
+    readonly value: (data: T, fragment: Fragment) => unknown;
+  }[];
+  /**
+   * Optional predicate deciding whether the field is selected and mapped.
+   * When it returns false, the field contributes neither selection nor value.
+   */
+  readonly include?: (fragment: Fragment) => boolean;
+};
+
+/**
+ * Fragment implementation that keeps field selection and entity mapping together.
+ */
+export abstract class DeclarativeFragment<T, R = any> extends AbstractFragment<R> {
+  protected abstract readonly fieldMap: readonly FragmentField<T>[];
+
+  private included(field: FragmentField<T>): boolean {
+    return field.include ? field.include(this) : true;
+  }
+
+  protected selection(): string {
+    return this.fieldMap
+      .filter((field) => this.included(field))
+      .map(({ selection }) => (typeof selection === 'function' ? selection(this) : selection))
+      .join('\n');
+  }
+
+  protected values(data: T): Record<string, unknown> {
+    return Object.fromEntries(
+      this.fieldMap
+        .filter((field) => this.included(field))
+        .flatMap(({ key, value, additional }) => [
+          [key, value(data, this)],
+          ...(additional || []).map(({ key: additionalKey, value: additionalValue }) => [
+            additionalKey,
+            additionalValue(data, this)
+          ])
+        ])
+    );
+  }
+}
+
+/**
  * Custom fragment
  */
 export abstract class CustomizableFragment<R = any> extends AbstractFragment<R> {

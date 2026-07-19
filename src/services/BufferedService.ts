@@ -1,14 +1,14 @@
-import { Commit } from '../entities/Commit';
-import { Discussion } from '../entities/Discussion';
-import { Issue } from '../entities/Issue';
-import { PullRequest } from '../entities/PullRequest';
-import { Release } from '../entities/Release';
 import { Repository } from '../entities/Repository';
-import { Stargazer } from '../entities/Stargazer';
-import { Tag } from '../entities/Tag';
-import { Watcher } from '../entities/Watcher';
 import { PassThroughService } from './PassThroughService';
-import { Iterable, SearchParams, ServiceCommitsParams, ServiceResourceParams } from './Service';
+import { adjustPage } from './pagination';
+import {
+  Iterable,
+  SearchParams,
+  ServiceResource,
+  ServiceResourceIterable,
+  ServiceResourceMap,
+  ServiceResourceParamsFor
+} from './Service';
 
 /**
  * A service decorator that buffers multiple iterations before yielding results to the caller.
@@ -70,7 +70,7 @@ export class BufferedService extends PassThroughService {
           if (bufferedIterations >= bufferSize || !hasMore) {
             yield {
               data: buffer,
-              metadata: bufferedMetadata(lastMetadata, totalPerPage, hasMore)
+              metadata: adjustPage(lastMetadata, { hasMore, perPage: totalPerPage })
             };
 
             // Reset buffer for next batch
@@ -89,7 +89,7 @@ export class BufferedService extends PassThroughService {
         if (buffer.length > 0) {
           yield {
             data: buffer,
-            metadata: bufferedMetadata(lastMetadata, totalPerPage, false)
+            metadata: adjustPage(lastMetadata, { hasMore: false, perPage: totalPerPage })
           };
         }
       }
@@ -102,27 +102,19 @@ export class BufferedService extends PassThroughService {
    * @param opts The fetch options.
    * @returns An iterable of the resource with buffered results.
    */
-  resources(resource: 'commits', opts: ServiceCommitsParams): Iterable<Commit, { since?: Date; until?: Date }>;
-  resources(resource: 'discussions', opts: ServiceResourceParams): Iterable<Discussion>;
-  resources(resource: 'issues', opts: ServiceResourceParams): Iterable<Issue>;
-  resources(resource: 'pull_requests', opts: ServiceResourceParams): Iterable<PullRequest>;
-  resources(resource: 'releases', opts: ServiceResourceParams): Iterable<Release>;
-  resources(resource: 'stargazers', opts: ServiceResourceParams): Iterable<Stargazer>;
-  resources(resource: 'tags', opts: ServiceResourceParams): Iterable<Tag>;
-  resources(resource: 'watchers', opts: ServiceResourceParams): Iterable<Watcher>;
-  resources<T, P extends object = object>(resource: any, opts: any): Iterable<T, P> {
+  resources<R extends ServiceResource>(resource: R, opts: ServiceResourceParamsFor<R>): ServiceResourceIterable<R> {
     const { service, bufferSize } = this;
 
     return {
       async *[Symbol.asyncIterator]() {
         const iterator = service.resources(resource, opts)[Symbol.asyncIterator]();
-        let buffer: T[] = [];
+        let buffer: ServiceResourceMap[R][] = [];
         let lastMetadata: any = null;
         let totalPerPage = 0;
         let bufferedIterations = 0;
 
         for await (const { data, metadata } of { [Symbol.asyncIterator]: () => iterator }) {
-          buffer.push(...(data as T[]));
+          buffer.push(...data);
           lastMetadata = metadata;
           totalPerPage += data.length;
           bufferedIterations++;
@@ -132,7 +124,7 @@ export class BufferedService extends PassThroughService {
           if (bufferedIterations >= bufferSize || !hasMore) {
             yield {
               data: buffer,
-              metadata: bufferedMetadata(lastMetadata, totalPerPage, hasMore)
+              metadata: adjustPage(lastMetadata, { hasMore, perPage: totalPerPage })
             };
 
             // Reset buffer for next batch
@@ -151,20 +143,10 @@ export class BufferedService extends PassThroughService {
         if (buffer.length > 0) {
           yield {
             data: buffer,
-            metadata: bufferedMetadata(lastMetadata, totalPerPage, false)
+            metadata: adjustPage(lastMetadata, { hasMore: false, perPage: totalPerPage })
           };
         }
       }
-    } as Iterable<T, P>;
+    } as ServiceResourceIterable<R>;
   }
-}
-
-function bufferedMetadata(metadata: any, perPage: number, hasMore: boolean) {
-  const { cursor, ...rest } = metadata || {};
-  return {
-    ...rest,
-    per_page: perPage,
-    has_more: hasMore,
-    ...(hasMore && cursor ? { cursor } : {})
-  };
 }

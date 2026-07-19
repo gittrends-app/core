@@ -79,6 +79,19 @@ export type SearchParams = PageableParams & {
  */
 export type ServiceCommitsParams = ServiceResourceParams & { since?: Date; until?: Date };
 
+export type ServiceResourceParamsFor<R extends ServiceResource> = R extends 'commits'
+  ? ServiceCommitsParams
+  : ServiceResourceParams;
+
+export type ServiceResourceMetadataFor<R extends ServiceResource> = R extends 'commits'
+  ? { since?: Date; until?: Date }
+  : object;
+
+export type ServiceResourceIterable<R extends ServiceResource> = Iterable<
+  ServiceResourceMap[R],
+  ServiceResourceMetadataFor<R>
+>;
+
 /**
  * Service interface to be implemented by all services.
  */
@@ -115,12 +128,5 @@ export interface Service {
    * @param opts The fetch options.
    * @returns An iterable of the resource.
    */
-  resources(resource: 'commits', opts: ServiceCommitsParams): Iterable<Commit, { since?: Date; until?: Date }>;
-  resources(resource: 'discussions', opts: ServiceResourceParams): Iterable<Discussion>;
-  resources(resource: 'issues', opts: ServiceResourceParams): Iterable<Issue>;
-  resources(resource: 'pull_requests', opts: ServiceResourceParams): Iterable<PullRequest>;
-  resources(resource: 'releases', opts: ServiceResourceParams): Iterable<Release>;
-  resources(resource: 'stargazers', opts: ServiceResourceParams): Iterable<Stargazer>;
-  resources(resource: 'tags', opts: ServiceResourceParams): Iterable<Tag>;
-  resources(resource: 'watchers', opts: ServiceResourceParams): Iterable<Watcher>;
+  resources<R extends ServiceResource>(resource: R, opts: ServiceResourceParamsFor<R>): ServiceResourceIterable<R>;
 }

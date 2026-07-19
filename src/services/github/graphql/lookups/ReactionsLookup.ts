@@ -1,12 +1,15 @@
 import { Reaction, ReactionSchema } from '../../../../entities/Reaction';
-import { ReactionConnection } from '../../graphql-schema';
 import { ActorFragment } from '../fragments/ActorFragment';
-import { QueryLookup } from './Lookup';
+import { ConnectionDescriptor, ConnectionLookup } from './ConnectionLookup';
 
 /**
  *  A lookup to get repository reactions.
  */
-export class ReactionsLookup extends QueryLookup<Reaction[]> {
+export class ReactionsLookup extends ConnectionLookup<Reaction> {
+  protected get descriptor(): ConnectionDescriptor {
+    return { field: 'reactions', typeCondition: 'Reactable' };
+  }
+
   toString(): string {
     const params = [`first: ${this.params.per_page || 100}`];
     if (this.params.cursor) params.push(`after: "${this.params.cursor}"`);
@@ -17,7 +20,15 @@ export class ReactionsLookup extends QueryLookup<Reaction[]> {
         __typename
         reactions(${params.join(', ')}) {
           pageInfo { hasNextPage endCursor }
-          nodes {
+          ${this.entriesSelection()}
+        }
+      }
+    }
+    `;
+  }
+
+  protected entriesSelection(): string {
+    return `nodes {
             __typename
             id
             databaseId
@@ -25,35 +36,19 @@ export class ReactionsLookup extends QueryLookup<Reaction[]> {
             createdAt
             user { ...${this.fragments[0].alias} }
             reactable { id __typename }
-          }
-        }
-      }
-    }
-    `;
+          }`;
   }
 
-  parse(data: any) {
-    const _data: ReactionConnection = (data[this.alias] || data).reactions;
-    return {
-      next: _data.pageInfo.hasNextPage
-        ? new ReactionsLookup({
-            ...this.params,
-            cursor: _data.pageInfo.endCursor || this.params.cursor
-          })
-        : undefined,
-      data: (_data.nodes || []).map((data) =>
-        ReactionSchema.parse({
-          __typename: data!.__typename,
-          id: data!.id,
-          database_id: data!.databaseId,
-          content: data!.content,
-          created_at: data!.createdAt,
-          user: data!.user ? this.fragments[0].parse(data!.user) : undefined,
-          reactable: data!.reactable
-        })
-      ),
-      params: { ...this.params, cursor: _data.pageInfo.endCursor || this.params.cursor }
-    };
+  protected mapEntry(entry: any): Reaction {
+    return ReactionSchema.parse({
+      __typename: entry.__typename,
+      id: entry.id,
+      database_id: entry.databaseId,
+      content: entry.content,
+      created_at: entry.createdAt,
+      user: entry.user ? this.fragments[0].parse(entry.user) : undefined,
+      reactable: entry.reactable
+    });
   }
 
   get fragments(): [ActorFragment] {

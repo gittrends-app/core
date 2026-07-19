@@ -5,6 +5,10 @@ import { AbstractFragment, FragmentFactory } from './Fragment';
 
 /**
  *  A fragment to fetch comments from a timeline item.
+ *
+ * Intentionally keeps hand-written selection/parse (not the declarative `fieldMap`
+ * strategy) because it defines multiple named sub-fragments and dispatches over
+ * union `__typename`, which the flat `DeclarativeFragment` model cannot express.
  */
 export class TimelineItemCommentsFragment extends AbstractFragment<Commentable> {
   constructor(alias = 'TimelineItemCommentsFrag', opts: { factory: FragmentFactory }) {

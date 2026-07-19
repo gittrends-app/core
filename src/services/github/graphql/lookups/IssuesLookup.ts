@@ -1,41 +1,26 @@
 import { Issue } from '../../../../entities/Issue';
-import { IssueConnection } from '../../graphql-schema';
 import { IssueFragment } from '../fragments/IssueFragment';
-import { QueryLookup } from './Lookup';
+import { ConnectionDescriptor, ConnectionLookup } from './ConnectionLookup';
 
 /**
  *  A lookup to get repository issues.
  */
-export class IssuesLookup extends QueryLookup<Issue[]> {
-  toString(): string {
-    const params = [`first: ${this.params.per_page || 100}`, 'orderBy: { field: UPDATED_AT direction: ASC }'];
-    if (this.params.cursor) params.push(`after: "${this.params.cursor}"`);
-
-    return `
-    ${this.alias}:node(id: "${this.params.id}") {
-      ... on Repository {
-        issues(${params.join(', ')}) {
-          pageInfo { hasNextPage endCursor }
-          nodes { ...${this.fragments[0].alias} }
-        }
-      }
-    }
-    `;
+export class IssuesLookup extends ConnectionLookup<Issue> {
+  protected get descriptor(): ConnectionDescriptor {
+    return {
+      field: 'issues',
+      typeCondition: 'Repository',
+      args: ['orderBy: { field: UPDATED_AT direction: ASC }'],
+      missingDataError: 'Failed to parse tags.'
+    };
   }
 
-  parse(data: any) {
-    const _data: IssueConnection = (data[this.alias] || data).issues;
-    if (!_data) throw Object.assign(new Error('Failed to parse tags.'), { data, query: this.toString() });
-    return {
-      next: _data.pageInfo.hasNextPage
-        ? new IssuesLookup({
-            ...this.params,
-            cursor: _data.pageInfo.endCursor || this.params.cursor
-          })
-        : undefined,
-      data: (_data.nodes || []).map((data) => this.fragments[0].parse(data!)),
-      params: { ...this.params, cursor: _data.pageInfo.endCursor || this.params.cursor }
-    };
+  protected entriesSelection(): string {
+    return `nodes { ...${this.fragments[0].alias} }`;
+  }
+
+  protected mapEntry(entry: any): Issue {
+    return this.fragments[0].parse(entry);
   }
 
   get fragments(): [IssueFragment] {

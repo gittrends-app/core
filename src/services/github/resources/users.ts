@@ -1,4 +1,3 @@
-import { GraphqlResponseError } from '@octokit/graphql';
 import chunk from 'lodash/chunk.js';
 import { Actor } from '../../../entities/Actor';
 import { GithubClient } from '../GithubClient';
@@ -11,18 +10,13 @@ type Params = { factory: FragmentFactory; client: GithubClient; byLogin?: boolea
 async function users(idsArr: string[], params: Params): Promise<(Actor | null)[]> {
   if (idsArr.length === 0) return [];
 
-  const result = await QueryRunner.create(params.client)
-    .fetch(idsArr.map((id) => new UserLookup({ id, byLogin: params.byLogin, factory: params.factory })))
-    .then((result) => result.map((d) => d?.data as Actor | undefined))
-    .catch((error) => {
-      if ([500, 502, 504].includes(error.status) || error instanceof GraphqlResponseError) {
-        if (idsArr.length === 1) return [null];
-        else return Promise.all(chunk(idsArr, 1).map((chunk) => users(chunk, params))).then((data) => data.flat());
-      }
-      throw error;
-    });
+  const lookups = idsArr.map((id) => new UserLookup({ id, byLogin: params.byLogin, factory: params.factory }));
+  const result = await QueryRunner.create(params.client).fetchBatchWithFallback(lookups, (lookup) => ({
+    data: null,
+    params: lookup.params
+  }));
 
-  return idsArr.map((_, index) => result[index] || null);
+  return result.map((entry) => entry.data as Actor | null);
 }
 
 /**

@@ -6,6 +6,11 @@ import { AbstractFragment, FragmentFactory } from './Fragment';
 
 /**
  *  A fragment to get a timeline item.
+ *
+ * Intentionally keeps hand-written selection/parse (not the declarative `fieldMap`
+ * strategy) because it defines dozens of per-event named sub-fragments and
+ * dispatches over union `__typename` with a fallback, which the flat
+ * `DeclarativeFragment` model cannot express.
  */
 class TimelineItemFragment extends AbstractFragment<TimelineItem> {
   private readonly pullRequest: boolean;

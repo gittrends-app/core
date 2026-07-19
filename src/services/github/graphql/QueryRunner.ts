@@ -52,6 +52,25 @@ export class QueryRunner {
     return this.fetchSingle(lookupOrArray);
   }
 
+  public async fetchBatchWithFallback<R, P>(
+    lookups: QueryLookup<R, P>[],
+    fallback: (lookup: QueryLookup<R, P>, error: unknown) => ReturnType<QueryLookup<R, P>['parse']>
+  ): Promise<Array<ReturnType<QueryLookup<R, P>['parse']>>> {
+    try {
+      return await this.fetch(lookups);
+    } catch (error) {
+      if (!isBatchRecoverable(error)) throw error;
+      if (lookups.length === 1) return [fallback(lookups[0], error)];
+
+      const midpoint = Math.ceil(lookups.length / 2);
+      const [left, right] = await Promise.all([
+        this.fetchBatchWithFallback(lookups.slice(0, midpoint), fallback),
+        this.fetchBatchWithFallback(lookups.slice(midpoint), fallback)
+      ]);
+      return [...left, ...right];
+    }
+  }
+
   private async fetchSingle<R, P>(lookup: QueryLookup<R, P>): Promise<ReturnType<QueryLookup<R, P>['parse']>> {
     return this.fetchBatch([lookup]).then(([result]) => result);
   }
@@ -139,6 +158,10 @@ function isTransient(error: unknown): boolean {
   const status =
     response?.status ?? (error && typeof error === 'object' ? (error as { status?: number }).status : undefined);
   return status !== undefined && [500, 502, 504].includes(status);
+}
+
+function isBatchRecoverable(error: unknown): boolean {
+  return isTransient(error) || error instanceof GraphqlResponseError;
 }
 
 function cloneLookup<R, P>(lookup: QueryLookup<R, P>, params: { per_page?: number }): QueryLookup<R, P> {

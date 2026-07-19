@@ -1,41 +1,25 @@
 import { TimelineItem } from '../../../../entities/TimelineItem';
-import { IssueTimelineItemsConnection } from '../../graphql-schema';
 import { IssueTimelineItemFragment, PullRequestTimelineItemFragment } from '../fragments/TimelineItemFragment';
-import { QueryLookup } from './Lookup';
+import { ConnectionDescriptor, ConnectionLookup } from './ConnectionLookup';
 
 /**
- *  A lookup to get repository issues.
+ *  A lookup to get issue/pull request timeline items.
  */
-export class TimelineItemsLookup extends QueryLookup<TimelineItem[], { type?: 'Issue' | 'PullRequest' }> {
-  toString(): string {
-    const params = [`first: ${this.params.per_page || 100}`];
-    if (this.params.cursor) params.push(`after: "${this.params.cursor}"`);
-
-    return `
-    ${this.alias}:node(id: "${this.params.id}") {
-      ... on ${this.params.type || 'Issue'} {
-        timelineItems(${params.join(', ')}) {
-          pageInfo { hasNextPage endCursor }
-          nodes { ...${this.fragments[0].alias} }
-        }
-      }
-    }
-    `;
+export class TimelineItemsLookup extends ConnectionLookup<TimelineItem, { type?: 'Issue' | 'PullRequest' }> {
+  protected get descriptor(): ConnectionDescriptor {
+    return {
+      field: 'timelineItems',
+      typeCondition: this.params.type || 'Issue',
+      missingDataError: 'Failed to parse timeline items.'
+    };
   }
 
-  parse(data: any) {
-    const _data: IssueTimelineItemsConnection = (data[this.alias] || data).timelineItems;
-    if (!_data) throw Object.assign(new Error('Failed to parse timeline items.'), { data, query: this.toString() });
-    return {
-      next: _data.pageInfo.hasNextPage
-        ? new TimelineItemsLookup({
-            ...this.params,
-            cursor: _data.pageInfo.endCursor || this.params.cursor
-          })
-        : undefined,
-      data: (_data.nodes || []).map((data) => this.fragments[0].parse(data!)),
-      params: { ...this.params, cursor: _data.pageInfo.endCursor || this.params.cursor }
-    };
+  protected entriesSelection(): string {
+    return `nodes { ...${this.fragments[0].alias} }`;
+  }
+
+  protected mapEntry(entry: any): TimelineItem {
+    return this.fragments[0].parse(entry);
   }
 
   get fragments() {

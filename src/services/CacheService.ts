@@ -1,21 +1,15 @@
 import { hash } from 'hash-it';
 import { Actor } from '../entities/Actor';
-import { Commit } from '../entities/Commit';
-import { Discussion } from '../entities/Discussion';
-import { Issue } from '../entities/Issue';
-import { PullRequest } from '../entities/PullRequest';
-import { Release } from '../entities/Release';
 import { Repository } from '../entities/Repository';
-import { Stargazer } from '../entities/Stargazer';
-import { Tag } from '../entities/Tag';
-import { Watcher } from '../entities/Watcher';
+import { adjustPage } from './pagination';
 import {
   Iterable,
   SearchParams,
   Service,
-  ServiceCommitsParams,
+  ServiceResource,
+  ServiceResourceIterable,
   ServiceResourceMap,
-  ServiceResourceParams
+  ServiceResourceParamsFor
 } from './Service';
 
 const CACHE_VERSION = 'service-cache:v1';
@@ -113,16 +107,7 @@ export class CacheService implements Service {
 
             remaining -= data.length;
             const hasMore = remaining > 0 && cached.metadata.has_more && !!cached.metadata.cursor;
-            const { cursor: _cursor, ...metadata } = cached.metadata;
-            yield {
-              data,
-              metadata: {
-                ...metadata,
-                per_page: data.length,
-                has_more: hasMore,
-                ...(hasMore ? { cursor: cached.metadata.cursor } : {})
-              }
-            };
+            yield { data, metadata: adjustPage(cached.metadata, { hasMore, perPage: data.length }) };
 
             if (!hasMore) return;
             cursor = cached.metadata.cursor;
@@ -138,16 +123,7 @@ export class CacheService implements Service {
             await safeSet(cache, key, { data: pageData, metadata });
             remaining -= data.length;
             const hasMore = remaining > 0 && metadata.has_more && !!metadata.cursor;
-            const { cursor: _cursor, ...metadataWithoutCursor } = metadata;
-            yield {
-              data,
-              metadata: {
-                ...metadataWithoutCursor,
-                per_page: data.length,
-                has_more: hasMore,
-                ...(hasMore ? { cursor: metadata.cursor } : {})
-              }
-            };
+            yield { data, metadata: adjustPage(metadata, { hasMore, perPage: data.length }) };
 
             if (!hasMore) return;
             cursor = metadata.cursor;
@@ -199,48 +175,30 @@ export class CacheService implements Service {
     return result;
   }
 
-  resources(res: 'commits', opts: object & ServiceCommitsParams): Iterable<Commit, { since?: Date; until?: Date }>;
-  resources(res: 'discussions', opts: object & ServiceResourceParams): Iterable<Discussion>;
-  resources(res: 'issues', opts: object & ServiceResourceParams): Iterable<Issue>;
-  resources(res: 'pull_requests', opts: object & ServiceResourceParams): Iterable<PullRequest>;
-  resources(res: 'releases', opts: object & ServiceResourceParams): Iterable<Release>;
-  resources(res: 'stargazers', opts: object & ServiceResourceParams): Iterable<Stargazer>;
-  resources(res: 'tags', opts: object & ServiceResourceParams): Iterable<Tag>;
-  resources(res: 'watchers', opts: object & ServiceResourceParams): Iterable<Watcher>;
-  resources<R extends keyof ServiceResourceMap>(res: R, opts: ServiceResourceParams): Iterable<ServiceResourceMap[R]> {
+  resources<R extends ServiceResource>(res: R, opts: ServiceResourceParamsFor<R>): ServiceResourceIterable<R> {
     const { cache, service } = this;
 
     return {
       async *[Symbol.asyncIterator]() {
-        const _opts: ServiceResourceParams = { ...opts };
+        const _opts: ServiceResourceParamsFor<R> = { ...opts };
         let cached: { data: ServiceResourceMap[R][]; metadata: any } | null;
 
         while ((cached = await safeGet(cache, cacheKey(res, _opts)))) {
           const hasMore = cached.metadata.has_more && !!cached.metadata.cursor;
-          const { cursor: _cursor, ...metadata } = cached.metadata;
-          yield {
-            data: cached.data,
-            metadata: { ...metadata, has_more: hasMore, ...(hasMore ? { cursor: cached.metadata.cursor } : {}) }
-          } as any;
+          yield { data: cached.data, metadata: adjustPage(cached.metadata, { hasMore }) } as any;
           if (!hasMore) return;
           Object.assign(_opts, { cursor: cached.metadata.cursor });
         }
 
-        for await (const { data, metadata } of service.resources(res as any, _opts) as Iterable<
-          ServiceResourceMap[R]
-        >) {
+        for await (const { data, metadata } of service.resources(res, _opts)) {
           if (data.length > 0) void safeSet(cache, cacheKey(res, _opts), { data, metadata });
           const hasMore = metadata.has_more && !!metadata.cursor;
-          const { cursor: _cursor, ...metadataWithoutCursor } = metadata;
-          yield {
-            data,
-            metadata: { ...metadataWithoutCursor, has_more: hasMore, ...(hasMore ? { cursor: metadata.cursor } : {}) }
-          };
+          yield { data, metadata: adjustPage(metadata, { hasMore }) };
           if (!hasMore) return;
           Object.assign(_opts, { cursor: metadata.cursor });
         }
       }
-    };
+    } as ServiceResourceIterable<R>;
   }
 }
 

@@ -1,4 +1,5 @@
 import { Commit } from '../../../entities/Commit';
+import { toPage } from '../../pagination';
 import { Iterable } from '../../Service';
 import { GithubClient } from '../GithubClient';
 import { CommitsLookup } from '../graphql/lookups/CommitsLookup';
@@ -22,18 +23,7 @@ export default function commits(
       for await (const response of untilIt) {
         if (!until) until = response.params.until;
         if (response.params.since) since = response.params.since;
-        const hasMore = !!response.next;
-
-        yield {
-          data: response.data,
-          metadata: {
-            has_more: hasMore,
-            since,
-            until,
-            per_page: response.data.length,
-            ...(hasMore && response.params.cursor ? { cursor: response.params.cursor } : {})
-          }
-        };
+        yield toPage(response, { since, until });
       }
     }
   };

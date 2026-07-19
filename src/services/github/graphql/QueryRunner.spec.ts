@@ -22,8 +22,8 @@ class TestLookup extends QueryLookup<{ value: string }, { limit: number }> {
   }
 }
 
-function createLookup(per_page = 4) {
-  return new TestLookup({ id: 'test', factory: undefined as never, limit: 1, per_page });
+function createLookup(per_page = 4, id = 'test') {
+  return new TestLookup({ id, factory: undefined as never, limit: 1, per_page });
 }
 
 function createRunner(graphql: ReturnType<typeof vi.fn>) {
@@ -72,6 +72,39 @@ describe('QueryRunner', () => {
     const graphql = vi.fn().mockRejectedValue(Object.assign(new Error('forbidden'), { status: 403 }));
 
     await expect(createRunner(graphql).fetch(createLookup())).rejects.toMatchObject({ message: 'forbidden' });
+    expect(graphql).toHaveBeenCalledTimes(1);
+  });
+
+  it('splits recoverable batches and applies the fallback only to failed lookups', async () => {
+    const graphql = vi.fn().mockImplementation((query: string) => {
+      if (query.includes('testone:test') && !query.includes('testtwo:test')) {
+        return Promise.resolve({ testone: { value: 'ok' } });
+      }
+      return Promise.reject(Object.assign(new Error('server failed'), { status: 502 }));
+    });
+    const lookups = [createLookup(1, 'test-one'), createLookup(1, 'test-two')];
+
+    await expect(
+      createRunner(graphql).fetchBatchWithFallback(lookups, (lookup) => ({
+        data: { value: lookup.alias },
+        params: lookup.params
+      }))
+    ).resolves.toEqual([
+      { data: { value: 'ok' }, params: expect.objectContaining({ id: 'test-one' }) },
+      { data: { value: 'testtwo' }, params: expect.objectContaining({ id: 'test-two' }) }
+    ]);
+    expect(graphql).toHaveBeenCalledTimes(3);
+  });
+
+  it('preserves non-recoverable batch errors', async () => {
+    const error = Object.assign(new Error('forbidden'), { status: 403 });
+    const graphql = vi.fn().mockRejectedValue(error);
+
+    await expect(
+      createRunner(graphql).fetchBatchWithFallback([createLookup(1, 'test-one'), createLookup(1, 'test-two')], () => {
+        throw new Error('fallback should not run');
+      })
+    ).rejects.toMatchObject({ message: 'forbidden' });
     expect(graphql).toHaveBeenCalledTimes(1);
   });
 

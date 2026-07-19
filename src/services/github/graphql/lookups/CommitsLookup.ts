@@ -1,7 +1,7 @@
 import { Commit } from '../../../../entities/Commit';
-import { CommitHistoryConnection } from '../../graphql-schema';
 import { CommitFragment } from '../fragments/CommitFragment';
-import { QueryLookup } from './Lookup';
+import { ConnectionDescriptor, ConnectionLookup } from './ConnectionLookup';
+import { QueryLookupParams } from './Lookup';
 
 /**
  *  Add seconds to a date.
@@ -13,7 +13,11 @@ function add(date: Date, seconds: number): Date {
 /**
  *  A lookup to get repository commits.
  */
-export class CommitsLookup extends QueryLookup<Commit[], { since?: Date; until?: Date }> {
+export class CommitsLookup extends ConnectionLookup<Commit, { since?: Date; until?: Date }> {
+  protected get descriptor(): ConnectionDescriptor {
+    return { field: 'history', typeCondition: 'Repository', missingDataError: 'Failed to parse tags.' };
+  }
+
   toString(): string {
     const params = [`first: ${this.params.per_page || 100}`];
     if (this.params.cursor) params.push(`after: "${this.params.cursor}"`);
@@ -29,9 +33,7 @@ export class CommitsLookup extends QueryLookup<Commit[], { since?: Date; until?:
             ... on Commit {
               history(${params.join(', ')}) {
                 pageInfo { hasNextPage endCursor }
-                nodes {
-                  ...${this.fragments[0].alias}
-                }
+                ${this.entriesSelection()}
               }
             }
           }
@@ -41,7 +43,7 @@ export class CommitsLookup extends QueryLookup<Commit[], { since?: Date; until?:
     `;
   }
 
-  parse(data: any) {
+  protected extractConnection(data: any): any {
     let defaultBranch = (data[this.alias] || data).defaultBranchRef;
     if (!defaultBranch) {
       // Repository has no branches
@@ -49,28 +51,23 @@ export class CommitsLookup extends QueryLookup<Commit[], { since?: Date; until?:
         target: { history: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: [] } }
       };
     }
+    return defaultBranch.target.history;
+  }
 
-    const _data: CommitHistoryConnection = defaultBranch.target.history;
-    if (!_data) throw Object.assign(new Error('Failed to parse tags.'), { data, query: this.toString() });
+  protected entriesSelection(): string {
+    return `nodes {
+                  ...${this.fragments[0].alias}
+                }`;
+  }
 
-    const parsedData: ReturnType<CommitFragment['parse']>[] = (_data.nodes || []).map((data) =>
-      this.fragments[0].parse(data!)
-    );
+  protected mapEntry(entry: any): Commit {
+    return this.fragments[0].parse(entry);
+  }
 
+  protected nextParams(parsed: Commit[]): Partial<QueryLookupParams & { since?: Date; until?: Date }> {
     return {
-      next: _data.pageInfo.hasNextPage
-        ? new CommitsLookup({
-            ...this.params,
-            cursor: _data.pageInfo.endCursor || this.params.cursor
-          })
-        : undefined,
-      data: parsedData,
-      params: {
-        ...this.params,
-        cursor: _data.pageInfo.endCursor || this.params.cursor,
-        since: parsedData.at(-1)?.committed_date || this.params.since,
-        until: parsedData.at(0)?.committed_date || this.params.until
-      }
+      since: parsed.at(-1)?.committed_date || this.params.since,
+      until: parsed.at(0)?.committed_date || this.params.until
     };
   }
 

@@ -1,46 +1,25 @@
 import { Watcher, WatcherSchema } from '../../../../entities/Watcher';
-import { UserConnection } from '../../graphql-schema';
 import { ActorFragment } from '../fragments/ActorFragment';
-import { QueryLookup } from './Lookup';
+import { ConnectionDescriptor, ConnectionLookup } from './ConnectionLookup';
 
 /**
  *  A lookup to get repository watchers.
  */
-export class WatchersLookup extends QueryLookup<Watcher[]> {
-  toString(): string {
-    const params = [`first: ${this.params.per_page || 100}`];
-    if (this.params.cursor) params.push(`after: "${this.params.cursor}"`);
-
-    return `
-    ${this.alias}:node(id: "${this.params.id}") {
-      ... on Repository {
-        watchers(${params.join(', ')}) {
-          pageInfo { hasNextPage endCursor }
-          nodes { ...${this.fragments[0].alias} }
-        }
-      }
-    }
-    `;
+export class WatchersLookup extends ConnectionLookup<Watcher> {
+  protected get descriptor(): ConnectionDescriptor {
+    return { field: 'watchers', typeCondition: 'Repository' };
   }
 
-  parse(data: any) {
-    const _data: UserConnection = (data[this.alias] || data).watchers;
-    return {
-      next: _data.pageInfo.hasNextPage
-        ? new WatchersLookup({
-            ...this.params,
-            cursor: _data.pageInfo.endCursor || this.params.cursor
-          })
-        : undefined,
-      data: (_data.nodes || []).map((data) =>
-        WatcherSchema.parse({
-          __typename: 'Watcher',
-          user: this.fragments[0].parse(data!),
-          repository: this.params.id
-        })
-      ),
-      params: { ...this.params, cursor: _data.pageInfo.endCursor || this.params.cursor }
-    };
+  protected entriesSelection(): string {
+    return `nodes { ...${this.fragments[0].alias} }`;
+  }
+
+  protected mapEntry(entry: any): Watcher {
+    return WatcherSchema.parse({
+      __typename: 'Watcher',
+      user: this.fragments[0].parse(entry),
+      repository: this.params.id
+    });
   }
 
   get fragments(): [ActorFragment] {

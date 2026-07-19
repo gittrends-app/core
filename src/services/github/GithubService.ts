@@ -2,24 +2,17 @@
 import defaults from 'lodash/defaults.js';
 import { Class } from 'type-fest';
 import { Actor, Bot, EnterpriseUserAccount, Mannequin, Organization, User } from '../../entities/Actor';
-import { Commit } from '../../entities/Commit';
-import { Discussion } from '../../entities/Discussion';
-import { Issue } from '../../entities/Issue';
-import { PullRequest } from '../../entities/PullRequest';
-import { Release } from '../../entities/Release';
 import { Repository } from '../../entities/Repository';
-import { Stargazer } from '../../entities/Stargazer';
-import { Tag } from '../../entities/Tag';
-import { Watcher } from '../../entities/Watcher';
 import { Booleanify, NullableFields } from '../../helpers/types';
+import { toPage } from '../pagination';
 import {
   Iterable,
   SearchParams,
   Service,
   ServiceCommitsParams,
   ServiceResource,
-  ServiceResourceMap,
-  ServiceResourceParams
+  ServiceResourceIterable,
+  ServiceResourceParamsFor
 } from '../Service';
 import { GithubClient } from './GithubClient';
 import { ActorFragment } from './graphql/fragments/ActorFragment';
@@ -233,18 +226,7 @@ export class GithubService implements Service {
     });
   }
 
-  resources(resource: 'commits', opts: ServiceCommitsParams): Iterable<Commit, { since?: Date; until?: Date }>;
-  resources(resource: 'discussions', opts: ServiceResourceParams): Iterable<Discussion>;
-  resources(resource: 'issues', opts: ServiceResourceParams): Iterable<Issue>;
-  resources(resource: 'pull_requests', opts: ServiceResourceParams): Iterable<PullRequest>;
-  resources(resource: 'releases', opts: ServiceResourceParams): Iterable<Release>;
-  resources(resource: 'stargazers', opts: ServiceResourceParams): Iterable<Stargazer>;
-  resources(resource: 'tags', opts: ServiceResourceParams): Iterable<Tag>;
-  resources(resource: 'watchers', opts: ServiceResourceParams): Iterable<Watcher>;
-  resources<R extends ServiceResource>(
-    resource: R,
-    opts: ServiceResourceParams & Partial<{ since: Date; until: Date }>
-  ): Iterable<ServiceResourceMap[R]> {
+  resources<R extends ServiceResource>(resource: R, opts: ServiceResourceParamsFor<R>): ServiceResourceIterable<R> {
     const params: QueryLookupParams & Partial<{ since: Date; until: Date }> = {
       id: opts.repository,
       cursor: opts.cursor,
@@ -254,23 +236,25 @@ export class GithubService implements Service {
 
     switch (resource) {
       case 'commits':
-        return commits(this.client, { ...params, since: opts.since, until: opts.until }) as Iterable<
-          ServiceResourceMap[R]
-        >;
+        return commits(this.client, {
+          ...params,
+          since: (opts as ServiceCommitsParams).since,
+          until: (opts as ServiceCommitsParams).until
+        }) as ServiceResourceIterable<R>;
       case 'discussions':
-        return discussions(this.client, params) as Iterable<ServiceResourceMap[R]>;
+        return discussions(this.client, params) as ServiceResourceIterable<R>;
       case 'issues':
-        return issues(this.client, params) as Iterable<ServiceResourceMap[R]>;
+        return issues(this.client, params) as ServiceResourceIterable<R>;
       case 'pull_requests':
-        return pullRequests(this.client, params) as Iterable<ServiceResourceMap[R]>;
+        return pullRequests(this.client, params) as ServiceResourceIterable<R>;
       case 'releases':
-        return releases(this.client, params) as Iterable<ServiceResourceMap[R]>;
+        return releases(this.client, params) as ServiceResourceIterable<R>;
       case 'stargazers':
-        return genericIterator(this.client, new StargazersLookup(params)) as Iterable<ServiceResourceMap[R]>;
+        return genericIterator(this.client, new StargazersLookup(params)) as ServiceResourceIterable<R>;
       case 'tags':
-        return genericIterator(this.client, new TagsLookup(params)) as Iterable<ServiceResourceMap[R]>;
+        return genericIterator(this.client, new TagsLookup(params)) as ServiceResourceIterable<R>;
       case 'watchers':
-        return genericIterator(this.client, new WatchersLookup(params)) as Iterable<ServiceResourceMap[R]>;
+        return genericIterator(this.client, new WatchersLookup(params)) as ServiceResourceIterable<R>;
       default:
         throw new Error('Repository resource not implemented.');
     }
@@ -284,17 +268,7 @@ function genericIterator<R>(client: GithubClient, lookup: QueryLookup<R[]>): Ite
   return {
     [Symbol.asyncIterator]: async function* () {
       for await (const searchRes of QueryRunner.create(client).iterator(lookup)) {
-        const hasMore = !!searchRes.next;
-        const { cursor: _cursor, ...params } = searchRes.params;
-        yield {
-          data: searchRes.data,
-          metadata: {
-            ...params,
-            has_more: hasMore,
-            ...(hasMore && searchRes.params.cursor ? { cursor: searchRes.params.cursor } : {}),
-            per_page: searchRes.data.length
-          }
-        };
+        yield toPage(searchRes);
       }
     }
   };

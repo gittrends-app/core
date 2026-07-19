@@ -46,14 +46,12 @@ export class SearchLookup extends QueryLookup<Repository[], SearchQueryLookupPar
 
   parse(data: any) {
     data = data[this.alias] || data;
-    this.params.limit -= data.nodes.length;
+    const limit = this.params.limit - data.nodes.length;
+    const params = { ...this.params, limit, cursor: data.pageInfo.endCursor };
     return {
-      next:
-        this.params.limit > 0 && data.pageInfo.hasNextPage
-          ? new SearchLookup({ ...this.params, cursor: data.pageInfo.endCursor })
-          : undefined,
+      next: limit > 0 && data.pageInfo.hasNextPage ? new SearchLookup(params) : undefined,
       data: data.nodes.map((data: Repository) => this.fragments[0].parse(data)),
-      params: { ...this.params, cursor: data.pageInfo.endCursor }
+      params
     };
   }
 
